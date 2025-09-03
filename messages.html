@@ -82,6 +82,44 @@
             border-radius: 0 0 0 4px;
         }
 
+        .message.reply.sent {
+            align-self: flex-end;
+            background: #749cbf;
+            color: white;
+            border-bottom-left-radius: 18px;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.reply.sent::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            right: 15px;
+            left: auto;
+            background-color: #749cbf;
+            border-radius: 0 0 4px 0;
+        }
+
+        .message.reply.sent .reply-header {
+            color: rgba(255, 255, 255, 0.9);
+            border-left: 3px solid rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .message.reply.sent .reply-content {
+            color: rgba(255, 255, 255, 0.8);
+            border-left: 3px solid rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .message.reply.sent .main-message {
+            color: white;
+        }
+
+        .message.reply.sent .timestamp {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
         .message.reply .reply-header {
             font-size: 14px;
             color: #749cbf;
@@ -134,6 +172,102 @@
             background-color: #f1f1f1;
             transform: rotate(45deg);
             border-radius: 0 0 0 4px;
+        }
+
+        .message.audio {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            min-width: 200px;
+        }
+
+        .audio-play-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #749cbf;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .audio-play-btn:hover {
+            background: #6a8db5;
+        }
+
+        .audio-play-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: white;
+            margin-left: 2px;
+            transition: all 0.2s ease;
+        }
+
+        .audio-play-btn.playing svg {
+            margin-left: 0;
+        }
+
+        .audio-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .audio-waveform {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            height: 20px;
+            cursor: pointer;
+            position: relative;
+            user-select: none;
+        }
+
+        .audio-bar {
+            width: 3px;
+            background: #c5c5c5;
+            border-radius: 1px;
+            transition: background-color 0.1s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .audio-bar:hover {
+            opacity: 0.8;
+        }
+
+        .audio-bar.played {
+            background: #749cbf;
+        }
+
+        .audio-waveform.dragging {
+            cursor: grabbing;
+        }
+
+        .audio-waveform.dragging .audio-bar {
+            cursor: grabbing;
+        }
+
+        .audio-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .audio-duration {
+            font-weight: 500;
+        }
+
+        .audio-timestamp {
+            color: #888;
         }
 
         @keyframes slideIn {
@@ -361,7 +495,7 @@
             if (type === 'reply') {
                 message.innerHTML = `
                     <div class="reply-header">Mykeespage</div>
-                    <div class="reply-content">Good morning! 👋</div>
+                    <div class="reply-content">Thanks! This looks great</div>
                     <div class="main-message">Do you know what time it is?</div>
                     <div class="timestamp">7:24 AM</div>
                 `;
@@ -373,12 +507,277 @@
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
+        function addAudioMessage(duration, timestamp, type = 'received') {
+            const message = document.createElement('div');
+            message.className = `message audio ${type}`;
+            
+            // Generate random waveform bars
+            let waveformBars = '';
+            const barHeights = [6, 12, 8, 15, 10, 18, 14, 9, 16, 11, 7, 13, 19, 8, 12, 6, 14, 17, 10, 15, 9, 11, 13, 8, 16];
+            for (let i = 0; i < 25; i++) {
+                waveformBars += `<div class="audio-bar" style="height: ${barHeights[i] || 10}px;" data-index="${i}"></div>`;
+            }
+            
+            message.innerHTML = `
+                <button class="audio-play-btn" onclick="toggleAudioPlayback(this)">
+                    <svg class="play-icon" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                    <svg class="pause-icon" viewBox="0 0 24 24" style="display: none;">
+                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                    </svg>
+                </button>
+                <div class="audio-content">
+                    <div class="audio-waveform" onmousedown="startWaveformDrag(event, this)" ontouchstart="startWaveformDrag(event, this)">
+                        ${waveformBars}
+                    </div>
+                    <div class="audio-info">
+                        <span class="audio-duration">${duration}</span>
+                        <span class="audio-timestamp">${timestamp}</span>
+                    </div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(message);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        let isDragging = false;
+        let dragTarget = null;
+
+        function startWaveformDrag(event, waveformElement) {
+            event.preventDefault();
+            isDragging = true;
+            dragTarget = waveformElement;
+            waveformElement.classList.add('dragging');
+            
+            // Get initial position and seek immediately
+            handleWaveformSeek(event, waveformElement);
+            
+            // Add event listeners for drag and end
+            document.addEventListener('mousemove', handleWaveformDrag);
+            document.addEventListener('mouseup', endWaveformDrag);
+            document.addEventListener('touchmove', handleWaveformDrag, { passive: false });
+            document.addEventListener('touchend', endWaveformDrag);
+        }
+
+        function handleWaveformDrag(event) {
+            if (!isDragging || !dragTarget) return;
+            event.preventDefault();
+            handleWaveformSeek(event, dragTarget);
+        }
+
+        function endWaveformDrag(event) {
+            if (!isDragging) return;
+            
+            isDragging = false;
+            if (dragTarget) {
+                dragTarget.classList.remove('dragging');
+                dragTarget = null;
+            }
+            
+            // Remove event listeners
+            document.removeEventListener('mousemove', handleWaveformDrag);
+            document.removeEventListener('mouseup', endWaveformDrag);
+            document.removeEventListener('touchmove', handleWaveformDrag);
+            document.removeEventListener('touchend', endWaveformDrag);
+        }
+
+        function handleWaveformSeek(event, waveformElement) {
+            const rect = waveformElement.getBoundingClientRect();
+            const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+            const x = clientX - rect.left;
+            const width = rect.width;
+            const progress = Math.max(0, Math.min(1, x / width));
+            
+            const audioMessage = waveformElement.closest('.message.audio');
+            const playButton = audioMessage.querySelector('.audio-play-btn');
+            const durationSpan = audioMessage.querySelector('.audio-duration');
+            const waveformBars = audioMessage.querySelectorAll('.audio-bar');
+            
+            const totalDuration = 33; // 33 seconds total
+            const seekTime = Math.floor(progress * totalDuration);
+            const totalBars = waveformBars.length;
+            const playedBars = Math.floor(progress * totalBars);
+            
+            // Clear existing interval if playing
+            if (playButton.playbackInterval) {
+                clearInterval(playButton.playbackInterval);
+                playButton.playbackInterval = null;
+            }
+            
+            // Set current time
+            playButton.currentTime = seekTime;
+            
+            // Update duration display (show elapsed time like Telegram)
+            const minutes = Math.floor(seekTime / 60);
+            const seconds = seekTime % 60;
+            durationSpan.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Update waveform progress
+            waveformBars.forEach((bar, index) => {
+                if (index <= playedBars) {
+                    bar.classList.add('played');
+                } else {
+                    bar.classList.remove('played');
+                }
+            });
+            
+            // If currently playing, resume from new position
+            if (playButton.classList.contains('playing')) {
+                startPlaybackFromCurrentTime(playButton);
+            }
+        }
+
+        function seekToPosition(barElement, barIndex, totalBars) {
+            const audioMessage = barElement.closest('.message.audio');
+            const playButton = audioMessage.querySelector('.audio-play-btn');
+            const durationSpan = audioMessage.querySelector('.audio-duration');
+            const waveformBars = audioMessage.querySelectorAll('.audio-bar');
+            
+            const totalDuration = 33; // 33 seconds (0:33)
+            const seekTime = Math.floor((barIndex / totalBars) * totalDuration);
+            
+            // Clear existing interval if playing
+            if (playButton.playbackInterval) {
+                clearInterval(playButton.playbackInterval);
+                playButton.playbackInterval = null;
+            }
+            
+            // Set current time and update display
+            playButton.currentTime = seekTime;
+            
+            // Update duration display (show elapsed time like Telegram)
+            const minutes = Math.floor(seekTime / 60);
+            const seconds = seekTime % 60;
+            durationSpan.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Update waveform progress
+            waveformBars.forEach((bar, index) => {
+                if (index <= barIndex) {
+                    bar.classList.add('played');
+                } else {
+                    bar.classList.remove('played');
+                }
+            });
+            
+            // If currently playing, resume from new position
+            if (playButton.classList.contains('playing')) {
+                startPlaybackFromCurrentTime(playButton);
+            }
+        }
+
+        function startPlaybackFromCurrentTime(button) {
+            const audioMessage = button.closest('.message.audio');
+            const durationSpan = audioMessage.querySelector('.audio-duration');
+            const waveformBars = audioMessage.querySelectorAll('.audio-bar');
+            
+            const totalDuration = 33; // 33 seconds (0:33)
+            const totalBars = waveformBars.length;
+            let currentTime = button.currentTime || 0;
+            
+            button.playbackInterval = setInterval(() => {
+                currentTime++;
+                button.currentTime = currentTime;
+                
+                // Update duration display (show elapsed time like Telegram)
+                const minutes = Math.floor(currentTime / 60);
+                const seconds = currentTime % 60;
+                durationSpan.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                // Update waveform progress
+                const progress = currentTime / totalDuration;
+                const playedBars = Math.floor(progress * totalBars);
+                
+                waveformBars.forEach((bar, index) => {
+                    if (index <= playedBars) {
+                        bar.classList.add('played');
+                    }
+                });
+                
+                // End playback when duration is reached
+                if (currentTime >= totalDuration) {
+                    clearInterval(button.playbackInterval);
+                    button.playbackInterval = null;
+                    button.classList.remove('playing');
+                    button.querySelector('.play-icon').style.display = 'block';
+                    button.querySelector('.pause-icon').style.display = 'none';
+                    durationSpan.textContent = '0:33';
+                    button.currentTime = 0;
+                    
+                    // Reset waveform
+                    waveformBars.forEach(bar => {
+                        bar.classList.remove('played');
+                    });
+                }
+            }, 1000);
+        }
+
+        function toggleAudioPlayback(button) {
+            const playIcon = button.querySelector('.play-icon');
+            const pauseIcon = button.querySelector('.pause-icon');
+            const audioMessage = button.closest('.message.audio');
+            const durationSpan = audioMessage.querySelector('.audio-duration');
+            const waveformBars = audioMessage.querySelectorAll('.audio-bar');
+            
+            if (button.classList.contains('playing')) {
+                // Stop playback
+                button.classList.remove('playing');
+                playIcon.style.display = 'block';
+                pauseIcon.style.display = 'none';
+                
+                // Clear any existing interval
+                if (button.playbackInterval) {
+                    clearInterval(button.playbackInterval);
+                    button.playbackInterval = null;
+                }
+            } else {
+                // Start playback
+                button.classList.add('playing');
+                playIcon.style.display = 'none';
+                pauseIcon.style.display = 'block';
+                
+                // Initialize current time if not set, start from 0
+                if (button.currentTime === undefined) {
+                    button.currentTime = 0;
+                }
+                
+                // If starting from beginning, show 0:01 immediately like Telegram
+                if (button.currentTime === 0) {
+                    durationSpan.textContent = '0:01';
+                    button.currentTime = 1;
+                }
+                
+                startPlaybackFromCurrentTime(button);
+            }
+        }
+
+        function addReplyMessage(text, replyToUser, replyToText, timestamp, type = 'reply') {
+            const message = document.createElement('div');
+            message.className = `message ${type}`;
+            
+            message.innerHTML = `
+                <div class="reply-header">${replyToUser}</div>
+                <div class="reply-content">${replyToText}</div>
+                <div class="main-message">${text}</div>
+                <div class="timestamp">${timestamp}</div>
+            `;
+            
+            messagesContainer.appendChild(message);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
         // Add some initial messages for demonstration
         setTimeout(() => {
             addMessage("Welcome to the chat!", "received");
             addMessage("Thanks! This looks great", "sent");
-            addMessage("The messages now take up the full screen space", "received");
+            addAudioMessage("0:33", "12:00 PM", "received");
+            addMessage("Now you can drag across the waveform to seek! Playback starts from 0:01 like Telegram.", "received");
             addMessage("Do you know what time it is?", "reply");
+            // Add a reply to the time question using the same design (from sender)
+            setTimeout(() => {
+                addReplyMessage("It's 7:24 AM! Hope you're having a great morning! 😊", "Mykeespage", "Do you know what time it is?", "7:25 AM", "reply sent");
+            }, 1000);
         }, 500);
     </script>     
 </body>
