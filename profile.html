@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Channel Info</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #f8f9fa;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .phone-container {
+      width: 375px;
+      height: 667px;
+      background: white;
+      border-radius: 25px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Cover photo */
+    .cover-photo {
+      width: 100%;
+      height: 180px;
+      background: url("https://i.ibb.co/C5b875C6/Screenshot-20250904-050841.jpg") center/cover no-repeat;
+      position: relative;
+    }
+
+    /* Profile image */
+    .profile-image {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid white;
+      position: absolute;
+      left: 20px;
+      bottom: -50px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .content {
+      flex: 1;
+      padding: 70px 20px 20px 20px; /* push content down to leave space for profile img */
+    }
+
+    .channel-name {
+      font-size: 24px;
+      font-weight: 600;
+      color: #000;
+      margin-bottom: 10px;
+    }
+
+    .fade-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 100px;
+      background: linear-gradient(transparent, white);
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-container">
+    
+    <!-- Cover photo with profile -->
+    <div class="cover-photo">
+      <img src="https://i.ibb.co/C5b875C6/Screenshot-20250904-050841.jpg" alt="Profile" class="profile-image">
+    </div>
+    
+    <!-- Content below -->
+    <div class="content">
+      <div class="channel-name">Vavia's</div>
+      <p>Welcome to my channel profile page!</p>
+    </div>
+
+    <div class="fade-overlay"></div>
+  </div>
+</body>
+</html>
+
