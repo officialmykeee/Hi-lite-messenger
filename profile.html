@@ -55,14 +55,54 @@
 
     .content {
       flex: 1;
-      padding: 70px 20px 20px 20px; /* push content down to leave space for profile img */
+      padding: 70px 20px 20px 20px;
     }
 
     .channel-name {
       font-size: 24px;
       font-weight: 600;
       color: #000;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
+    }
+
+    /* Tab navigation */
+    .tab-nav {
+      display: flex;
+      justify-content: space-around;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 20px;
+    }
+
+    .tab-item {
+      flex: 1;
+      text-align: center;
+      padding: 12px 0;
+      font-size: 15px;
+      font-weight: 500;
+      color: #666;
+      cursor: pointer;
+      position: relative;
+      transition: color 0.2s ease;
+    }
+
+    .tab-item.active {
+      color: #1877f2; /* Facebook blue vibe */
+      font-weight: 600;
+    }
+
+    .tab-item.active::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 25%;
+      width: 50%;
+      height: 3px;
+      background-color: #1877f2;
+      border-radius: 2px;
+    }
+
+    .tab-item:hover {
+      color: #000;
     }
 
     .fade-overlay {
@@ -87,6 +127,15 @@
     <!-- Content below -->
     <div class="content">
       <div class="channel-name">Vavia's</div>
+
+      <!-- Tab navigation -->
+      <div class="tab-nav">
+        <div class="tab-item active">Posts</div>
+        <div class="tab-item">Media</div>
+        <div class="tab-item">Gifts</div>
+        <div class="tab-item">Links</div>
+      </div>
+
       <p>Welcome to my channel profile page!</p>
     </div>
 
@@ -94,4 +143,3 @@
   </div>
 </body>
 </html>
-
