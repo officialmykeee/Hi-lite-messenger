@@ -271,10 +271,11 @@
         transition: transform 0.3s ease, opacity 0.3s ease;
     }  
 
-    .blinking-svg {
-        animation: blink 1s infinite alternate;
+    .mic-shape {
+        animation: blink 1s infinite;
+        transform-origin: top center;
     }
-    
+
     .slide-text {  
         font-size: 14px;
         color: #ddd;
@@ -330,10 +331,28 @@
     }
 
     @keyframes blink {
-        from { opacity: 1; }
-        to { opacity: 0.4; }
+        0%, 50%, 100% { fill: #ff2b2b; }
+        25%, 75% { fill: #660000; }
     }
-    
+
+    @keyframes deletePulse {
+        0% { transform: translateX(0); }
+        50% { transform: translateX(-5px); }
+        100% { transform: translateX(0); }
+    }
+
+    @keyframes drip-fall {
+        0%   { transform: scaleY(1) translateY(0); opacity: 1; }
+        40%  { transform: scaleY(1.2) translateY(3px); opacity: 1; }
+        70%  { transform: scaleY(0.8) translateY(15px); opacity: 0.8; }
+        100% { transform: scaleY(0.5) translateY(40px); opacity: 0; }
+    }
+
+    /* Apply drip-fall animation to micro-btn SVG in delete-state */
+    .micro-btn.delete-state .svg-icon {
+        animation: drip-fall 3s forwards ease-in-out;
+    }
+
     /* Hide placeholder when slide-container is visible */
     .input-field.active .message-input:empty:before {
       opacity: 0;
@@ -370,12 +389,6 @@
 
     .micro-btn.delete-pulse {
         animation: deletePulse 0.3s ease-in-out;
-    }
-    
-    @keyframes deletePulse {
-        0% { transform: translateX(0); }
-        50% { transform: translateX(-5px); }
-        100% { transform: translateX(0); }
     }
     
     .svg-icon {
@@ -450,12 +463,9 @@
           <div class="message-input" contenteditable="false" data-placeholder="Reply privately..." id="chat-input-div"></div>
           
           <div class="slide-container" id="slideContainer">
-            <svg class="blinking-svg" width="16px" height="16px" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-              <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-              <g id="SVGRepo_iconCarrier">
-                <circle cx="8" cy="8" r="8" fill="#db4d4d"></circle>
-              </g>
+            <svg class="blinking-svg" width="25px" height="25px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" preserveAspectRatio="xMidYMid meet">
+              <path class="mic-shape" d="M7.25 7C7.25 4.37665 9.37665 2.25 12 2.25C14.6234 2.25 16.75 4.37665 16.75 7V11C16.75 13.6234 14.6234 15.75 12 15.75C9.37665 15.75 7.25 13.6234 7.25 11V7Z"/>
+              <path class="mic-shape" d="M5.75 10C5.75 9.58579 5.41421 9.25 5 9.25C4.58579 9.25 4.25 9.58579 4.25 10V11C4.25 15.0272 7.3217 18.3369 11.25 18.7142V21C11.25 21.4142 11.5858 21.75 12 21.75C12.4142 21.75 12.75 21.4142 12.75 21V18.7142C16.6783 18.3369 19.75 15.0272 19.75 11V10C19.75 9.58579 19.4142 9.25 19 9.25C18.5858 9.25 18.25 9.58579 18.25 10V11C18.25 14.4518 15.4518 17.25 12 17.25C8.54822 17.25 5.75 14.4518 5.75 11V10Z"/>
             </svg>
             <span class="timer-text">0:00</span>
             <svg class="arrow-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
@@ -469,10 +479,10 @@
               <path d="M7.25 7C7.25 4.37665 9.37665 2.25 12 2.25C14.6234 2.25 16.75 4.37665 16.75 7V11C16.75 13.6234 14.6234 15.75 12 15.75C9.37665 15.75 7.25 13.6234 7.25 11V7Z" fill="#ffffff"></path>
               <path d="M5.75 10C5.75 9.58579 5.41421 9.25 5 9.25C4.58579 9.25 4.25 9.58579 4.25 10V11C4.25 15.0272 7.3217 18.3369 11.25 18.7142V21C11.25 21.4142 11.5858 21.75 12 21.75C12.4142 21.75 12.75 21.4142 12.75 21V18.7142C16.6783 18.3369 19.75 15.0272 19.75 11V10C19.75 9.58579 19.4142 9.25 19 9.25C18.5858 9.25 18.25 9.58579 18.25 10V11C18.25 14.4518 15.4518 17.25 12 17.25C8.54822 17.25 5.75 14.4518 5.75 11V10Z" fill="#ffffff"></path>
             </svg>
-             <svg id="arrowSVG" class="arrow-lock" xmlns="http://www.w3.org/2000/svg" viewBox="-15 0 150 122.88" width="21" height="21" style="display: none;">
-                <g transform="rotate(40, 61.28, 61.44) translate(-5, 0)">
-                    <path style="fill: white; fill-rule: evenodd;" d="M2.33,44.58,117.33.37a3.63,3.63,0,0,1,5,4.56l-44,115.61h0a3.63,3.63,0,0,1-6.67.28L53.93,84.14,89.12,33.77,38.85,68.86,2.06,51.24a3.63,3.63,0,0,1,.27-6.66Z"/>
-                </g>
+            <svg id="arrowSVG" class="arrow-lock" xmlns="http://www.w3.org/2000/svg" viewBox="-15 0 150 122.88" width="21" height="21" style="display: none;">
+              <g transform="rotate(40, 61.28, 61.44) translate(-5, 0)">
+                <path style="fill: white; fill-rule: evenodd;" d="M2.33,44.58,117.33.37a3.63,3.63,0,0,1,5,4.56l-44,115.61h0a3.63,3.63,0,0,1-6.67.28L53.93,84.14,89.12,33.77,38.85,68.86,2.06,51.24a3.63,3.63,0,0,1,.27-6.66Z"/>
+              </g>
             </svg>
           </div>
         </div>
@@ -508,12 +518,9 @@
           <div class="message-input" contenteditable="false" data-placeholder="Reply privately..." id="chat-input-div-2"></div>
           
           <div class="slide-container">
-            <svg class="blinking-svg" width="16px" height="16px" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-              <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-              <g id="SVGRepo_iconCarrier">
-                <circle cx="8" cy="8" r="8" fill="#db4d4d"></circle>
-              </g>
+            <svg class="blinking-svg" width="25px" height="25px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" preserveAspectRatio="xMidYMid meet">
+              <path class="mic-shape" d="M7.25 7C7.25 4.37665 9.37665 2.25 12 2.25C14.6234 2.25 16.75 4.37665 16.75 7V11C16.75 13.6234 14.6234 15.75 12 15.75C9.37665 15.75 7.25 13.6234 7.25 11V7Z"/>
+              <path class="mic-shape" d="M5.75 10C5.75 9.58579 5.41421 9.25 5 9.25C4.58579 9.25 4.25 9.58579 4.25 10V11C4.25 15.0272 7.3217 18.3369 11.25 18.7142V21C11.25 21.4142 11.5858 21.75 12 21.75C12.4142 21.75 12.75 21.4142 12.75 21V18.7142C16.6783 18.3369 19.75 15.0272 19.75 11V10C19.75 9.58579 19.4142 9.25 19 9.25C18.5858 9.25 18.25 9.58579 18.25 10V11C18.25 14.4518 15.4518 17.25 12 17.25C8.54822 17.25 5.75 14.4518 5.75 11V10Z"/>
             </svg>
             <span class="timer-text">0:00</span>
             <svg class="arrow-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
@@ -527,10 +534,10 @@
               <path d="M7.25 7C7.25 4.37665 9.37665 2.25 12 2.25C14.6234 2.25 16.75 4.37665 16.75 7V11C16.75 13.6234 14.6234 15.75 12 15.75C9.37665 15.75 7.25 13.6234 7.25 11V7Z" fill="#ffffff"></path>
               <path d="M5.75 10C5.75 9.58579 5.41421 9.25 5 9.25C4.58579 9.25 4.25 9.58579 4.25 10V11C4.25 15.0272 7.3217 18.3369 11.25 18.7142V21C11.25 21.4142 11.5858 21.75 12 21.75C12.4142 21.75 12.75 21.4142 12.75 21V18.7142C16.6783 18.3369 19.75 15.0272 19.75 11V10C19.75 9.58579 19.4142 9.25 19 9.25C18.5858 9.25 18.25 9.58579 18.25 10V11C18.25 14.4518 15.4518 17.25 12 17.25C8.54822 17.25 5.75 14.4518 5.75 11V10Z" fill="#ffffff"></path>
             </svg>
-             <svg id="arrowSVG" class="arrow-lock" xmlns="http://www.w3.org/2000/svg" viewBox="-15 0 150 122.88" width="21" height="21" style="display: none;">
-                <g transform="rotate(40, 61.28, 61.44) translate(-5, 0)">
-                    <path style="fill: white; fill-rule: evenodd;" d="M2.33,44.58,117.33.37a3.63,3.63,0,0,1,5,4.56l-44,115.61h0a3.63,3.63,0,0,1-6.67.28L53.93,84.14,89.12,33.77,38.85,68.86,2.06,51.24a3.63,3.63,0,0,1,.27-6.66Z"/>
-                </g>
+            <svg id="arrowSVG" class="arrow-lock" xmlns="http://www.w3.org/2000/svg" viewBox="-15 0 150 122.88" width="21" height="21" style="display: none;">
+              <g transform="rotate(40, 61.28, 61.44) translate(-5, 0)">
+                <path style="fill: white; fill-rule: evenodd;" d="M2.33,44.58,117.33.37a3.63,3.63,0,0,1,5,4.56l-44,115.61h0a3.63,3.63,0,0,1-6.67.28L53.93,84.14,89.12,33.77,38.85,68.86,2.06,51.24a3.63,3.63,0,0,1,.27-6.66Z"/>
+              </g>
             </svg>
           </div>
         </div>
@@ -571,12 +578,9 @@
           <div class="message-input" contenteditable="false" data-placeholder="Reply privately..." id="chat-input-div-3"></div>
           
           <div class="slide-container">
-            <svg class="blinking-svg" width="16px" height="16px" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-              <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-              <g id="SVGRepo_iconCarrier">
-                <circle cx="8" cy="8" r="8" fill="#db4d4d"></circle>
-              </g>
+            <svg class="blinking-svg" width="25px" height="25px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" preserveAspectRatio="xMidYMid meet">
+              <path class="mic-shape" d="M7.25 7C7.25 4.37665 9.37665 2.25 12 2.25C14.6234 2.25 16.75 4.37665 16.75 7V11C16.75 13.6234 14.6234 15.75 12 15.75C9.37665 15.75 7.25 13.6234 7.25 11V7Z"/>
+              <path class="mic-shape" d="M5.75 10C5.75 9.58579 5.41421 9.25 5 9.25C4.58579 9.25 4.25 9.58579 4.25 10V11C4.25 15.0272 7.3217 18.3369 11.25 18.7142V21C11.25 21.4142 11.5858 21.75 12 21.75C12.4142 21.75 12.75 21.4142 12.75 21V18.7142C16.6783 18.3369 19.75 15.0272 19.75 11V10C19.75 9.58579 19.4142 9.25 19 9.25C18.5858 9.25 18.25 9.58579 18.25 10V11C18.25 14.4518 15.4518 17.25 12 17.25C8.54822 17.25 5.75 14.4518 5.75 11V10Z"/>
             </svg>
             <span class="timer-text">0:00</span>
             <svg class="arrow-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
@@ -590,10 +594,10 @@
               <path d="M7.25 7C7.25 4.37665 9.37665 2.25 12 2.25C14.6234 2.25 16.75 4.37665 16.75 7V11C16.75 13.6234 14.6234 15.75 12 15.75C9.37665 15.75 7.25 13.6234 7.25 11V7Z" fill="#ffffff"></path>
               <path d="M5.75 10C5.75 9.58579 5.41421 9.25 5 9.25C4.58579 9.25 4.25 9.58579 4.25 10V11C4.25 15.0272 7.3217 18.3369 11.25 18.7142V21C11.25 21.4142 11.5858 21.75 12 21.75C12.4142 21.75 12.75 21.4142 12.75 21V18.7142C16.6783 18.3369 19.75 15.0272 19.75 11V10C19.75 9.58579 19.4142 9.25 19 9.25C18.5858 9.25 18.25 9.58579 18.25 10V11C18.25 14.4518 15.4518 17.25 12 17.25C8.54822 17.25 5.75 14.4518 5.75 11V10Z" fill="#ffffff"></path>
             </svg>
-             <svg id="arrowSVG" class="arrow-lock" xmlns="http://www.w3.org/2000/svg" viewBox="-15 0 150 122.88" width="21" height="21" style="display: none;">
-                <g transform="rotate(40, 61.28, 61.44) translate(-5, 0)">
-                    <path style="fill: white; fill-rule: evenodd;" d="M2.33,44.58,117.33.37a3.63,3.63,0,0,1,5,4.56l-44,115.61h0a3.63,3.63,0,0,1-6.67.28L53.93,84.14,89.12,33.77,38.85,68.86,2.06,51.24a3.63,3.63,0,0,1,.27-6.66Z"/>
-                </g>
+            <svg id="arrowSVG" class="arrow-lock" xmlns="http://www.w3.org/2000/svg" viewBox="-15 0 150 122.88" width="21" height="21" style="display: none;">
+              <g transform="rotate(40, 61.28, 61.44) translate(-5, 0)">
+                <path style="fill: white; fill-rule: evenodd;" d="M2.33,44.58,117.33.37a3.63,3.63,0,0,1,5,4.56l-44,115.61h0a3.63,3.63,0,0,1-6.67.28L53.93,84.14,89.12,33.77,38.85,68.86,2.06,51.24a3.63,3.63,0,0,1,.27-6.66Z"/>
+              </g>
             </svg>
           </div>
         </div>
@@ -626,12 +630,9 @@
         <div class="input-field">
           <div class="message-input" contenteditable="false" data-placeholder="Reply privately..." id="chat-input-div-4"></div>
           <div class="slide-container">
-            <svg class="blinking-svg" width="16px" height="16px" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-              <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-              <g id="SVGRepo_iconCarrier">
-                <circle cx="8" cy="8" r="8" fill="#db4d4d"></circle>
-              </g>
+            <svg class="blinking-svg" width="25px" height="25px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" preserveAspectRatio="xMidYMid meet">
+              <path class="mic-shape" d="M7.25 7C7.25 4.37665 9.37665 2.25 12 2.25C14.6234 2.25 16.75 4.37665 16.75 7V11C16.75 13.6234 14.6234 15.75 12 15.75C9.37665 15.75 7.25 13.6234 7.25 11V7Z"/>
+              <path class="mic-shape" d="M5.75 10C5.75 9.58579 5.41421 9.25 5 9.25C4.58579 9.25 4.25 9.58579 4.25 10V11C4.25 15.0272 7.3217 18.3369 11.25 18.7142V21C11.25 21.4142 11.5858 21.75 12 21.75C12.4142 21.75 12.75 21.4142 12.75 21V18.7142C16.6783 18.3369 19.75 15.0272 19.75 11V10C19.75 9.58579 19.4142 9.25 19 9.25C18.5858 9.25 18.25 9.58579 18.25 10V11C18.25 14.4518 15.4518 17.25 12 17.25C8.54822 17.25 5.75 14.4518 5.75 11V10Z"/>
             </svg>
             <span class="timer-text">0:00</span>
             <svg class="arrow-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
@@ -992,17 +993,20 @@
       microBtns.forEach(btn => {
         let holdTimer;
         let isHolding = false;
+        let isDeleting = false;
         let startX = 0;
         let startY = 0;
         let isLocked = false;
         let timerInterval;
         let seconds = 0;
+        let holdTriggered = false;
         const inputField = btn.closest('.input-field');
         const slideContainer = inputField.querySelector('.slide-container');
         const timerText = slideContainer.querySelector('.timer-text');
         const microphoneSVG = btn.querySelector('#microphoneSVG');
         const arrowSVG = btn.querySelector('#arrowSVG');
         const slideText = slideContainer.querySelector('.slide-text');
+        const initialLeft = 0; // Initial position for dragging
 
         // Create the "Cancel" text element once
         const lockText = document.createElement('div');
@@ -1033,6 +1037,7 @@
         const resetRecordingState = () => {
           isLocked = false;
           isHolding = false;
+          isDeleting = false;
           stopTimer();
           btn.classList.remove("active");
           inputField.classList.remove("active");
@@ -1049,29 +1054,99 @@
         };
 
         const startHold = (event) => {
+          event.preventDefault();
+          event.stopPropagation();
           isHolding = true;
+          holdTriggered = false;
           startX = event.touches ? event.touches[0].clientX : event.clientX;
           startY = event.touches ? event.touches[0].clientY : event.clientY;
-
           holdTimer = setTimeout(() => {
-            if (!isLocked) {
-              btn.classList.add("active");
-              inputField.classList.add("active");
-              startTimer();
-              pauseStory();
+            holdTriggered = true;
+            btn.classList.add("active");
+            inputField.classList.add("active");
+            btn.style.transition = 'transform 0.05s ease';
+            btn.style.transform = `translateX(${initialLeft}px) scale(1.4) translateY(-5px)`;
+            startTimer();
+            pauseStory();
+          }, 150);
+          document.addEventListener('mousemove', onMove, { passive: false });
+          document.addEventListener('touchmove', onMove, { passive: false });
+          document.addEventListener('mouseup', endHold, { passive: false });
+          document.addEventListener('touchend', endHold, { passive: false });
+          document.addEventListener('touchcancel', endHold, { passive: false });
+        };
+
+        const onMove = (event) => {
+          if (!isHolding || isLocked) return;
+          event.preventDefault();
+          const currentX = event.touches ? event.touches[0].clientX : event.clientX;
+          const currentY = event.touches ? event.touches[0].clientY : event.clientY;
+          const deltaX = currentX - startX;
+          const deltaY = currentY - startY;
+          const newLeft = initialLeft + deltaX;
+          if (newLeft <= initialLeft) {
+            btn.style.transform = `translateX(${newLeft}px) scale(1.4) translateY(-5px)`;
+            if (newLeft <= -60 && !isDeleting) {
+              isDeleting = true;
+              document.removeEventListener('mousemove', onMove);
+              document.removeEventListener('touchmove', onMove);
+              document.removeEventListener('mouseup', endHold);
+              document.removeEventListener('touchend', endHold);
+              document.removeEventListener('touchcancel', endHold);
+              endHold();
+              return;
             }
-          }, 100);
+          }
+          if (deltaY < -40 && Math.abs(deltaX) < 10 && !isDeleting) {
+            lockRecording();
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('touchmove', onMove);
+            document.removeEventListener('mouseup', endHold);
+            document.removeEventListener('touchend', endHold);
+            document.removeEventListener('touchcancel', endHold);
+            return;
+          }
         };
 
         const endHold = () => {
+          if (!isHolding && !isDeleting) return;
+          const wasDeleting = isDeleting;
           clearTimeout(holdTimer);
-          if (isHolding && !isLocked) {
-            resetRecordingState();
+          isHolding = false;
+          isDeleting = false;
+          btn.classList.remove("active");
+          inputField.classList.remove("active");
+          btn.style.transition = 'transform 0.1s ease';
+          btn.style.transform = 'translate(0, 0)';
+          btn.style.left = '';
+          microphoneSVG.style.display = 'block';
+          arrowSVG.style.display = 'none';
+          slideContainer.querySelector('.arrow-icon').style.display = 'block';
+          slideText.style.display = 'block';
+          if (slideContainer.contains(lockText)) {
+            slideContainer.removeChild(lockText);
           }
+          stopTimer();
+          resumeStory();
+          if (wasDeleting) {
+            btn.classList.add('delete-state');
+            setTimeout(() => {
+              btn.classList.remove('delete-state');
+            }, 3000); // Match drip-fall animation duration
+            console.log('Recording cancelled with drip-fall animation');
+          } else {
+            console.log('Recording stopped');
+          }
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('touchmove', onMove);
+          document.removeEventListener('mouseup', endHold);
+          document.removeEventListener('touchend', endHold);
+          document.removeEventListener('touchcancel', endHold);
         };
 
         const lockRecording = () => {
           isLocked = true;
+          isHolding = false;
           btn.classList.add('active');
           inputField.classList.add('active');
           microphoneSVG.style.display = 'none';
@@ -1083,26 +1158,6 @@
           }
           btn.style.transform = 'translate(0, 0)';
           btn.style.left = '16px'; // Match hold state position
-        };
-
-        const onMove = (event) => {
-          if (!isHolding || isLocked) return;
-          const currentX = event.touches ? event.touches[0].clientX : event.clientX;
-          const currentY = event.touches ? event.touches[0].clientY : event.clientY;
-          const distanceX = currentX - startX;
-          const distanceY = currentY - startY;
-          const lockArea = -40; // Pixels upwards to trigger lock
-
-          if (distanceY < lockArea && distanceX > -20) { // Check for upward movement
-            lockRecording();
-          } else if (distanceX < 0) {
-            btn.style.transform = `translateX(${Math.max(distanceX, -80)}px)`;
-            if (distanceX < -60) { // Cancel if slid far enough left
-              resetRecordingState();
-            }
-          } else {
-            btn.style.transform = 'translateX(0)';
-          }
         };
 
         // Delegated event listeners for lockText to handle click and touch
@@ -1123,28 +1178,9 @@
         });
 
         // Desktop events
-        btn.addEventListener("mousedown", (e) => {
-          startHold(e);
-          e.stopPropagation();
-        });
-        document.addEventListener("mouseup", () => {
-          endHold();
-        });
-        document.addEventListener("mousemove", (e) => {
-          onMove(e);
-        });
-
+        btn.addEventListener("mousedown", startHold, { passive: false });
         // Mobile events
-        btn.addEventListener("touchstart", (e) => {
-          startHold(e);
-          e.stopPropagation();
-        });
-        document.addEventListener("touchend", () => {
-          endHold();
-        });
-        document.addEventListener("touchmove", (e) => {
-          onMove(e);
-        });
+        btn.addEventListener("touchstart", startHold, { passive: false });
       });
 
       messageInputs.forEach(input => {
