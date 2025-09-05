@@ -3,9 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Floating Chat Input with Curve</title>
+    <title>Hi-lite-messenger</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
             padding: 0;
@@ -19,357 +25,88 @@
             height: 100vh;
         }
 
-        .messages-container {
-            position: absolute;
-            top: 20px;
-            left: 0;
-            right: 0;
-            bottom: 20px; /* Full height now */
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            pointer-events: auto;
-        }
-
-        .message {
-            max-width: 80%;
-            padding: 12px 16px;
-            border-radius: 18px;
-            word-wrap: break-word;
-            animation: slideIn 0.3s ease-out;
-            position: relative;
-        }
-
-        .message.sent {
-            align-self: flex-end;
-            background: #749cbf;
-            color: white;
-            border-bottom-right-radius: 4px;
-        }
-
-        .message.sent::after {
-            content: '';
-            position: absolute;
-            bottom: -6px;
-            right: 15px;
-            width: 15px;
-            height: 15px;
-            background-color: #749cbf;
-            transform: rotate(45deg);
-            border-radius: 0 0 4px 0;
-        }
-
-        .message.reply {
-            align-self: flex-start;
-            background: #f1f1f1;
-            color: #333;
-            border-bottom-left-radius: 4px;
-            position: relative;
-            padding: 8px 12px;
-        }
-
-        .message.reply::after {
-            content: '';
-            position: absolute;
-            bottom: -6px;
-            left: 15px;
-            width: 15px;
-            height: 15px;
-            background-color: #f1f1f1;
-            transform: rotate(45deg);
-            border-radius: 0 0 0 4px;
-        }
-
-        .message.reply.sent {
-            align-self: flex-end;
-            background: #749cbf;
-            color: white;
-            border-bottom-left-radius: 18px;
-            border-bottom-right-radius: 4px;
-        }
-
-        .message.reply.sent::after {
-            content: '';
-            position: absolute;
-            bottom: -6px;
-            right: 15px;
-            left: auto;
-            background-color: #749cbf;
-            border-radius: 0 0 4px 0;
-        }
-
-        .message.reply.sent .reply-header {
-            color: rgba(255, 255, 255, 0.9);
-            border-left: 3px solid rgba(255, 255, 255, 0.6);
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .message.reply.sent .reply-content {
-            color: rgba(255, 255, 255, 0.8);
-            border-left: 3px solid rgba(255, 255, 255, 0.6);
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .message.reply.sent .main-message {
-            color: white;
-        }
-
-        .message.reply.sent .timestamp {
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .message.reply .reply-header {
-            font-size: 14px;
-            color: #749cbf;
-            font-weight: 500;
-            margin-bottom: 2px;
-            border-left: 3px solid #749cbf;
-            padding-left: 8px;
-            background: rgba(116, 156, 191, 0.1);
-            margin: -8px -8px 0 -8px;
-            padding: 4px 8px 4px 12px;
-            border-radius: 8px 8px 0 0;
-        }
-
-        .message.reply .reply-content {
-            font-size: 14px;
-            color: #333;
-            margin: 0 -8px 8px -8px;
-            padding: 4px 8px 4px 19px;
-            border-left: 3px solid #749cbf;
-            background: rgba(116, 156, 191, 0.1);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .message.reply .reply-content.audio-reply {
-            padding: 6px 8px 6px 12px;
-        }
-
-        .message.reply .reply-content .audio-reply-icon {
-            width: 16px;
-            height: 16px;
-            flex-shrink: 0;
-            background: #749cbf;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2px;
-        }
-
-        .message.reply .reply-content .audio-reply-icon svg {
-            width: 10px;
-            height: 10px;
-        }
-
-        .message.reply .reply-content .audio-reply-text {
-            color: #749cbf;
-            font-weight: 500;
-        }
-
-        .message.reply.sent .reply-content.audio-reply .audio-reply-icon {
-            background: rgba(255, 255, 255, 0.9);
-        }
-
-        .message.reply.sent .reply-content.audio-reply .audio-reply-icon svg {
-            fill: #749cbf;
-        }
-
-        .message.reply.sent .reply-content.audio-reply .audio-reply-text {
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        .message.reply .main-message {
-            font-size: 15px;
-            color: #333;
-            margin-top: 8px;
-        }
-
-        .message.reply .timestamp {
-            font-size: 12px;
-            color: #888;
-            float: right;
-            margin-top: 4px;
-        }
-
-        .message.received {
-            align-self: flex-start;
-            background: #f1f1f1;
-            color: #333;
-            border-bottom-left-radius: 4px;
-        }
-
-        .message.received::after {
-            content: '';
-            position: absolute;
-            bottom: -6px;
-            left: 15px;
-            width: 15px;
-            height: 15px;
-            background-color: #f1f1f1;
-            transform: rotate(45deg);
-            border-radius: 0 0 0 4px;
-        }
-
-        .message.audio {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 16px;
-            min-width: 200px;
-        }
-
-        .audio-play-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #749cbf;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            flex-shrink: 0;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 8px rgba(116, 156, 191, 0.3);
-        }
-
-        .audio-play-btn:hover {
-            background: #6a8db5;
-            box-shadow: 0 4px 12px rgba(116, 156, 191, 0.4);
-            transform: scale(1.05);
-        }
-
-        .audio-play-btn:active {
-            transform: scale(0.95);
-            box-shadow: 0 2px 6px rgba(116, 156, 191, 0.5);
-        }
-
-        .message.audio.sent .audio-play-btn {
-            background: #749cbf;
-            border: none;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .message.audio.sent .audio-play-btn:hover {
-            background: #6a8db5;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            transform: scale(1.05);
-        }
-
-        .message.audio.sent .audio-play-btn:active {
-            transform: scale(0.95);
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
-        }
-
-        .message.audio.sent .audio-play-btn svg {
-            fill: white;
-        }
-
-        .message.audio.sent .audio-bar {
-            background: rgba(255, 255, 255, 0.4);
-        }
-
-        .message.audio.sent .audio-bar.played {
+        .chat-header {
             background: white;
+            color: #333;
+            padding: 0.7rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            height: 52px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1002;
         }
 
-        .message.audio.sent .audio-info {
-            color: rgba(255, 255, 255, 0.9);
+        .left-section {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
         }
 
-        .message.audio.sent .audio-duration {
+        .back-arrow {
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+            color: #9e9e9e;
+        }
+
+        .back-arrow:hover {
+            background-color: rgba(158,158,158,0.1);
+        }
+
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #4285f4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
             color: white;
-            font-weight: 500;
+            border: 2px solid rgba(66,133,244,0.3);
         }
 
-        .message.audio.sent .audio-timestamp {
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        .audio-play-btn svg {
-            width: 16px;
-            height: 16px;
-            fill: white;
-            margin-left: 2px;
-            transition: all 0.2s ease;
-        }
-
-        .audio-play-btn.playing svg {
-            margin-left: 0;
-        }
-
-        .audio-content {
-            flex: 1;
+        .user-info {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 0.2rem;
         }
 
-        .audio-waveform {
-            display: flex;
-            align-items: center;
-            gap: 2px;
-            height: 20px;
-            cursor: pointer;
-            position: relative;
-            user-select: none;
+        .user-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
         }
 
-        .audio-bar {
-            width: 3px;
-            background: #c5c5c5;
-            border-radius: 1px;
-            transition: background-color 0.1s ease;
-            cursor: pointer;
-            position: relative;
-        }
-
-        .audio-bar:hover {
+        .last-seen {
+            font-size: 0.85rem;
             opacity: 0.8;
+            margin: 0;
         }
 
-        .audio-bar.played {
-            background: #749cbf;
+        .menu-icon {
+            cursor: pointer;
+            padding: 0.4rem;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+            color: #9e9e9e;
         }
 
-        .audio-waveform.dragging {
-            cursor: grabbing;
-        }
-
-        .audio-waveform.dragging .audio-bar {
-            cursor: grabbing;
-        }
-
-        .audio-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-            color: #666;
-        }
-
-        .audio-duration {
-            font-weight: 500;
-        }
-
-        .audio-timestamp {
-            color: #888;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .menu-icon:hover {
+            background-color: rgba(158,158,158,0.1);
         }
 
         .chat-input-container {
@@ -378,18 +115,82 @@
             left: 49%;
             transform: translateX(-50%);
             display: flex;
+            flex-direction: column;
             align-items: center;
             gap: 8px;
             z-index: 1000;
             transition: bottom 0.3s ease;
             width: 95% !important;
         }
+
         .chat-input-container.displaying-picker {
             bottom: 328px;
         }
+
         .chat-input-container.keyboard-active {
             bottom: 4px;
         }
+
+        .reply-container {
+            display: none;
+            background: #f0f0f0;
+            border-radius: 12px;
+            padding: 8px 12px;
+            margin-bottom: 4px;
+            width: 100%;
+            box-sizing: border-box;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #749cbf;
+        }
+
+        .reply-container.active {
+            display: block;
+        }
+
+        .reply-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .reply-to {
+            font-size: 12px;
+            color: #749cbf;
+            font-weight: 600;
+        }
+
+        .reply-close {
+            cursor: pointer;
+            color: #666;
+            font-size: 14px;
+            padding: 2px;
+        }
+
+        .reply-close:hover {
+            color: #333;
+        }
+
+        .reply-content {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.3;
+            max-height: 40px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            position: relative;
+        }
+
         .message-bubble {
             background: #fff;
             display: flex;
@@ -400,24 +201,32 @@
             border-radius: 30px;
             position: relative;
         }
+
         .message-bubble::after {
             content: '';
             position: absolute;
-            top: 50%;
+            top: auto;
+            bottom: 12px;
             right: -6px;
             width: 15px;
             height: 15px;
             background-color: #fff;
-            transform: translateY(-50%) rotate(45deg);
+            transform: translateY(0) rotate(45deg);
             border-radius: 0 4px 0 0;
             box-shadow: 2px -2px 6px rgba(0,0,0,0.1);
             z-index: -1;
         }
+
         .message-bubble .icon {
             font-size: 20px;
             color: #555;
             cursor: pointer;
+            align-self: flex-end;
+            flex-shrink: 0;
+            position: relative;
+            top: -5px;
         }
+
         .message-input {
             flex: 1;
             border: none;
@@ -430,23 +239,36 @@
             white-space: pre-wrap;
             overflow-wrap: break-word;
             word-break: break-word;
+            min-height: 20px;
+            max-height: 120px;
+            box-sizing: border-box;
+            line-height: 1.4;
+            overflow-y: auto;
         }
+
         .message-input[contenteditable][data-placeholder]:empty::before {
             content: attr(data-placeholder);
             color: #999;
             pointer-events: none;
             display: block;
         }
+
         .attach-btn {
             background: none;
             border: none;
             padding: 0;
             cursor: pointer;
+            align-self: flex-end;
+            flex-shrink: 0;
+            top: -7px;
+            position: relative;
         }
+
         .attach-btn i {
             font-size: 20px;
             color: #555;
         }
+
         .mic-btn {
             background: #749cbf;
             border: none;
@@ -462,47 +284,49 @@
             transition: transform 0.1s ease;
             touch-action: none;
             z-index: 1001;
+            align-self: flex-end;
+            flex-shrink: 0;
         }
+
         .mic-btn.hold-state {
-            transform: scale(1.76) translateY(-5px);
+            transform: scale(1.4) translateY(-5px);
         }
+
+        .mic-btn.lock-state {
+            transform: translateY(-1px); /* Match unhold state */
+        }
+
         .mic-btn.dragging {
             transition: none;
         }
+
         .mic-btn svg {
             width: 21px;
             height: 21px;
             fill: white;
         }
-        @media (max-width: 480px) {
-            .chat-input-container {
-           width: 100% ! important;
-           gap: 6px;
-          background: #fff;
-         height: 52px;
-     }
-            .message-bubble {
-                padding: 6px 12px;
-                box-shadow: 0 2px 6px 5px rgba(0,0,0,0.1);
-            }
-            .mic-btn {
-                width: 55px;
-                height: 55px;
-                top: -2px;
-                left: 2px;
-                margin-top: 2px;
-            }
-            .mic-btn.hold-state {
-                transform: scale(1.9) translateY(-5px);
-            }
-            .message-input {
-                font-size: 15px;
-            }
-            .messages-container {
-                padding: 15px;
-                bottom: 70px; /* Adjust for mobile input height */
-            }
+
+        .mic-btn.delete-state svg {
+            animation: drip-fall 3s forwards ease-in-out;
         }
+
+        .recording-overlay {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 62px;
+            height: 100%;
+            background: #fff;
+            border-radius: 30px;
+            z-index: 1000;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .recording-overlay.active {
+            display: block;
+        }
+
         .emoji-picker-container {
             position: fixed;
             bottom: 0;
@@ -511,20 +335,23 @@
             height: 381px;
             background: #dde5e8;
             box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-            z-index: 1002; /* Higher than input container */
+            z-index: 999;
             display: flex;
             flex-direction: column;
             transition: transform 0.3s ease;
             transform: translateY(100%);
         }
+
         .emoji-picker-container.active {
             transform: translateY(0);
         }
+
         .emoji-picker-topbar {
             width: 100%;
             height: 50px;
             background-color: #fff;
         }
+
         .emoji-picker-content {
             flex: 1;
             display: grid;
@@ -533,12 +360,14 @@
             padding: 15px;
             overflow-y: auto;
         }
+
         .emoji-picker-content span {
             font-size: 24px;
             text-align: center;
             cursor: pointer;
             user-select: none;
         }
+
         .emoji-picker-navbar {
             width: 100%;
             height: 40px;
@@ -552,11 +381,13 @@
             box-sizing: border-box;
             color: #777;
         }
+
         .emoji-picker-navbar span.active {
             background-color: #f5f5f5;
             color: #6a6969;
             font-weight: bold;
         }
+
         .emoji-picker-navbar span {
             padding: 6px 12px;
             border-radius: 18px;
@@ -566,365 +397,692 @@
             color: #777;
         }
 
-        /* Remove demo button styles */
+        .demo-btn {
+            position: fixed;
+            top: 72px;
+            right: 20px;
+            background: #25D366;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            z-index: 1000;
+        }
+
+        .slide-container {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: absolute;
+            top: 50%;
+            right: 72px;
+            transform: translateY(-50%);
+            overflow: hidden;
+            min-width: 160px;
+        }
+
+        .slide-container.lock-state {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            left: 0;
+            right: 0;
+            width: 100%;
+        }
+
+        .recording-circle {
+            width: 25px;
+            height: 25px;
+            margin-right: 16px;
+        }
+
+        .mic-shape {
+            animation: blink 1s infinite;
+            transform-origin: top center;
+        }
+
+        @keyframes blink {
+            0%, 50%, 100% { fill: #ff2b2b; }
+            25%, 75% { fill: #660000; }
+        }
+
+        @keyframes drip-fall {
+            0%   { transform: scaleY(1) translateY(0); opacity: 1; }
+            40%  { transform: scaleY(1.2) translateY(3px); opacity: 1; } /* stretch */
+            70%  { transform: scaleY(0.8) translateY(15px); opacity: 0.8; } /* falling */
+            100% { transform: scaleY(0.5) translateY(40px); opacity: 0; } /* vanish */
+        }
+
+        .timer {
+            font-size: 16px;
+            color: #666;
+            font-weight: 400;
+            font-family: inherit;
+        }
+
+        .arrow-icon {
+            width: 20px;
+            height: 20px;
+            opacity: 0.6;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+
+        .slide-text {
+            font-size: 14px;
+            color: #666;
+            font-weight: 400;
+            letter-spacing: 0.3px;
+            position: relative;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .cancel-btn {
+            color: #749cbf;
+            background: none;
+            border: none;
+            font-size: 19px !important;
+            font-weight: 400;
+            cursor: pointer;
+            padding: 4px 8px;
+            transition: opacity 0.2s ease;
+        }
+
+        .cancel-btn:hover {
+            opacity: 0.8;
+        }
+
+        .cancel-btn:active {
+            opacity: 0.6;
+        }
+
+        .slide-text::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translateX(0) scale(1); opacity: 0.6; }
+            50% { transform: translateX(-3px) scale(1.1); opacity: 0.8; }
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .slide-container:hover .arrow-icon {
+            transform: translateX(-5px) scale(1.1);
+            opacity: 0.8;
+        }
+
+        .slide-container:hover {
+            transform: translateY(-50%) translateY(-2px);
+        }
+
+        .slide-container:active {
+            transform: translateY(-50%) scale(0.98);
+        }
+
+        @media (min-width: 768px) {
+            body { background-attachment: fixed; }
+            .chat-header { max-width: 1200px; margin: 0 auto; }
+            .user-name { font-size: 1.2rem; }
+            .last-seen { font-size: 0.9rem; }
+            .avatar { width: 36px; height: 36px; font-size: 1rem; }
+            .back-arrow, .menu-icon { padding: 0.5rem; }
+            .demo-btn { top: 76px; }
+        }
+
+        @media (min-width: 1024px) {
+            .chat-header { max-width: 1400px; padding: 0.8rem 1.5rem; height: 56px; }
+            .left-section, .profile-section { gap: 0.8rem; }
+            .avatar { width: 40px; height: 40px; font-size: 1.1rem; }
+            .demo-btn { top: 80px; }
+        }
+
+        @media (max-width: 480px) {
+            .chat-header { padding: 0.6rem 0.8rem; }
+            .user-name { font-size: 1rem; }
+            .last-seen { font-size: 0.8rem; }
+            .avatar { width: 30px; height: 30px; font-size: 0.8rem; }
+            .left-section, .profile-section { gap: 0.5rem; }
+            .chat-input-container { width: 102% !important; gap: 6px; background: #fff; min-height: 52px; }
+            .message-bubble { padding: 6px 12px; box-shadow: 0 2px 6px 5px rgba(0,0,0,0.1); }
+            .mic-btn { width: 55px; height: 55px; top: 2px; left: 2px; margin-top: -3px; }
+            .mic-btn.hold-state { transform: scale(1.5) translateY(-5px); }
+            .mic-btn.lock-state { transform: translateY(-1px); } /* Match unhold state */
+            .message-input { font-size: 15px; }
+            .reply-container { margin: 8px 12px 4px 12px; width: calc(100% - 24px); }
+            .recording-overlay { right: 63px; }
+            .slide-container { right: 73px; min-width: 140px; padding: 8px; }
+            .slide-container.lock-state { left: 0; }
+            .slide-container.lock-state > div:first-child { padding-left: 10px; }
+            .recording-circle { width: 22px; height: 22px; margin-right: 14px; }
+            .timer { font-size: 15px; }
+            .slide-text { font-size: 13px; }
+            .cancel-btn { font-size: 17px !important; }
+            .slide-container.lock-state > div:nth-child(2) { margin-left: 20px; }
+            .arrow-icon { width: 18px; height: 18px; }
+            .demo-btn { top: 68px; }
+        }
     </style>
 </head>
 <body>
-    <div class="messages-container" id="messages-container">
-        <!-- Messages will be added here dynamically -->
+    <div class="chat-header">
+        <div class="left-section">
+            <div class="back-arrow" onclick="goBack()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 12H5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            
+            <div class="profile-section">
+                <div class="avatar">M</div>
+                <div class="user-info">
+                    <div style="display: flex; align-items: center; gap: 0.3rem;">
+                        <h3 class="user-name">Mykeespage</h3>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 122.88 116.87" style="width: 16px; height: 16px;">
+                            <defs><style>.cls-1{fill:#3690e7;fill-rule:evenodd;}</style></defs>
+                            <path class="cls-1" d="M61.37,8.24,80.43,0,90.88,17.78l20.27,4.54-2,20.53,13.73,15.58L109.2,73.87l2,20.68L91,99,80.43,116.87l-18.92-8.25-19.06,8.25L32,99.08,11.73,94.55l2-20.54L0,58.43,13.68,43,11.73,22.32l20.15-4.45L42.45,0,61.37,8.24ZM37.44,64.55c-6.07-6.53,3.25-16.26,10-10.1,2.38,2.17,5.84,5.34,8.24,7.49L74.18,39.18C80.62,32.53,90.79,42.3,84.43,49L61.2,76.72a7.13,7.13,0,0,1-9.91.44C47.35,73.41,41.57,68,37.44,64.55Z"/>
+                        </svg>
+                    </div>
+                    <p class="last-seen">last seen Aug 22 at 07:07 AM</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu-icon" onclick="openMenu()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="5" r="2" fill="currentColor"/>
+                <circle cx="12" cy="12" r="2" fill="currentColor"/>
+                <circle cx="12" cy="19" r="2" fill="currentColor"/>
+            </svg>
+        </div>
+    </div>
+
+    <button class="demo-btn" onclick="showReply()">Test Reply</button>
+    
+    <div class="chat-input-container">
+        <div class="reply-container" id="reply-container">
+            <div class="reply-header">
+                <div class="reply-to" id="reply-to">You</div>
+                <div class="reply-close" id="reply-close">✕</div>
+            </div>
+            <div class="reply-content" id="reply-content">Hi</div>
+        </div>
+        
+        <div class="input-wrapper">
+            <div class="message-bubble">
+                <div class="icon" id="emoji-btn"><i class="fa-regular fa-face-smile"></i></div>
+                <div class="message-input" contenteditable="true" data-placeholder="Message" id="chat-input-div"></div>
+                <button class="attach-btn">
+                    <i class="fa-solid fa-paperclip"></i>
+                </button>
+            </div>
+            <div class="recording-overlay" id="recording-overlay"></div>
+            <button class="mic-btn" id="mic-btn">
+                <svg id="micSVG" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                    <g id="SVGRepo_iconCarrier">
+                        <path d="M7.25 7C7.25 4.37665 9.37665 2.25 12 2.25C14.6234 2.25 16.75 4.37665 16.75 7V11C16.75 13.6234 14.6234 15.75 12 15.75C9.37665 15.75 7.25 13.6234 7.25 11V7Z" fill="#ffffff"></path>
+                        <path d="M5.75 10C5.75 9.58579 5.41421 9.25 5 9.25C4.58579 9.25 4.25 9.58579 4.25 10V11C4.25 15.0272 7.3217 18.3369 11.25 18.7142V21C11.25 21.4142 11.5858 21.75 12 21.75C12.4142 21.75 12.75 21.4142 12.75 21V18.7142C16.6783 18.3369 19.75 15.0272 19.75 11V10C19.75 9.58579 19.4142 9.25 19 9.25C18.5858 9.25 18.25 9.58579 18.25 10V11C18.25 14.4518 15.4518 17.25 12 17.25C8.54822 17.25 5.75 14.4518 5.75 11V10Z" fill="#ffffff"></path>
+                    </g>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="emoji-picker-container" id="emoji-picker">
+        <div class="emoji-picker-topbar"></div>
+        <div class="emoji-picker-content"></div>
+        <div class="emoji-picker-navbar">
+            <span class="nav-tab" data-tab="emoji-tab">Emoji</span>
+            <span class="nav-tab active" data-tab="gifs-tab">GIFs</span>
+            <span class="nav-tab" data-tab="stickers-tab">Stickers</span>
+        </div>
     </div>
 
     <script>
-        const messagesContainer = document.getElementById('messages-container');
+        const emojiBtn = document.getElementById('emoji-btn');
+        const emojiPicker = document.getElementById('emoji-picker');
+        const emojiPickerContent = document.querySelector('.emoji-picker-content');
+        const chatInputContainer = document.querySelector('.chat-input-container');
+        const chatInputDiv = document.getElementById('chat-input-div');
+        const attachBtn = document.querySelector('.attach-btn');
+        const micBtn = document.getElementById('mic-btn');
+        const recordingOverlay = document.getElementById('recording-overlay');
+        
+        const replyContainer = document.getElementById('reply-container');
+        const replyClose = document.getElementById('reply-close');
+        const replyTo = document.getElementById('reply-to');
+        const replyContent = document.getElementById('reply-content');
 
-        function addMessage(text, type = 'sent') {
-            if (!text.trim()) return;
-            
-            const message = document.createElement('div');
-            message.className = `message ${type}`;
-            
-            if (type === 'reply') {
-                message.innerHTML = `
-                    <div class="reply-header">Mykeespage</div>
-                    <div class="reply-content">Thanks! This looks great</div>
-                    <div class="main-message">Do you know what time it is?</div>
-                    <div class="timestamp">7:24 AM</div>
-                `;
-            } else {
-                message.textContent = text;
-            }
-            
-            messagesContainer.appendChild(message);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-
-        function addAudioMessage(duration, timestamp, type = 'received') {
-            const message = document.createElement('div');
-            message.className = `message audio ${type}`;
-            
-            // Generate random waveform bars
-            let waveformBars = '';
-            const barHeights = [6, 12, 8, 15, 10, 18, 14, 9, 16, 11, 7, 13, 19, 8, 12, 6, 14, 17, 10, 15, 9, 11, 13, 8, 16];
-            for (let i = 0; i < 25; i++) {
-                waveformBars += `<div class="audio-bar" style="height: ${barHeights[i] || 10}px;" data-index="${i}"></div>`;
-            }
-            
-            message.innerHTML = `
-                <button class="audio-play-btn" onclick="toggleAudioPlayback(this)" data-duration="${duration}">
-                    <svg class="play-icon" viewBox="0 0 24 24">
-                        <path d="M8 5v14l11-7z"/>
+        const micSVG = `
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                <g id="SVGRepo_iconCarrier">
+                    <path d="M7.25 7C7.25 4.37665 9.37665 2.25 12 2.25C14.6234 2.25 16.75 4.37665 16.75 7V11C16.75 13.6234 14.6234 15.75 12 15.75C9.37665 15.75 7.25 13.6234 7.25 11V7Z" fill="#ffffff"></path>
+                    <path d="M5.75 10C5.75 9.58579 5.41421 9.25 5 9.25C4.58579 9.25 4.25 9.58579 4.25 10V11C4.25 15.0272 7.3217 18.3369 11.25 18.7142V21C11.25 21.4142 11.5858 21.75 12 21.75C12.4142 21.75 12.75 21.4142 12.75 21V18.7142C16.6783 18.3369 19.75 15.0272 19.75 11V10C19.75 9.58579 19.4142 9.25 19 9.25C18.5858 9.25 18.25 9.58579 18.25 10V11C18.25 14.4518 15.4518 17.25 12 17.25C8.54822 17.25 5.75 14.4518 5.75 11V10Z" fill="#ffffff"></path>
+                </g>
+            </svg>
+        `;
+        const sendArrowSVG = `
+            <svg id="arrowSVG" xmlns="http://www.w3.org/2000/svg" viewBox="-15 0 150 122.88" width="21" height="21">
+                <g transform="rotate(40, 61.28, 61.44) translate(-5, 0)">
+                    <path style="fill: white; fill-rule: evenodd;" d="M2.33,44.58,117.33.37a3.63,3.63,0,0,1,5,4.56l-44,115.61h0a3.63,3.63,0,0,1-6.67.28L53.93,84.14,89.12,33.77,38.85,68.86,2.06,51.24a3.63,3.63,0,0,1,.27-6.66Z"/>
+                </g>
+            </svg>
+        `;
+        const micAltSVG = `
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd" 
+                d="M3.46447 3.46447C2 4.92893 2 7.28595 2 12C2 16.714 2 19.0711 3.46447 20.5355C4.92893 22 7.28595 22 12 22C16.714 22 19.0711 22 20.5355 20.5355C22 19.0711 22 16.714 22 12C22 7.28595 22 4.92893 20.5355 3.46447C19.0711 2 16.714 2 12 2C7.28595 2 4.92893 2 3.46447 3.46447ZM7.25 12C7.25 9.37665 9.37665 7.25 12 7.25C14.6234 7.25 16.75 9.37665 16.75 12C16.75 14.6234 14.6234 16.75 12 16.75C9.37665 16.75 7.25 14.6234 7.25 12ZM8.75 12C8.75 10.2051 10.2051 8.75 12 8.75C13.7949 8.75 15.25 10.2051 15.25 12C15.25 13.7949 13.7949 15.25 12 15.25C10.2051 15.25 8.75 13.7949 8.75 12Z" 
+                fill="#ffffff"></path>
+            </svg>
+        `;
+        const slideContainerContent = `
+            <div class="slide-container">
+                <svg class="recording-circle" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" preserveAspectRatio="xMidYMid meet">
+                    <path class="mic-shape" d="M7.25 7C7.25 4.37665 9.37665 2.25 12 2.25C14.6234 2.25 16.75 4.37665 16.75 7V11C16.75 13.6234 14.6234 15.75 12 15.75C9.37665 15.75 7.25 13.6234 7.25 11V7Z"/>
+                    <path class="mic-shape" d="M5.75 10C5.75 9.58579 5.41421 9.25 5 9.25C4.58579 9.25 4.25 9.58579 4.25 10V11C4.25 15.0272 7.3217 18.3369 11.25 18.7142V21C11.25 21.4142 11.5858 21.75 12 21.75C12.4142 21.75 12.75 21.4142 12.75 21V18.7142C16.6783 18.3369 19.75 15.0272 19.75 11V10C19.75 9.58579 19.4142 9.25 19 9.25C18.5858 9.25 18.25 9.58579 18.25 10V11C18.25 14.4518 15.4518 17.25 12 17.25C8.54822 17.25 5.75 14.4518 5.75 11V10Z"/>
+                </svg>
+                <span class="timer">0:00</span>
+                <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15 18L9 12L15 6" 
+                          stroke="currentColor" 
+                          stroke-width="2" 
+                          stroke-linecap="round" 
+                          stroke-linejoin="round"/>
+                </svg>
+                <span class="slide-text">Slide to cancel</span>
+            </div>
+        `;
+        const slideContainerLockedContent = `
+            <div class="slide-container lock-state">
+                <div style="display: flex; align-items: center; gap: 8px; padding-left: 12px; min-width: 60px;">
+                    <svg class="recording-circle" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" preserveAspectRatio="xMidYMid meet">
+                        <path class="mic-shape" d="M7.25 7C7.25 4.37665 9.37665 2.25 12 2.25C14.6234 2.25 16.75 4.37665 16.75 7V11C16.75 13.6234 14.6234 15.75 12 15.75C9.37665 15.75 7.25 13.6234 7.25 11V7Z"/>
+                        <path class="mic-shape" d="M5.75 10C5.75 9.58579 5.41421 9.25 5 9.25C4.58579 9.25 4.25 9.58579 4.25 10V11C4.25 15.0272 7.3217 18.3369 11.25 18.7142V21C11.25 21.4142 11.5858 21.75 12 21.75C12.4142 21.75 12.75 21.4142 12.75 21V18.7142C16.6783 18.3369 19.75 15.0272 19.75 11V10C19.75 9.58579 19.4142 9.25 19 9.25C18.5858 9.25 18.25 9.58579 18.25 10V11C18.25 14.4518 15.4518 17.25 12 17.25C8.54822 17.25 5.75 14.4518 5.75 11V10Z"/>
                     </svg>
-                    <svg class="pause-icon" viewBox="0 0 24 24" style="display: none;">
-                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
-                    </svg>
-                </button>
-                <div class="audio-content">
-                    <div class="audio-waveform" onmousedown="startWaveformDrag(event, this)" ontouchstart="startWaveformDrag(event, this)">
-                        ${waveformBars}
-                    </div>
-                    <div class="audio-info">
-                        <span class="audio-duration">${duration}</span>
-                        <span class="audio-timestamp">${timestamp}</span>
-                    </div>
+                    <span class="timer">0:00</span>
                 </div>
-            `;
-            
-            messagesContainer.appendChild(message);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
+                <div style="flex-grow: 0; margin: 0 auto; margin-left: 24px;">
+                    <button class="cancel-btn">Cancel</button>
+                </div>
+            </div>
+        `;
 
-        let isDragging = false;
-        let dragTarget = null;
+        let isHolding = false;
+        let isLocked = false;
+        let isAltMic = false;
+        let isDeleting = false;
+        let startX = 0;
+        let startY = 0;
+        let currentX = 0;
+        let currentY = 0;
+        let initialLeft = 10;
+        let holdTimer = null;
+        let holdTriggered = false;
+        let soundEnabled = true;
+        let volume = 100;
+        let timerInterval = null;
+        let recordingSeconds = 0;
+        let wasInputFocused = false;
 
-        function startWaveformDrag(event, waveformElement) {
-            event.preventDefault();
-            isDragging = true;
-            dragTarget = waveformElement;
-            waveformElement.classList.add('dragging');
-            
-            // Get initial position and seek immediately
-            handleWaveformSeek(event, waveformElement);
-            
-            // Add event listeners for drag and end
-            document.addEventListener('mousemove', handleWaveformDrag);
-            document.addEventListener('mouseup', endWaveformDrag);
-            document.addEventListener('touchmove', handleWaveformDrag, { passive: false });
-            document.addEventListener('touchend', endWaveformDrag);
-        }
-
-        function handleWaveformDrag(event) {
-            if (!isDragging || !dragTarget) return;
-            event.preventDefault();
-            handleWaveformSeek(event, dragTarget);
-        }
-
-        function endWaveformDrag(event) {
-            if (!isDragging) return;
-            
-            isDragging = false;
-            if (dragTarget) {
-                dragTarget.classList.remove('dragging');
-                dragTarget = null;
-            }
-            
-            // Remove event listeners
-            document.removeEventListener('mousemove', handleWaveformDrag);
-            document.removeEventListener('mouseup', endWaveformDrag);
-            document.removeEventListener('touchmove', handleWaveformDrag);
-            document.removeEventListener('touchend', endWaveformDrag);
-        }
-
-        function handleWaveformSeek(event, waveformElement) {
-            const rect = waveformElement.getBoundingClientRect();
-            const clientX = event.touches ? event.touches[0].clientX : event.clientX;
-            const x = clientX - rect.left;
-            const width = rect.width;
-            const progress = Math.max(0, Math.min(1, x / width));
-            
-            const audioMessage = waveformElement.closest('.message.audio');
-            const playButton = audioMessage.querySelector('.audio-play-btn');
-            const durationSpan = audioMessage.querySelector('.audio-duration');
-            const waveformBars = audioMessage.querySelectorAll('.audio-bar');
-            
-            // Get duration from the audio message (parse from display)
-            const durationText = durationSpan.textContent;
-            const isElapsedTime = !durationText.includes(':') || parseInt(durationText.split(':')[0]) === 0 && parseInt(durationText.split(':')[1]) <= 33;
-            let totalDuration = 33; // default
-            
-            // If showing total duration, parse it
-            if (durationText.includes(':')) {
-                const parts = durationText.split(':');
-                totalDuration = parseInt(parts[0]) * 60 + parseInt(parts[1]);
-                if (totalDuration === 25 || totalDuration === 33) {
-                    // This looks like a total duration, use it
-                } else {
-                    // This might be elapsed time, use default
-                    totalDuration = durationText === '0:25' ? 25 : 33;
+        function playButtonSound() {
+            if (soundEnabled) {
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                    oscillator.type = 'sine';
+                    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                    gainNode.gain.linearRampToValueAtTime(0.1 * (volume / 100), audioContext.currentTime + 0.01);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.1);
+                } catch (error) {
+                    console.log('Audio not supported');
                 }
             }
-            
-            const seekTime = Math.floor(progress * totalDuration);
-            const totalBars = waveformBars.length;
-            const playedBars = Math.floor(progress * totalBars);
-            
-            // Clear existing interval if playing
-            if (playButton.playbackInterval) {
-                clearInterval(playButton.playbackInterval);
-                playButton.playbackInterval = null;
-            }
-            
-            // Set current time and total duration
-            playButton.currentTime = seekTime;
-            playButton.totalDuration = totalDuration;
-            
-            // Update duration display (show elapsed time like Telegram)
-            const minutes = Math.floor(seekTime / 60);
-            const seconds = seekTime % 60;
-            durationSpan.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-            
-            // Update waveform progress
-            waveformBars.forEach((bar, index) => {
-                if (index <= playedBars) {
-                    bar.classList.add('played');
-                } else {
-                    bar.classList.remove('played');
-                }
-            });
-            
-            // If currently playing, resume from new position
-            if (playButton.classList.contains('playing')) {
-                startPlaybackFromCurrentTime(playButton);
-            }
         }
 
-        function seekToPosition(barElement, barIndex, totalBars) {
-            const audioMessage = barElement.closest('.message.audio');
-            const playButton = audioMessage.querySelector('.audio-play-btn');
-            const durationSpan = audioMessage.querySelector('.audio-duration');
-            const waveformBars = audioMessage.querySelectorAll('.audio-bar');
-            
-            const totalDuration = 33; // 33 seconds (0:33)
-            const seekTime = Math.floor((barIndex / totalBars) * totalDuration);
-            
-            // Clear existing interval if playing
-            if (playButton.playbackInterval) {
-                clearInterval(playButton.playbackInterval);
-                playButton.playbackInterval = null;
+        function startTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
             }
-            
-            // Set current time and update display
-            playButton.currentTime = seekTime;
-            
-            // Update duration display (show elapsed time like Telegram)
-            const minutes = Math.floor(seekTime / 60);
-            const seconds = seekTime % 60;
-            durationSpan.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-            
-            // Update waveform progress
-            waveformBars.forEach((bar, index) => {
-                if (index <= barIndex) {
-                    bar.classList.add('played');
-                } else {
-                    bar.classList.remove('played');
-                }
-            });
-            
-            // If currently playing, resume from new position
-            if (playButton.classList.contains('playing')) {
-                startPlaybackFromCurrentTime(playButton);
+            recordingSeconds = 0;
+            const initialTimerElement = document.querySelector('.timer');
+            if (initialTimerElement) {
+                initialTimerElement.textContent = '0:00';
             }
-        }
-
-        function startPlaybackFromCurrentTime(button) {
-            const audioMessage = button.closest('.message.audio');
-            const durationSpan = audioMessage.querySelector('.audio-duration');
-            const waveformBars = audioMessage.querySelectorAll('.audio-bar');
-            
-            const totalDuration = button.totalDuration || 33; // Use stored duration or default
-            const totalBars = waveformBars.length;
-            let currentTime = button.currentTime || 0;
-            
-            button.playbackInterval = setInterval(() => {
-                currentTime++;
-                button.currentTime = currentTime;
-                
-                // Update duration display (show elapsed time like Telegram)
-                const minutes = Math.floor(currentTime / 60);
-                const seconds = currentTime % 60;
-                durationSpan.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-                
-                // Update waveform progress
-                const progress = currentTime / totalDuration;
-                const playedBars = Math.floor(progress * totalBars);
-                
-                waveformBars.forEach((bar, index) => {
-                    if (index <= playedBars) {
-                        bar.classList.add('played');
-                    }
-                });
-                
-                // End playback when duration is reached
-                if (currentTime >= totalDuration) {
-                    clearInterval(button.playbackInterval);
-                    button.playbackInterval = null;
-                    button.classList.remove('playing');
-                    button.querySelector('.play-icon').style.display = 'block';
-                    button.querySelector('.pause-icon').style.display = 'none';
-                    
-                    // Reset to show total duration
-                    const totalMinutes = Math.floor(totalDuration / 60);
-                    const totalSeconds = totalDuration % 60;
-                    durationSpan.textContent = `${totalMinutes}:${totalSeconds.toString().padStart(2, '0')}`;
-                    button.currentTime = 0;
-                    
-                    // Reset waveform
-                    waveformBars.forEach(bar => {
-                        bar.classList.remove('played');
-                    });
+            timerInterval = setInterval(() => {
+                recordingSeconds++;
+                const minutes = Math.floor(recordingSeconds / 60);
+                const seconds = recordingSeconds % 60;
+                const timerElement = document.querySelector('.timer');
+                if (timerElement) {
+                    timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
                 }
+                console.log(`Timer updated: ${minutes}:${seconds.toString().padStart(2, '0')}`);
             }, 1000);
         }
 
-        function toggleAudioPlayback(button) {
-            const playIcon = button.querySelector('.play-icon');
-            const pauseIcon = button.querySelector('.pause-icon');
-            const audioMessage = button.closest('.message.audio');
-            const durationSpan = audioMessage.querySelector('.audio-duration');
-            const waveformBars = audioMessage.querySelectorAll('.audio-bar');
-            
-            if (button.classList.contains('playing')) {
-                // Stop playback
-                button.classList.remove('playing');
-                playIcon.style.display = 'block';
-                pauseIcon.style.display = 'none';
-                
-                // Clear any existing interval
-                if (button.playbackInterval) {
-                    clearInterval(button.playbackInterval);
-                    button.playbackInterval = null;
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                recordingSeconds = 0;
+                const timerElement = document.querySelector('.timer');
+                if (timerElement) {
+                    timerElement.textContent = '0:00';
                 }
-            } else {
-                // Start playback
-                button.classList.add('playing');
-                playIcon.style.display = 'none';
-                pauseIcon.style.display = 'block';
-                
-                // Parse the total duration from the data attribute or display
-                const durationAttr = button.getAttribute('data-duration') || durationSpan.textContent;
-                let totalDuration = 33; // default
-                if (durationAttr && durationAttr.includes(':')) {
-                    const parts = durationAttr.split(':');
-                    totalDuration = parseInt(parts[0]) * 60 + parseInt(parts[1]);
-                }
-                button.totalDuration = totalDuration;
-                
-                // Initialize current time if not set, start from 0
-                if (button.currentTime === undefined) {
-                    button.currentTime = 0;
-                }
-                
-                // If starting from beginning, show 0:01 immediately like Telegram
-                if (button.currentTime === 0) {
-                    durationSpan.textContent = '0:01';
-                    button.currentTime = 1;
-                }
-                
-                startPlaybackFromCurrentTime(button);
+                console.log('Timer stopped and reset');
             }
         }
 
-        function addReplyMessage(text, replyToUser, replyToText, timestamp, type = 'reply', isAudioReply = false) {
-            const message = document.createElement('div');
-            message.className = `message ${type}`;
-            
-            let replyContentHtml;
-            if (isAudioReply) {
-                replyContentHtml = `
-                    <div class="reply-content audio-reply">
-                        <div class="audio-reply-icon">
-                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                                <g id="SVGRepo_iconCarrier">
-                                    <path d="M7.25 7C7.25 4.37665 9.37665 2.25 12 2.25C14.6234 2.25 16.75 4.37665 16.75 7V11C16.75 13.6234 14.6234 15.75 12 15.75C9.37665 15.75 7.25 13.6234 7.25 11V7Z" fill="#000000"></path>
-                                    <path d="M5.75 10C5.75 9.58579 5.41421 9.25 5 9.25C4.58579 9.25 4.25 9.58579 4.25 10V11C4.25 15.0272 7.3217 18.3369 11.25 18.7142V21C11.25 21.4142 11.5858 21.75 12 21.75C12.4142 21.75 12.75 21.4142 12.75 21V18.7142C16.6783 18.3369 19.75 15.0272 19.75 11V10C19.75 9.58579 19.4142 9.25 19 9.25C18.5858 9.25 18.25 9.58579 18.25 10V11C18.25 14.4518 15.4518 17.25 12 17.25C8.54822 17.25 5.75 14.4518 5.75 11V10Z" fill="#000000"></path>
-                                </g>
-                            </svg>
-                        </div>
-                        <span class="audio-reply-text">${replyToText}</span>
-                    </div>`;
-            } else {
-                replyContentHtml = `<div class="reply-content">${replyToText}</div>`;
+        function showReply(sender = "You", message = "Hi") {
+            replyTo.textContent = sender;
+            replyContent.textContent = message;
+            replyContainer.classList.add('active');
+            updatePlaceholder();
+            if (!emojiPicker.classList.contains('active')) {
+                chatInputDiv.focus();
             }
-            
-            message.innerHTML = `
-                <div class="reply-header">${replyToUser}</div>
-                ${replyContentHtml}
-                <div class="main-message">${text}</div>
-                <div class="timestamp">${timestamp}</div>
-            `;
-            
-            messagesContainer.appendChild(message);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-        // Add some initial messages for demonstration
-        setTimeout(() => {
-            addMessage("Welcome to the chat!", "received");
-            addMessage("Thanks! This looks great", "sent");
-            addAudioMessage("0:33", "12:00 PM", "received");
-            addMessage("Now you can drag across the waveform to seek! Playback starts from 0:01 like Telegram.", "received");
-            addAudioMessage("0:25", "12:05 PM", "sent");
-            addReplyMessage("Do you know what time it is?", "Mykeespage", "Thanks! This looks great", "7:24 AM", "reply");
-            // Add a reply to audio message from sender
-            setTimeout(() => {
-                addReplyMessage("I've heard you", "Mykee", "voice message 0:33", "7:25 AM", "reply sent", true);
-            }, 1000);
-            // Add a reply to the time question using the same design (from sender)
-            setTimeout(() => {
-                addReplyMessage("It's 7:24 AM! Hope you're having a great morning! 😊", "Mykee", "Do you know what time it is?", "7:25 AM", "reply sent");
-            }, 1500);
-        }, 500);
-    </script>     
+        function hideReply() {
+            replyContainer.classList.remove('active');
+            updatePlaceholder();
+            if (!emojiPicker.classList.contains('active')) {
+                chatInputDiv.focus();
+            }
+        }
+
+        replyClose.addEventListener('click', hideReply);
+        window.showReply = showReply;
+
+        function updatePlaceholder() {
+            const hasReply = replyContainer.classList.contains('active');
+            const placeholder = hasReply ? 'Type a reply' : 'Message';
+            if (chatInputDiv.textContent.trim() === '') {
+                chatInputDiv.setAttribute('data-placeholder', placeholder);
+            } else {
+                chatInputDiv.removeAttribute('data-placeholder');
+            }
+        }
+
+        function enterLockState() {
+            isLocked = true;
+            isHolding = false;
+            micBtn.classList.remove('hold-state', 'dragging');
+            micBtn.classList.add('lock-state');
+            micBtn.innerHTML = sendArrowSVG;
+            micBtn.style.transition = 'transform 0.1s ease';
+            micBtn.style.transform = 'translateY(-1px)'; // Match unhold state
+            recordingOverlay.innerHTML = slideContainerLockedContent;
+            recordingOverlay.classList.add('active');
+            const timerElement = document.querySelector('.timer');
+            if (timerElement) {
+                const minutes = Math.floor(recordingSeconds / 60);
+                const seconds = recordingSeconds % 60;
+                timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }
+            const cancelBtn = recordingOverlay.querySelector('.cancel-btn');
+            cancelBtn.addEventListener('click', (e) => {
+                exitLockState();
+            });
+            console.log('Entered lock state, continuing timer at', recordingSeconds, 'seconds');
+        }
+
+        function exitLockState() {
+            isLocked = false;
+            micBtn.classList.remove('lock-state');
+            micBtn.style.transition = 'transform 0.1s ease';
+            micBtn.style.transform = 'translateY(-1px)';
+            micBtn.innerHTML = isAltMic ? micAltSVG : micSVG;
+            recordingOverlay.classList.remove('active');
+            recordingOverlay.innerHTML = '';
+            stopTimer();
+            playButtonSound();
+            if (wasInputFocused && document.activeElement !== chatInputDiv) {
+                chatInputDiv.focus();
+            }
+            console.log('Exited lock state');
+        }
+
+        function startHold(e) {
+            if (chatInputDiv.textContent.trim() !== '') return;
+            e.preventDefault();
+            e.stopPropagation();
+            wasInputFocused = document.activeElement === chatInputDiv;
+            isHolding = true;
+            micBtn.classList.add('hold-state', 'dragging');
+            micBtn.style.transition = 'transform 0.05s ease';
+            micBtn.style.transform = `translateX(${initialLeft}px) scale(1.4) translateY(-5px)`;
+            recordingOverlay.classList.add('active');
+            recordingOverlay.innerHTML = slideContainerContent;
+            playButtonSound();
+            startTimer();
+            startX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+            startY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+            currentX = startX;
+            currentY = startY;
+            document.addEventListener('mousemove', onDrag, { passive: false });
+            document.addEventListener('touchmove', onDrag, { passive: false });
+            console.log('Recording started');
+        }
+
+        function onDrag(e) {
+            if (!isHolding) return;
+            e.preventDefault();
+            const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+            const deltaX = clientX - startX;
+            const deltaY = clientY - startY;
+            const newLeft = initialLeft + deltaX;
+            if (newLeft <= initialLeft) {
+                micBtn.style.transform = `translateX(${newLeft}px) scale(1.4) translateY(-5px)`;
+                if (newLeft <= -100 && !isDeleting) {
+                    isDeleting = true;
+                    document.removeEventListener('mousemove', onDrag);
+                    document.removeEventListener('touchmove', onDrag);
+                    document.removeEventListener('mouseup', endHold);
+                    document.removeEventListener('touchend', endHold);
+                    document.removeEventListener('touchcancel', endHold);
+                    endHold();
+                    return;
+                }
+            }
+            if (deltaY < -50 && Math.abs(deltaX) < 10 && !isDeleting) {
+                enterLockState();
+                document.removeEventListener('mousemove', onDrag);
+                document.removeEventListener('touchmove', onDrag);
+                document.removeEventListener('mouseup', endHold);
+                document.removeEventListener('touchend', endHold);
+                document.removeEventListener('touchcancel', endHold);
+                return;
+            }
+        }
+
+        function endHold(e) {
+            if (!isHolding && !isDeleting) return;
+            const wasDeleting = isDeleting;
+            isHolding = false;
+            isDeleting = false;
+            micBtn.classList.remove('hold-state', 'dragging');
+            micBtn.style.transition = 'transform 0.1s ease';
+            micBtn.style.transform = 'translateY(-1px)';
+            recordingOverlay.classList.remove('active');
+            recordingOverlay.innerHTML = '';
+            if (wasDeleting) {
+                micBtn.classList.add('delete-state');
+                micBtn.innerHTML = micSVG; // Ensure mic SVG for animation
+                setTimeout(() => {
+                    micBtn.classList.remove('delete-state');
+                    micBtn.innerHTML = isAltMic ? micAltSVG : micSVG;
+                }, 3000); // Match drip-fall animation duration
+            } else {
+                micBtn.innerHTML = isAltMic ? micAltSVG : micSVG;
+            }
+            playButtonSound();
+            stopTimer();
+            document.removeEventListener('mousemove', onDrag);
+            document.removeEventListener('touchmove', onDrag);
+            document.removeEventListener('mouseup', endHold);
+            document.removeEventListener('touchend', endHold);
+            document.removeEventListener('touchcancel', endHold);
+            if (wasInputFocused && document.activeElement !== chatInputDiv) {
+                chatInputDiv.focus();
+            }
+            console.log(wasDeleting ? 'Recording cancelled with drip-fall animation' : 'Recording stopped');
+        }
+
+        micBtn.addEventListener('mousedown', micPressStart, { passive: false });
+        micBtn.addEventListener('touchstart', micPressStart, { passive: false });
+
+        function micPressStart(e) {
+            if (chatInputDiv.textContent.trim() !== '') return;
+            if (isLocked) {
+                console.log('Send button tapped in lock state');
+                return;
+            }
+            e.preventDefault();
+            holdTriggered = false;
+            holdTimer = setTimeout(() => {
+                holdTriggered = true;
+                startHold(e);
+            }, 150);
+            document.addEventListener('mouseup', micPressEnd, { passive: false });
+            document.addEventListener('touchend', micPressEnd, { passive: false });
+            document.addEventListener('touchcancel', micPressEnd, { passive: false });
+        }
+
+        function micPressEnd(e) {
+            clearTimeout(holdTimer);
+            if (!holdTriggered && !isLocked) {
+                isAltMic = !isAltMic;
+                micBtn.innerHTML = isAltMic ? micAltSVG : micSVG;
+                updateMicButton();
+                console.log('Toggled to', isAltMic ? 'micAltSVG' : 'micSVG');
+            } else if (holdTriggered) {
+                endHold(e);
+            }
+            document.removeEventListener('mouseup', micPressEnd);
+            document.removeEventListener('touchend', micPressEnd);
+            document.removeEventListener('touchcancel', micPressEnd);
+        }
+
+        function updateMicButton() {}
+
+        chatInputDiv.addEventListener('input', () => {
+            if (isHolding || isLocked) return;
+            updatePlaceholder();
+            const text = chatInputDiv.textContent.trim();
+            if (text !== '') {
+                micBtn.innerHTML = sendArrowSVG;
+            } else {
+                micBtn.innerHTML = isAltMic ? micAltSVG : micSVG;
+            }
+        });
+
+        chatInputDiv.addEventListener('focus', () => {
+            emojiPicker.classList.remove('active');
+            chatInputContainer.classList.remove('displaying-picker');
+            chatInputContainer.classList.add('keyboard-active');
+            updatePlaceholder();
+            if (isHolding || isLocked) return;
+            const text = chatInputDiv.textContent.trim();
+            if (text !== '') {
+                micBtn.innerHTML = sendArrowSVG;
+            } else {
+                micBtn.innerHTML = isAltMic ? micAltSVG : micSVG;
+            }
+        });
+
+        chatInputDiv.addEventListener('blur', () => {
+            chatInputContainer.classList.remove('keyboard-active');
+            updatePlaceholder();
+        });
+
+        emojiBtn.addEventListener('click', () => {
+            const isPickerActive = emojiPicker.classList.contains('active');
+            if (isPickerActive) {
+                emojiPicker.classList.remove('active');
+                chatInputContainer.classList.remove('displaying-picker');
+            } else {
+                emojiPicker.classList.add('active');
+                chatInputContainer.classList.add('displaying-picker');
+                chatInputContainer.classList.remove('keyboard-active');
+                chatInputDiv.blur();
+            }
+        });
+
+        attachBtn.addEventListener('click', () => {
+            alert('Attach button clicked!');
+        });
+
+        const emojis = [];
+        emojis.forEach(emoji => {
+            const span = document.createElement('span');
+            span.textContent = emoji;
+            span.addEventListener('click', () => {
+                chatInputDiv.textContent += emoji;
+                const range = document.createRange();
+                const selection = window.getSelection();
+                range.selectNodeContents(chatInputDiv);
+                range.collapse(false);
+                selection.removeAllRanges();
+                selection.addRange(range);
+                updatePlaceholder();
+                if (!isHolding && !isLocked) {
+                    micBtn.innerHTML = sendArrowSVG;
+                }
+            });
+            emojiPickerContent.appendChild(span);
+        });
+
+        function goBack() {
+            console.log('Back button clicked');
+        }
+
+        function openMenu() {
+            console.log('Menu button clicked');
+        }
+
+        function updateOnlineStatus(isOnline) {
+            const lastSeenEl = document.querySelector('.last-seen');
+            lastSeenEl.textContent = 'last seen Aug 22 at 07:07 AM';
+            lastSeenEl.style.color = '';
+        }
+
+        function updateUrl() {
+            const currentPath = window.location.pathname === '/' ? '' : window.location.pathname;
+            history.pushState(null, '', `${currentPath}/@Mykeespage`);
+        }
+
+        updatePlaceholder();
+        micBtn.innerHTML = micSVG;
+        window.addEventListener('load', updateUrl);
+    </script>
 </body>
 </html>
