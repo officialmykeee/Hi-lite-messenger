@@ -196,7 +196,7 @@
         .message.reply .timestamp {
             font-size: 12px;
             color: #888;
-            float: right;
+            float: left;
             margin-top: 4px;
         }
 
@@ -371,7 +371,7 @@
             max-width: 80%;
         }
 
-        .message.link-preview .link-url {
+        .message.link-preview.sent .link-url {
             font-size: 13px;
             color: rgba(255, 255, 255, 0.8);
             margin-bottom: 8px;
@@ -379,31 +379,102 @@
             line-height: 1.2;
         }
 
-        .message.link-preview .link-content {
+        .message.link-preview.sent .link-content {
             background: rgba(116, 156, 191, 0.1);
             border-radius: 8px;
             padding: 12px;
             border-left: 4px solid #FFFFFF;
         }
 
-        .message.link-preview .link-title {
+        .message.link-preview.sent .link-title {
             color: #FFFFFF;
             font-weight: 600;
             font-size: 15px;
             margin-bottom: 6px;
         }
 
-        .message.link-preview .link-description {
+        .message.link-preview.sent .link-description {
             color: #FFFFFF;
             font-size: 14px;
             line-height: 1.4;
             margin-bottom: 4px;
         }
 
-        .message.link-preview .link-site {
+        .message.link-preview.sent .link-site {
             color: #FFFFFF;
             font-size: 14px;
             line-height: 1.4;
+        }
+
+        .message.link-preview.sent .timestamp {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            float: right;
+            margin-top: 4px;
+        }
+
+        .message.link-preview.received {
+            align-self: flex-start;
+            background: #f1f1f1;
+            color: #333;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message.link-preview.received::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 15px;
+            width: 15px;
+            height: 15px;
+            background-color: #f1f1f1;
+            transform: rotate(45deg);
+            border-radius: 0 0 0 4px;
+        }
+
+        .message.link-preview.received .link-url {
+            font-size: 13px;
+            color: #000000;
+            background: #ffffff;
+            margin-bottom: 8px;
+            word-break: break-all;
+            line-height: 1.2;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .message.link-preview.received .link-content {
+            background: rgba(116, 156, 191, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            border-left: 4px solid #749cbf;
+        }
+
+        .message.link-preview.received .link-title {
+            color: #000000;
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 6px;
+        }
+
+        .message.link-preview.received .link-description {
+            color: #000000;
+            font-size: 14px;
+            line-height: 1.4;
+            margin-bottom: 4px;
+        }
+
+        .message.link-preview.received .link-site {
+            color: #000000;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .message.link-preview.received .timestamp {
+            font-size: 12px;
+            color: #888;
+            float: left;
+            margin-top: 4px;
         }
 
         .reply-icon {
@@ -421,13 +492,15 @@
         }
 
         .message.received .reply-icon,
-        .message.reply:not(.sent) .reply-icon {
+        .message.reply:not(.sent) .reply-icon,
+        .message.link-preview.received .reply-icon {
             left: 0;
             transform: translateX(-100%) translateY(-50%);
         }
 
         .message.sent .reply-icon,
-        .message.reply.sent .reply-icon {
+        .message.reply.sent .reply-icon,
+        .message.link-preview.sent .reply-icon {
             right: 100%;
             transform: translateX(-10px) translateY(-50%);
         }
@@ -435,6 +508,29 @@
         .reply-icon svg {
             width: 24px;
             height: 24px;
+            fill: #ffffff;
+        }
+
+        .checkmark {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .message.sent .checkmark,
+        .message.reply.sent .checkmark,
+        .message.link-preview.sent .checkmark {
+            display: flex;
+        }
+
+        .checkmark svg {
+            width: 16px;
+            height: 16px;
             fill: #ffffff;
         }
 
@@ -680,6 +776,7 @@
         const messagesContainer = document.getElementById('messages-container');
         let isDragging = false;
         let dragTarget = null;
+        let activeAudioButton = null;
 
         function addMessage(text, type = 'sent') {
             if (!text.trim()) return;
@@ -696,6 +793,20 @@
                 `;
             } else {
                 message.textContent = text;
+                if (type === 'sent') {
+                    message.innerHTML += `<div class="timestamp">7:25 AM</div>`;
+                }
+            }
+            
+            if (type === 'sent' || type === 'reply sent') {
+                const checkmark = document.createElement('div');
+                checkmark.className = 'checkmark';
+                checkmark.innerHTML = `
+                    <svg viewBox="0 0 24 24">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                    </svg>
+                `;
+                message.appendChild(checkmark);
             }
             
             messagesContainer.appendChild(message);
@@ -733,6 +844,17 @@
                 </div>
             `;
             
+            if (type === 'sent') {
+                const checkmark = document.createElement('div');
+                checkmark.className = 'checkmark';
+                checkmark.innerHTML = `
+                    <svg viewBox="0 0 24 24">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                    </svg>
+                `;
+                message.appendChild(checkmark);
+            }
+            
             messagesContainer.appendChild(message);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
             addSwipeListeners(message);
@@ -749,7 +871,19 @@
                     <div class="link-description">${description}</div>
                     <div class="link-site">${site}</div>
                 </div>
+                <div class="timestamp">${timestamp}</div>
             `;
+            
+            if (type === 'sent') {
+                const checkmark = document.createElement('div');
+                checkmark.className = 'checkmark';
+                checkmark.innerHTML = `
+                    <svg viewBox="0 0 24 24">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                    </svg>
+                `;
+                message.appendChild(checkmark);
+            }
             
             messagesContainer.appendChild(message);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -787,6 +921,17 @@
                 <div class="timestamp">${timestamp}</div>
             `;
             
+            if (type === 'reply sent') {
+                const checkmark = document.createElement('div');
+                checkmark.className = 'checkmark';
+                checkmark.innerHTML = `
+                    <svg viewBox="0 0 24 24">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                    </svg>
+                `;
+                message.appendChild(checkmark);
+            }
+            
             messagesContainer.appendChild(message);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
             addSwipeListeners(message);
@@ -801,11 +946,10 @@
             let swipeDistance = 0;
             let verticalDistance = 0;
 
-            const isSent = message.classList.contains('sent') || message.classList.contains('reply sent');
-            const minSwipeDistance = 30; // Minimum horizontal movement to start sliding
-            const swipeThreshold = 150; // Threshold to trigger reply action
+            const isSent = message.classList.contains('sent') || message.classList.contains('reply sent') || message.classList.contains('link-preview sent');
+            const minSwipeDistance = 30;
+            const swipeThreshold = 150;
 
-            // Create reply icon
             const replyIcon = document.createElement('div');
             replyIcon.className = 'reply-icon';
             replyIcon.innerHTML = `
@@ -836,11 +980,11 @@
                 if (Math.abs(swipeDistance) >= minSwipeDistance && Math.abs(swipeDistance) > Math.abs(verticalDistance) * 2) {
                     e.preventDefault();
                     if (isSent) {
-                        if (swipeDistance < 0) swipeDistance = 0; // Prevent sliding left for sent
+                        if (swipeDistance < 0) swipeDistance = 0;
                         message.style.transform = `translateX(${swipeDistance}px)`;
                         replyIcon.style.display = 'flex';
                     } else {
-                        if (swipeDistance < 0) swipeDistance = 0; // Prevent sliding left for received
+                        if (swipeDistance < 0) swipeDistance = 0;
                         message.style.transform = `translateX(${swipeDistance}px)`;
                         replyIcon.style.display = 'flex';
                     }
@@ -885,7 +1029,6 @@
 
         function triggerReply(message) {
             console.log('Swipe to reply triggered for message:', message);
-            // No reply message sent, as per request
         }
 
         function startWaveformDrag(event, waveformElement) {
@@ -1016,6 +1159,10 @@
                     waveformBars.forEach(bar => {
                         bar.classList.remove('played');
                     });
+                    
+                    if (activeAudioButton === button) {
+                        activeAudioButton = null;
+                    }
                 }
             }, 1000);
         }
@@ -1025,6 +1172,31 @@
             const pauseIcon = button.querySelector('.pause-icon');
             const audioMessage = button.closest('.message.audio');
             const durationSpan = audioMessage.querySelector('.audio-duration');
+            const waveformBars = audioMessage.querySelectorAll('.audio-bar');
+            
+            if (activeAudioButton && activeAudioButton !== button) {
+                const activeAudioMessage = activeAudioButton.closest('.message.audio');
+                const activeDurationSpan = activeAudioMessage.querySelector('.audio-duration');
+                const activeWaveformBars = activeAudioMessage.querySelectorAll('.audio-bar');
+                
+                clearInterval(activeAudioButton.playbackInterval);
+                activeAudioButton.playbackInterval = null;
+                activeAudioButton.classList.remove('playing');
+                activeAudioButton.querySelector('.play-icon').style.display = 'block';
+                activeAudioButton.querySelector('.pause-icon').style.display = 'none';
+                
+                const totalDuration = activeAudioButton.totalDuration || 33;
+                const totalMinutes = Math.floor(totalDuration / 60);
+                const totalSeconds = totalDuration % 60;
+                activeDurationSpan.textContent = `${totalMinutes}:${totalSeconds.toString().padStart(2, '0')}`;
+                activeAudioButton.currentTime = 0;
+                
+                activeWaveformBars.forEach(bar => {
+                    bar.classList.remove('played');
+                });
+                
+                activeAudioButton = null;
+            }
             
             if (button.classList.contains('playing')) {
                 button.classList.remove('playing');
@@ -1034,6 +1206,10 @@
                 if (button.playbackInterval) {
                     clearInterval(button.playbackInterval);
                     button.playbackInterval = null;
+                }
+                
+                if (activeAudioButton === button) {
+                    activeAudioButton = null;
                 }
             } else {
                 button.classList.add('playing');
@@ -1057,6 +1233,7 @@
                     button.currentTime = 1;
                 }
                 
+                activeAudioButton = button;
                 startPlaybackFromCurrentTime(button);
             }
         }
@@ -1085,10 +1262,21 @@
                     "Facebook",
                     "Log in or sign up to view",
                     "See posts, photos and more on Facebook.",
-                    "7:27 AM",
+                    "7:25 AM",
                     "sent"
                 );
             }, 2000);
+            
+            setTimeout(() => {
+                addLinkPreview(
+                    "https://www.facebook.com/goodwallapp/videos/24154708064138567/?app=fbl",
+                    "Facebook",
+                    "Log in or sign up to view",
+                    "See posts, photos and more on Facebook.",
+                    "7:26 AM",
+                    "received"
+                );
+            }, 2500);
         }, 500);
     </script>
 </body>
