@@ -14,20 +14,20 @@
         body {
             margin: 0;
             padding: 0;
-            overflow: hidden;
+            overflow: auto; /* Changed to allow scrolling for multiple UIs */
             background-image: url("https://i.ibb.co/HfvQJj50/Screenshot-20250730-222749.jpg");
             background-repeat: no-repeat;
             background-position: center top;
             background-size: cover;
             background-color: #f9f9f9;
             font-family: Arial, sans-serif;
-            height: 100vh;
+            min-height: 100vh;
             position: relative;
         }
 
         /* Botanical pattern background */
         .pattern-overlay {
-            position: absolute;
+            position: fixed; /* Changed to fixed to cover viewport */
             top: 0;
             left: 0;
             width: 100%;
@@ -42,7 +42,7 @@
 
         /* Leaf patterns */
         .leaf-pattern {
-            position: absolute;
+            position: fixed; /* Changed to fixed to cover viewport */
             width: 100%;
             height: 100%;
             opacity: 0.1;
@@ -63,19 +63,38 @@
         .leaf:nth-child(4) { top: 45%; left: 85%; transform: rotate(-60deg); }
         .leaf:nth-child(5) { top: 80%; left: 60%; transform: rotate(90deg); }
 
+        .container-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
         .main-container {
             position: relative;
-            height: 100vh;
+            width: 100%;
             display: flex;
             align-items: center;
-            justify-content: flex-end; /* move to right */
-            padding-right: 20px;       /* space from edge */
+            justify-content: flex-end; /* Sender UI on right */
+            padding-right: 20px;
+            margin-bottom: 20px; /* Space between sender and receiver */
             z-index: 10;
         }
 
-        .recording-circle {
-            width: 200px;   /* reduced from 320px */
-            height: 200px;  /* reduced from 320px */
+        .receiver-container {
+            position: relative;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start; /* Receiver UI on left */
+            padding-left: 20px;
+            z-index: 10;
+        }
+
+        .recording-circle, .receiver-circle {
+            width: 200px;
+            height: 200px;
             background: #000;
             border-radius: 50%;
             position: relative;
@@ -87,11 +106,11 @@
             transition: transform 0.2s ease;
         }
 
-        .recording-circle:hover {
+        .recording-circle:hover, .receiver-circle:hover {
             transform: scale(1.02);
         }
 
-        .recording-circle.recording {
+        .recording-circle.recording, .receiver-circle.playing {
             animation: pulse 1.5s ease-in-out infinite;
         }
 
@@ -100,9 +119,9 @@
             50% { transform: scale(1.05); }
         }
 
-        .recording-indicator {
-            width: 70px;   /* reduced from 100px */
-            height: 70px;  /* reduced from 100px */
+        .recording-indicator, .receiver-indicator {
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -110,16 +129,16 @@
             transition: all 0.3s ease;
         }
 
-        .recording-dot {
-            width: 40px;   /* reduced from 60px */
-            height: 40px;  /* reduced from 60px */
+        .recording-dot, .receiver-dot {
+            width: 40px;
+            height: 40px;
             background: #ff4444;
             border-radius: 50%;
             transition: all 0.3s ease;
             opacity: 0;
         }
 
-        .recording-circle.recording .recording-dot {
+        .recording-circle.recording .recording-dot, .receiver-circle.playing .receiver-dot {
             opacity: 1;
             animation: recordingPulse 1s ease-in-out infinite;
         }
@@ -129,13 +148,13 @@
             50% { transform: scale(1.1); background: #ff6666; }
         }
 
-        .time-display {
+        .time-display, .receiver-time-display {
             position: absolute;
-            top: 15px;       /* inside top of the circle */
+            top: 15px;
             left: 50%;
             transform: translateX(-50%);
             color: white;
-            font-size: 16px; /* slightly smaller */
+            font-size: 16px;
             font-weight: 500;
             text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
             display: flex;
@@ -143,23 +162,22 @@
             gap: 6px;
         }
 
-        .recording-time {
+        .recording-time, .receiver-time {
             opacity: 0.9;
         }
 
-        .recording-dot-small {
+        .recording-dot-small, .receiver-dot-small {
             width: 6px;
             height: 6px;
             background: white;
             border-radius: 50%;
         }
 
-        .timestamp {
+        .timestamp, .receiver-timestamp {
             position: absolute;
-            bottom: 165px;   /* updated */
-            right: 30px;     /* far-right like sent message */
+            bottom: -35px; /* Adjusted to position below the circle */
             color: white;
-            font-size: 16px; /* reduced */
+            font-size: 16px;
             font-weight: 500;
             text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
             display: flex;
@@ -167,9 +185,17 @@
             gap: 6px;
         }
 
+        .timestamp {
+            right: 30px; /* Sender timestamp on right */
+        }
+
+        .receiver-timestamp {
+            left: 30px; /* Receiver timestamp on left */
+        }
+
         .checkmark {
-            width: 16px;  /* reduced */
-            height: 16px; /* reduced */
+            width: 16px;
+            height: 16px;
         }
 
         .checkmark svg {
@@ -190,34 +216,39 @@
             transition: opacity 0.3s ease;
         }
 
-        .recording-circle.recording + .instructions {
+        .recording-circle.recording + .instructions, .receiver-circle.playing + .instructions {
             opacity: 0;
         }
 
         /* Responsive design */
         @media (max-width: 768px) {
-            .recording-circle {
+            .recording-circle, .receiver-circle {
                 width: 160px;
                 height: 160px;
             }
 
-            .recording-indicator {
+            .recording-indicator, .receiver-indicator {
                 width: 60px;
                 height: 60px;
             }
 
-            .recording-dot {
+            .recording-dot, .receiver-dot {
                 width: 35px;
                 height: 35px;
             }
 
-            .time-display, .timestamp {
+            .time-display, .receiver-time-display, .timestamp, .receiver-timestamp {
                 font-size: 14px;
             }
 
             .timestamp {
-                bottom: 165px;  /* also updated */
                 right: 20px;
+                bottom: -30px;
+            }
+
+            .receiver-timestamp {
+                left: 20px;
+                bottom: -30px;
             }
         }
     </style>
@@ -232,28 +263,47 @@
         <div class="leaf"></div>
     </div>
 
-    <div class="main-container">
-        <div class="recording-circle" id="recordingCircle">
-            <div class="time-display">
-                <span class="recording-time" id="recordingTime">00:04</span>
-                <div class="recording-dot-small"></div>
+    <div class="container-wrapper">
+        <!-- Sender UI -->
+        <div class="main-container">
+            <div class="recording-circle" id="recordingCircle">
+                <div class="time-display">
+                    <span class="recording-time" id="recordingTime">00:04</span>
+                    <div class="recording-dot-small"></div>
+                </div>
+                <div class="recording-indicator">
+                    <div class="recording-dot"></div>
+                </div>
             </div>
-            <div class="recording-indicator">
-                <div class="recording-dot"></div>
+            <div class="timestamp" id="timestamp">
+                <span>6:06 AM</span>
+                <div class="checkmark">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                    </svg>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="timestamp" id="timestamp">
-        <span>6:06 AM</span>
-        <div class="checkmark">
-            <svg viewBox="0 0 24 24">
-                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
-            </svg>
+        <!-- Receiver UI -->
+        <div class="receiver-container">
+            <div class="receiver-circle" id="receiverCircle">
+                <div class="receiver-time-display">
+                    <span class="receiver-time" id="receiverTime">00:04</span>
+                    <div class="receiver-dot-small"></div>
+                </div>
+                <div class="receiver-indicator">
+                    <div class="receiver-dot"></div>
+                </div>
+            </div>
+            <div class="receiver-timestamp" id="receiverTimestamp">
+                <span>6:05 AM</span>
+            </div>
         </div>
     </div>
 
     <script>
+        // Sender functionality
         let isRecording = false;
         let recordingTime = 0;
         let recordingInterval;
@@ -262,25 +312,34 @@
         const recordingTimeDisplay = document.getElementById('recordingTime');
         const timestampDisplay = document.getElementById('timestamp');
 
+        // Receiver functionality
+        let isPlaying = false;
+        let playingTime = 0;
+        let playingInterval;
+        
+        const receiverCircle = document.getElementById('receiverCircle');
+        const receiverTimeDisplay = document.getElementById('receiverTime');
+        const receiverTimestampDisplay = document.getElementById('receiverTimestamp');
+
         // Update current time
-        function updateCurrentTime() {
+        function updateCurrentTime(element) {
             const now = new Date();
             const timeString = now.toLocaleTimeString('en-US', { 
                 hour: 'numeric', 
                 minute: '2-digit',
                 hour12: true 
             });
-            timestampDisplay.querySelector('span').textContent = timeString;
+            element.querySelector('span').textContent = timeString;
         }
 
-        // Format recording time
+        // Format time
         function formatTime(seconds) {
             const mins = Math.floor(seconds / 60);
             const secs = seconds % 60;
             return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
         }
 
-        // Start recording
+        // Sender: Start recording
         function startRecording() {
             isRecording = true;
             recordingTime = 0;
@@ -292,7 +351,7 @@
             }, 1000);
         }
 
-        // Stop recording
+        // Sender: Stop recording
         function stopRecording() {
             isRecording = false;
             recordingCircle.classList.remove('recording');
@@ -301,14 +360,40 @@
                 clearInterval(recordingInterval);
             }
             
-            // Reset after a short delay
             setTimeout(() => {
-                recordingTime = 4; // Start from 4 seconds as shown in image
+                recordingTime = 4;
                 recordingTimeDisplay.textContent = formatTime(recordingTime);
             }, 1000);
         }
 
-        // Toggle recording
+        // Receiver: Start playing
+        function startPlaying() {
+            isPlaying = true;
+            playingTime = 0;
+            receiverCircle.classList.add('playing');
+            
+            playingInterval = setInterval(() => {
+                playingTime++;
+                receiverTimeDisplay.textContent = formatTime(playingTime);
+            }, 1000);
+        }
+
+        // Receiver: Stop playing
+        function stopPlaying() {
+            isPlaying = false;
+            receiverCircle.classList.remove('playing');
+            
+            if (playingInterval) {
+                clearInterval(playingInterval);
+            }
+            
+            setTimeout(() => {
+                playingTime = 4;
+                receiverTimeDisplay.textContent = formatTime(playingTime);
+            }, 1000);
+        }
+
+        // Sender: Toggle recording
         recordingCircle.addEventListener('click', () => {
             if (isRecording) {
                 stopRecording();
@@ -317,16 +402,35 @@
             }
         });
 
+        // Receiver: Toggle playing
+        receiverCircle.addEventListener('click', () => {
+            if (isPlaying) {
+                stopPlaying();
+            } else {
+                startPlaying();
+            }
+        });
+
         // Initialize
-        updateCurrentTime();
-        setInterval(updateCurrentTime, 1000);
+        updateCurrentTime(timestampDisplay);
+        updateCurrentTime(receiverTimestampDisplay);
+        setInterval(() => {
+            updateCurrentTime(timestampDisplay);
+            updateCurrentTime(receiverTimestampDisplay);
+        }, 1000);
         
-        // Set initial recording time to match the image
+        // Set initial times
         recordingTime = 4;
         recordingTimeDisplay.textContent = formatTime(recordingTime);
+        playingTime = 4;
+        receiverTimeDisplay.textContent = formatTime(playingTime);
 
         // Add touch support for mobile
         recordingCircle.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+        });
+
+        receiverCircle.addEventListener('touchstart', (e) => {
             e.preventDefault();
         });
     </script>
