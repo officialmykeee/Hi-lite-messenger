@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Circle with Progress</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #111;
+    }
+
+    .circle-wrapper {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    .circle-wrapper.enlarged {
+      width: 300px;
+      height: 300px;
+    }
+
+    /* Progress Ring */
+    .progress-ring {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+      opacity: 1;
+      transition: opacity 0.3s ease;
+    }
+
+    .progress-ring.hidden {
+      opacity: 0; /* Disappear smoothly */
+    }
+
+    .progress-ring circle {
+      fill: none;
+      stroke-width: 4;
+      stroke-linecap: round;
+    }
+
+    .progress-ring .bg {
+      stroke: #333;
+    }
+
+    .progress-ring .progress {
+      stroke: #00ff88;
+      transition: stroke-dashoffset 0.1s linear;
+    }
+
+    /* Inner Circle */
+    .circle {
+      width: 218px;
+      height: 218px;
+      background-color: #222;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      z-index: 2;
+    }
+
+    .circle-wrapper.enlarged .circle {
+      width: 297px;
+      height: 297px;
+      background-color: #444;
+    }
+  </style>
+</head>
+<body>
+  <div class="circle-wrapper" id="circleWrapper">
+    <!-- Progress Ring (SVG) -->
+    <svg class="progress-ring" id="progressRing" viewBox="0 0 220 220">
+      <circle class="bg" cx="110" cy="110" r="108"></circle>
+      <circle class="progress" cx="110" cy="110" r="108"></circle>
+    </svg>
+
+    <!-- Inner Clickable Circle -->
+    <div class="circle" id="circle"></div>
+  </div>
+
+  <script>
+    const circle = document.getElementById("circle");
+    const wrapper = document.getElementById("circleWrapper");
+    const progressRing = document.getElementById("progressRing");
+    const progressCircle = document.querySelector(".progress-ring .progress");
+
+    const radius = 108;
+    const circumference = 2 * Math.PI * radius;
+    let progress = 0;
+    let interval;
+
+    progressCircle.style.strokeDasharray = circumference;
+    progressCircle.style.strokeDashoffset = circumference;
+
+    circle.addEventListener("click", () => {
+      // Reset progress ring visibility
+      progressRing.classList.remove("hidden");
+
+      wrapper.classList.toggle("enlarged");
+
+      if (wrapper.classList.contains("enlarged")) {
+        progress = 0;
+        clearInterval(interval);
+
+        interval = setInterval(() => {
+          if (progress >= 100) {
+            clearInterval(interval);
+
+            // Hide ring after finish
+            progressRing.classList.add("hidden");
+
+            // Reset back to default after short delay (so fade-out works)
+            setTimeout(() => {
+              wrapper.classList.remove("enlarged");
+              progressCircle.style.strokeDashoffset = circumference;
+            }, 500);
+
+          } else {
+            progress++;
+            const offset = circumference - (progress / 100) * circumference;
+            progressCircle.style.strokeDashoffset = offset;
+          }
+        }, 50);
+      } else {
+        // Reset instantly if user shrinks manually
+        progressCircle.style.strokeDashoffset = circumference;
+        clearInterval(interval);
+        progressRing.classList.add("hidden");
+      }
+    });
+  </script>
+</body>
+</html>
