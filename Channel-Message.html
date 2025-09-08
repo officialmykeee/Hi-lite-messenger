@@ -131,18 +131,18 @@
             text-align: center;
         }
 
-        .demo-btn {
+        .filename-callout {
             position: fixed;
             top: 72px;
             right: 20px;
-            background: #25D366;
-            color: white;
-            border: none;
+            background: rgba(255, 255, 255, 0.9); /* Semi-transparent white for readability */
+            color: #333;
             padding: 10px 15px;
             border-radius: 20px;
-            cursor: pointer;
             font-size: 14px;
+            font-weight: 400;
             z-index: 1000;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
 
         @media (min-width: 768px) {
@@ -152,14 +152,14 @@
             .last-seen { font-size: 0.9rem; }
             .avatar { width: 36px; height: 36px; font-size: 1rem; }
             .back-arrow, .menu-icon { padding: 0.5rem; }
-            .demo-btn { top: 76px; }
+            .filename-callout { top: 76px; }
         }
 
         @media (min-width: 1024px) {
             .chat-header { max-width: 1400px; padding: 0.8rem 1.5rem; height: 56px; }
             .left-section, .profile-section { gap: 0.8rem; }
             .avatar { width: 40px; height: 40px; font-size: 1.1rem; }
-            .demo-btn { top: 80px; }
+            .filename-callout { top: 80px; }
         }
 
         @media (max-width: 480px) {
@@ -170,7 +170,7 @@
             .left-section, .profile-section { gap: 0.5rem; }
             .chat-input-container { width: 100%; }
             .chat-input-text { font-size: 13px; }
-            .demo-btn { top: 68px; }
+            .filename-callout { top: 68px; font-size: 13px; }
         }
     </style>
 </head>
@@ -208,7 +208,7 @@
         </div>
     </div>
 
-    <button class="demo-btn" onclick="console.log('Demo button clicked')">Test Button</button>
+    <div class="filename-callout" id="filename-callout"></div>
     
     <div class="chat-input-container">
         <div class="chat-input-text">You can't send a message to this Channel because the channel is private</div>
@@ -228,7 +228,16 @@
             history.pushState(null, '', `${currentPath}/@Mykeespage`);
         }
 
-        window.addEventListener('load', updateUrl);
+        function displayFilename() {
+            const filename = "Channel-chat.html";
+            const callout = document.getElementById('filename-callout');
+            callout.textContent = filename;
+        }
+
+        window.addEventListener('load', () => {
+            updateUrl();
+            displayFilename();
+        });
     </script>
 </body>
 </html>
