@@ -501,9 +501,18 @@
         function openMenu() {
             console.log('Menu button clicked');
         }
+
+        function updateUrl() {
+            const currentPath = window.location.pathname === '/' ? '' : window.location.pathname;
+            history.pushState(null, '', `${currentPath}/@Mykeespage`);
+        }
+
+        
+        window.addEventListener('load', () => {
+            updateUrl();
+            displayFilename();
         });
     </script>
 </body>
 </html>
-
 
