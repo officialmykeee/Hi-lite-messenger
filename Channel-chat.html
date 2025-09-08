@@ -20,12 +20,11 @@
 
         .post-container {
             max-width: 300px;
-            margin: 20px auto 20px 10px;
+            margin: 40px auto 20px 10px;
             background: white;
             border-radius: 12px 12px 12px 4px;
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
             position: relative;
-            /* Removed overflow: hidden to prevent clipping the ::after pointer */
         }
 
         .post-container::after {
@@ -35,10 +34,10 @@
             left: 15px;
             width: 15px;
             height: 15px;
-            background-color: white; /* Matches .post-container background */
+            background-color: white;
             transform: rotate(45deg);
             border-radius: 0 0 0 4px;
-            z-index: 1; /* Ensure pointer is above other elements */
+            z-index: 1;
         }
 
         .post-header {
@@ -96,9 +95,9 @@
         .video-container {
             position: relative;
             width: 100%;
-            height: 400px;
+            height: 300px;
             background: #000;
-            overflow: hidden; /* Moved from .post-container to clip video content */
+            overflow: hidden;
         }
 
         .video-thumbnail {
@@ -257,12 +256,12 @@
 
         @media (max-width: 600px) {
             .post-container {
-                margin: 0 0 0 10px;
+                margin: 20px 0 0 10px;
                 border-radius: 0;
             }
             
             .video-container {
-                height: 300px;
+                height: 200px;
             }
         }
     </style>
