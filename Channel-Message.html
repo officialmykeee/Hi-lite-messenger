@@ -208,27 +208,109 @@
         </div>
     </div>
 
-    <button class="demo-btn" onclick="console.log('Demo button clicked')">Test Button</button>
-    
+    <!-- appear here -->
+<div id="fetchedContainer"></div>
     <div class="chat-input-container">
         <div class="chat-input-text">You can't send a message to this Channel because the channel is private</div>
     </div>
 
     <script>
-        function goBack() {
-            console.log('Back button clicked');
-        }
+const FILE_URL = "https://raw.githubusercontent.com/officialmykeee/Hi-lite-messenger/main/Channel-chat.html";
 
-        function openMenu() {
-            console.log('Menu button clicked');
-        }
+async function fetchChannelChat() {
+  const container = document.getElementById("fetchedContainer");
 
-        function updateUrl() {
-            const currentPath = window.location.pathname === '/' ? '' : window.location.pathname;
-            history.pushState(null, '', `${currentPath}/@Mykeespage`);
-        }
+  // Add loading message
+  container.innerHTML = `<div id="fetchedMessage" class="fetched-message">Loading...</div>`;
 
-        window.addEventListener('load', updateUrl);
-    </script>
+  // Add CSS for the fetched message
+  if (!document.getElementById("fetched-message-style")) {
+    const style = document.createElement("style");
+    style.id = "fetched-message-style";
+    style.textContent = `
+      .fetched-message {
+        margin: 80px auto 0;
+        width: fit-content;
+        max-width: 90%;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 12px 18px;
+        border-radius: 20px;
+        font-size: 15px;
+        color: #333;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  try {
+    const res = await fetch(FILE_URL);
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    const html = await res.text();
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+
+    // Copy <style> tags
+    doc.querySelectorAll("style").forEach(s => {
+      const newStyle = document.createElement("style");
+      newStyle.textContent = s.textContent;
+      document.head.appendChild(newStyle);
+    });
+
+    // Copy <link rel="stylesheet"> tags
+    doc.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
+      if (!document.querySelector(`link[href="${link.href}"]`)) {
+        const newLink = document.createElement("link");
+        newLink.rel = "stylesheet";
+        newLink.href = link.href;
+        document.head.appendChild(newLink);
+      }
+    });
+
+    // Insert body content into container
+    container.innerHTML = doc.body.innerHTML;
+
+    // Run scripts from the fetched file
+    doc.querySelectorAll("script").forEach(oldScript => {
+      const newScript = document.createElement("script");
+      if (oldScript.src) {
+        newScript.src = oldScript.src;
+      } else {
+        newScript.textContent = oldScript.textContent;
+      }
+      document.body.appendChild(newScript);
+    });
+
+  } catch (err) {
+    container.innerHTML = `<div class="fetched-message" style="color:#a00;">⚠️ Failed to load chat file.</div>`;
+    console.error("Error fetching Channel-chat.html:", err);
+  }
+}
+
+// =======================
+// Your custom functions
+// =======================
+function goBack() {
+  console.log('Back button clicked');
+}
+
+function openMenu() {
+  console.log('Menu button clicked');
+}
+
+function updateUrl() {
+  const currentPath = window.location.pathname === '/' ? '' : window.location.pathname;
+  history.pushState(null, '', `${currentPath}/@Mykeespage`);
+}
+
+// =======================
+// Auto-run
+// =======================
+window.addEventListener("DOMContentLoaded", () => {
+  fetchChannelChat();
+  updateUrl();
+});
+</script>
 </body>
 </html>
