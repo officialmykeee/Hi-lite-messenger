@@ -212,9 +212,9 @@
         <div class="chat-input-text">You can't send a message to this Channel because the channel is private</div>
     </div>
 
-    
-<script>
-const FILE_URL = "https://raw.githubusercontent.com/officialmykeee/Hi-lite-messenger/main/Channel-chat.html"; // Update this URL if needed
+    <script>
+const FILE_URL = "https://raw.githubusercontent.com/officialmykeee/Hi-lite-messenger/main/Channel-chat.html"; // Primary raw GitHub URL
+const FALLBACK_URL = "https://officialmykeee.github.io/Hi-lite-messenger/Channel-chat.html"; // Fallback GitHub Pages URL
 
 async function fetchChannelChat() {
   const container = document.getElementById("fetchedContainer");
@@ -222,6 +222,7 @@ async function fetchChannelChat() {
   // Validate container existence
   if (!container) {
     console.error("Container with ID 'fetchedContainer' not found.");
+    container.innerHTML = `<div class="fetched-message" style="color:#a00;">⚠️ Container not found.</div>`;
     return;
   }
 
@@ -248,49 +249,77 @@ async function fetchChannelChat() {
     document.head.appendChild(style);
   }
 
-  try {
-    const res = await fetch(FILE_URL, { cache: "no-store" }); // Disable cache to ensure fresh content
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-    const html = await res.text();
+  // Try primary URL, then fallback
+  for (const url of [FILE_URL, FALLBACK_URL]) {
+    try {
+      const res = await fetch(url, {
+        cache: "no-store",
+        headers: { Accept: "text/html" }
+      });
 
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, "text/html");
-
-    // Copy <style> tags to ensure Telegram box styles (including pointer) are applied
-    doc.querySelectorAll("style").forEach(s => {
-      const newStyle = document.createElement("style");
-      newStyle.textContent = s.textContent;
-      document.head.appendChild(newStyle);
-    });
-
-    // Copy <link rel="stylesheet"> tags (if any, for future-proofing)
-    doc.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
-      if (!document.querySelector(`link[href="${link.href}"]`)) {
-        const newLink = document.createElement("link");
-        newLink.rel = "stylesheet";
-        newLink.href = link.href;
-        document.head.appendChild(newLink);
+      if (!res.ok) {
+        throw new Error(`HTTP error! Status: ${res.status} (${res.statusText})`);
       }
-    });
 
-    // Insert body content into container
-    container.innerHTML = doc.body.innerHTML;
+      const html = await res.text();
 
-    // Run scripts from the fetched file (if any)
-    doc.querySelectorAll("script").forEach(oldScript => {
-      const newScript = document.createElement("script");
-      if (oldScript.src) {
-        newScript.src = oldScript.src;
-      } else {
-        newScript.textContent = oldScript.textContent;
+      // Validate HTML content
+      if (!html.trim()) {
+        throw new Error("Fetched content is empty");
       }
-      document.body.appendChild(newScript);
-    });
 
-  } catch (err) {
-    container.innerHTML = `<div class="fetched-message" style="color:#a00;">⚠️ Failed to load chat file.</div>`;
-    console.error("Error fetching Channel-chat.html:", err);
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, "text/html");
+
+      // Check if parsing was successful
+      if (!doc.body) {
+        throw new Error("Failed to parse HTML content");
+      }
+
+      // Copy <style> tags to apply Telegram box styles (including pointer)
+      doc.querySelectorAll("style").forEach(s => {
+        const newStyle = document.createElement("style");
+        newStyle.textContent = s.textContent;
+        document.head.appendChild(newStyle);
+      });
+
+      // Copy <link rel="stylesheet"> tags (if any)
+      doc.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
+        if (!document.querySelector(`link[href="${link.href}"]`)) {
+          const newLink = document.createElement("link");
+          newLink.rel = "stylesheet";
+          newLink.href = link.href;
+          document.head.appendChild(newLink);
+        }
+      });
+
+      // Insert body content into container
+      container.innerHTML = doc.body.innerHTML;
+
+      // Run scripts from the fetched file (if any)
+      doc.querySelectorAll("script").forEach(oldScript => {
+        const newScript = document.createElement("script");
+        if (oldScript.src) {
+          newScript.src = oldScript.src;
+        } else {
+          newScript.textContent = oldScript.textContent;
+        }
+        document.body.appendChild(newScript);
+      });
+
+      // Success: exit the loop
+      console.log(`Successfully fetched content from ${url}`);
+      return;
+
+    } catch (err) {
+      console.warn(`Failed to fetch from ${url}: ${err.message}`);
+      // Continue to next URL in the loop
+    }
   }
+
+  // If all URLs fail
+  container.innerHTML = `<div class="fetched-message" style="color:#a00;">⚠️ Failed to load chat file: Unable to fetch from any provided URLs.</div>`;
+  console.error("Error fetching Channel-chat.html: All URLs failed.");
 }
 
 // =======================
@@ -317,5 +346,6 @@ window.addEventListener("DOMContentLoaded", () => {
   updateUrl();
 });
 </script>
+
 </body>
 </html>
