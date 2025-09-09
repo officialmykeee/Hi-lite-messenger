@@ -212,11 +212,18 @@
         <div class="chat-input-text">You can't send a message to this Channel because the channel is private</div>
     </div>
 
-    <script>
-const FILE_URL = "https://raw.githubusercontent.com/officialmykeee/Hi-lite-messenger/main/Channel-chat.html";
+    
+<script>
+const FILE_URL = "https://raw.githubusercontent.com/officialmykeee/Hi-lite-messenger/main/Channel-chat.html"; // Update this URL if needed
 
 async function fetchChannelChat() {
   const container = document.getElementById("fetchedContainer");
+
+  // Validate container existence
+  if (!container) {
+    console.error("Container with ID 'fetchedContainer' not found.");
+    return;
+  }
 
   // Add loading message
   container.innerHTML = `<div id="fetchedMessage" class="fetched-message">Loading...</div>`;
@@ -242,21 +249,21 @@ async function fetchChannelChat() {
   }
 
   try {
-    const res = await fetch(FILE_URL);
+    const res = await fetch(FILE_URL, { cache: "no-store" }); // Disable cache to ensure fresh content
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
     const html = await res.text();
 
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
 
-    // Copy <style> tags
+    // Copy <style> tags to ensure Telegram box styles (including pointer) are applied
     doc.querySelectorAll("style").forEach(s => {
       const newStyle = document.createElement("style");
       newStyle.textContent = s.textContent;
       document.head.appendChild(newStyle);
     });
 
-    // Copy <link rel="stylesheet"> tags
+    // Copy <link rel="stylesheet"> tags (if any, for future-proofing)
     doc.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
       if (!document.querySelector(`link[href="${link.href}"]`)) {
         const newLink = document.createElement("link");
@@ -269,7 +276,7 @@ async function fetchChannelChat() {
     // Insert body content into container
     container.innerHTML = doc.body.innerHTML;
 
-    // Run scripts from the fetched file
+    // Run scripts from the fetched file (if any)
     doc.querySelectorAll("script").forEach(oldScript => {
       const newScript = document.createElement("script");
       if (oldScript.src) {
