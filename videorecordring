@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Note Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: auto;
+            background-image: url("https://i.ibb.co/HfvQJj50/Screenshot-20250730-222749.jpg");
+            background-repeat: no-repeat;
+            background-position: center top;
+            background-size: cover;
+            background-color: #f9f9f9;
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .pattern-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.15;
+            background-image: 
+                radial-gradient(circle at 20% 30%, transparent 20%, rgba(255,255,255,0.1) 21%, rgba(255,255,255,0.1) 25%, transparent 26%),
+                radial-gradient(circle at 80% 70%, transparent 15%, rgba(255,255,255,0.08) 16%, rgba(255,255,255,0.08) 20%, transparent 21%),
+                radial-gradient(circle at 40% 80%, transparent 10%, rgba(255,255,255,0.06) 11%, rgba(255,255,255,0.06) 15%, transparent 16%);
+            background-size: 120px 120px, 80px 80px, 60px 60px;
+        }
+
+        .leaf-pattern {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            opacity: 0.1;
+        }
+
+        .leaf {
+            position: absolute;
+            width: 40px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 0 100% 0 100%;
+            transform-origin: 0 50%;
+        }
+
+        .leaf:nth-child(1) { top: 15%; left: 10%; transform: rotate(45deg); }
+        .leaf:nth-child(2) { top: 25%; left: 70%; transform: rotate(-30deg); }
+        .leaf:nth-child(3) { top: 60%; left: 20%; transform: rotate(120deg); }
+        .leaf:nth-child(4) { top: 45%; left: 85%; transform: rotate(-60deg); }
+        .leaf:nth-child(5) { top: 80%; left: 60%; transform: rotate(90deg); }
+
+        .container-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .main-container {
+            position: relative;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 20px;
+            margin-bottom: 20px;
+            z-index: 10;
+        }
+
+        .receiver-container {
+            position: relative;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding-left: 20px;
+            z-index: 10;
+        }
+
+        .circle-wrapper, .receiver-circle-wrapper {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .circle-wrapper.recording, .receiver-circle-wrapper.playing {
+            width: 300px;
+            height: 300px;
+        }
+
+        .progress-ring {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .progress-ring.hidden {
+            opacity: 0;
+        }
+
+        .progress-ring circle {
+            fill: none;
+            stroke-width: 4;
+            stroke-linecap: round;
+        }
+
+        .progress-ring .bg {
+            stroke: none;
+        }
+
+        .progress-ring .progress {
+            stroke: #fff;
+            transition: stroke-dashoffset 0.1s linear;
+        }
+
+        .recording-circle, .receiver-circle {
+            width: 218px;
+            height: 218px;
+            background-color: #222;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .circle-wrapper.recording .recording-circle, .receiver-circle-wrapper.playing .receiver-circle {
+            width: 297px;
+            height: 297px;
+            background-color: #444;
+        }
+
+        .recording-indicator, .receiver-indicator {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .recording-dot, .receiver-dot {
+            width: 40px;
+            height: 40px;
+            background: #ff4444;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            opacity: 0;
+        }
+
+        .time-display, .receiver-time-display {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .recording-time, .receiver-time {
+            opacity: 0.9;
+        }
+
+        .recording-dot-small, .receiver-dot-small {
+            width: 6px;
+            height: 6px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .timestamp, .receiver-timestamp {
+            position: absolute;
+            bottom: -35px;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .timestamp {
+            right: 30px;
+        }
+
+        .receiver-timestamp {
+            left: 30px;
+        }
+
+        .checkmark {
+            width: 16px;
+            height: 16px;
+        }
+
+        .checkmark svg {
+            width: 100%;
+            height: 100%;
+            fill: white;
+        }
+
+        .instructions {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            text-align: center;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .circle-wrapper.recording + .instructions, .receiver-circle-wrapper.playing + .instructions {
+            opacity: 0;
+        }
+
+        @media (max-width: 768px) {
+            .circle-wrapper, .receiver-circle-wrapper {
+                width: 160px;
+                height: 160px;
+            }
+
+            .circle-wrapper.recording, .receiver-circle-wrapper.playing {
+                width: 240px;
+                height: 240px;
+            }
+
+            .recording-circle, .receiver-circle {
+                width: 158px;
+                height: 158px;
+            }
+
+            .circle-wrapper.recording .recording-circle, .receiver-circle-wrapper.playing .receiver-circle {
+                width: 237px;
+                height: 237px;
+            }
+
+            .recording-indicator, .receiver-indicator {
+                width: 60px;
+                height: 60px;
+                display: none;
+            }
+
+            .recording-dot, .receiver-dot {
+                width: 35px;
+                height: 35px;
+            }
+
+            .time-display, .receiver-time-display, .timestamp, .receiver-timestamp {
+                font-size: 14px;
+            }
+
+            .timestamp {
+                right: 20px;
+                bottom: -30px;
+            }
+
+            .receiver-timestamp {
+                left: 20px;
+                bottom: -30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="pattern-overlay"></div>
+    <div class="leaf-pattern">
+        <div class="leaf"></div>
+        <div class="leaf"></div>
+        <div class="leaf"></div>
+        <div class="leaf"></div>
+        <div class="leaf"></div>
+    </div>
+
+    <div class="container-wrapper">
+        <!-- Sender UI -->
+        <div class="main-container">
+            <div class="circle-wrapper" id="recordingCircleWrapper">
+                <svg class="progress-ring" id="recordingProgressRing" viewBox="0 0 220 220">
+                    <circle class="bg" cx="110" cy="110" r="108"></circle>
+                    <circle class="progress" cx="110" cy="110" r="108"></circle>
+                </svg>
+                <div class="recording-circle" id="recordingCircle">
+                    <div class="time-display">
+                        <span class="recording-time" id="recordingTime">00:04</span>
+                        <div class="recording-dot-small"></div>
+                    </div>
+                    <div class="recording-indicator">
+                        <div class="recording-dot"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="timestamp" id="timestamp">
+                <span>6:06 AM</span>
+                <div class="checkmark">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Receiver UI -->
+        <div class="receiver-container">
+            <div class="receiver-circle-wrapper" id="receiverCircleWrapper">
+                <svg class="progress-ring" id="receiverProgressRing" viewBox="0 0 220 220">
+                    <circle class="bg" cx="110" cy="110" r="108"></circle>
+                    <circle class="progress" cx="110" cy="110" r="108"></circle>
+                </svg>
+                <div class="receiver-circle" id="receiverCircle">
+                    <div class="receiver-time-display">
+                        <span class="receiver-time" id="receiverTime">00:04</span>
+                        <div class="receiver-dot-small"></div>
+                    </div>
+                    <div class="receiver-indicator">
+                        <div class="receiver-dot"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="receiver-timestamp" id="receiverTimestamp">
+                <span>6:05 AM</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sender functionality
+        let isRecording = false;
+        let recordingTime = 0;
+        let recordingInterval;
+        let recordingProgress = 0;
+        const recordingDuration = 4; // Duration in seconds
+        
+        const recordingCircleWrapper = document.getElementById('recordingCircleWrapper');
+        const recordingCircle = document.getElementById('recordingCircle');
+        const recordingTimeDisplay = document.getElementById('recordingTime');
+        const timestampDisplay = document.getElementById('timestamp');
+        const recordingProgressRing = document.getElementById('recordingProgressRing');
+        const recordingProgressCircle = recordingProgressRing.querySelector('.progress');
+        const radius = 108;
+        const circumference = 2 * Math.PI * radius;
+
+        // Receiver functionality
+        let isPlaying = false;
+        let playingTime = 0;
+        let playingInterval;
+        let playingProgress = 0;
+        const playingDuration = 4; // Duration in seconds
+        
+        const receiverCircleWrapper = document.getElementById('receiverCircleWrapper');
+        const receiverCircle = document.getElementById('receiverCircle');
+        const receiverTimeDisplay = document.getElementById('receiverTime');
+        const receiverTimestampDisplay = document.getElementById('receiverTimestamp');
+        const receiverProgressRing = document.getElementById('receiverProgressRing');
+        const receiverProgressCircle = receiverProgressRing.querySelector('.progress');
+
+        // Initialize progress circles
+        recordingProgressCircle.style.strokeDasharray = circumference;
+        recordingProgressCircle.style.strokeDashoffset = circumference;
+        receiverProgressCircle.style.strokeDasharray = circumference;
+        receiverProgressCircle.style.strokeDashoffset = circumference;
+
+        // Update current time
+        function updateCurrentTime(element) {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { 
+                hour: 'numeric', 
+                minute: '2-digit',
+                hour12: true 
+            });
+            element.querySelector('span').textContent = timeString;
+        }
+
+        // Format time
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Sender: Start recording
+        function startRecording() {
+            isRecording = true;
+            recordingTime = 0;
+            recordingProgress = 0;
+            recordingCircleWrapper.classList.add('recording');
+            recordingProgressRing.classList.remove('hidden');
+            
+            recordingInterval = setInterval(() => {
+                recordingTime++;
+                recordingProgress = (recordingTime / recordingDuration) * 100; // Scale progress to duration
+                const offset = circumference - (recordingProgress / 100) * circumference;
+                recordingProgressCircle.style.strokeDashoffset = offset;
+                recordingTimeDisplay.textContent = formatTime(recordingTime);
+                
+                if (recordingTime >= recordingDuration) {
+                    stopRecording(); // Auto-stop when timer reaches duration
+                }
+            }, 1000); // Update every second
+        }
+
+        // Sender: Stop recording
+        function stopRecording() {
+            isRecording = false;
+            recordingCircleWrapper.classList.remove('recording');
+            
+            if (recordingInterval) {
+                clearInterval(recordingInterval);
+            }
+            
+            setTimeout(() => {
+                recordingTime = recordingDuration;
+                recordingProgress = 0;
+                recordingTimeDisplay.textContent = formatTime(recordingTime);
+                recordingProgressCircle.style.strokeDashoffset = circumference;
+                recordingProgressRing.classList.add('hidden');
+            }, 500);
+        }
+
+        // Receiver: Start playing
+        function startPlaying() {
+            isPlaying = true;
+            playingTime = 0;
+            playingProgress = 0;
+            receiverCircleWrapper.classList.add('playing');
+            receiverProgressRing.classList.remove('hidden');
+            
+            playingInterval = setInterval(() => {
+                playingTime++;
+                playingProgress = (playingTime / playingDuration) * 100; // Scale progress to duration
+                const offset = circumference - (playingProgress / 100) * circumference;
+                receiverProgressCircle.style.strokeDashoffset = offset;
+                receiverTimeDisplay.textContent = formatTime(playingTime);
+                
+                if (playingTime >= playingDuration) {
+                    stopPlaying(); // Auto-stop when timer reaches duration
+                }
+            }, 1000); // Update every second
+        }
+
+        // Receiver: Stop playing
+        function stopPlaying() {
+            isPlaying = false;
+            receiverCircleWrapper.classList.remove('playing');
+            
+            if (playingInterval) {
+                clearInterval(playingInterval);
+            }
+            
+            setTimeout(() => {
+                playingTime = playingDuration;
+                playingProgress = 0;
+                receiverTimeDisplay.textContent = formatTime(playingTime);
+                receiverProgressCircle.style.strokeDashoffset = circumference;
+                receiverProgressRing.classList.add('hidden');
+            }, 500);
+        }
+
+        // Sender: Toggle recording
+        recordingCircle.addEventListener('click', () => {
+            if (isRecording) {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        });
+
+        // Receiver: Toggle playing
+        receiverCircle.addEventListener('click', () => {
+            if (isPlaying) {
+                stopPlaying();
+            } else {
+                startPlaying();
+            }
+        });
+
+        // Initialize
+        updateCurrentTime(timestampDisplay);
+        updateCurrentTime(receiverTimestampDisplay);
+        setInterval(() => {
+            updateCurrentTime(timestampDisplay);
+            updateCurrentTime(receiverTimestampDisplay);
+        }, 1000);
+        
+        // Set initial times
+        recordingTime = recordingDuration;
+        recordingTimeDisplay.textContent = formatTime(recordingTime);
+        playingTime = playingDuration;
+        receiverTimeDisplay.textContent = formatTime(playingTime);
+
+        // Add touch support for mobile
+        recordingCircle.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (isRecording) {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        });
+
+        receiverCircle.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (isPlaying) {
+                stopPlaying();
+            } else {
+                startPlaying();
+            }
+        });
+    </script>
+</body>
+</html>
+
