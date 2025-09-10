@@ -212,9 +212,10 @@
         <div class="chat-input-text">You can't send a message to this Channel because the channel is private</div>
     </div>
 
-    <script>
+  <script>
 const FILE_URL = "https://raw.githubusercontent.com/officialmykeee/Hi-lite-messenger/main/Channel-chat.html"; // Primary raw GitHub URL
 const FALLBACK_URL = "https://officialmykeee.github.io/Hi-lite-messenger/Channel-chat.html"; // Fallback GitHub Pages URL
+const FETCH_TIMEOUT = 5000; // 5-second timeout for fetch
 
 async function fetchChannelChat() {
   const container = document.getElementById("fetchedContainer");
@@ -226,20 +227,33 @@ async function fetchChannelChat() {
     return;
   }
 
-  // Add Twitter-style spinner
-  container.innerHTML = `<div id="fetchedSpinner" class="spinner"></div>`;
+  // Add Twitter-style spinner with dark transparent circle
+  container.innerHTML = `
+    <div id="fetchedSpinner" class="spinner-container">
+      <div class="spinner"></div>
+    </div>
+  `;
 
   // Add CSS for the spinner and fetched message
   if (!document.getElementById("fetched-message-style")) {
     const style = document.createElement("style");
     style.id = "fetched-message-style";
     style.textContent = `
-      .spinner {
+      .spinner-container {
         margin: 80px auto 0;
+        width: 60px;
+        height: 60px;
+        background: rgba(0, 0, 0, 0.5); /* Dark transparent background */
+        border-radius: 50%; /* Circular shape */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .spinner {
         width: 40px;
         height: 40px;
-        border: 4px solid rgba(0, 0, 0, 0.1);
-        border-top: 4px solid #fff; 
+        border: 4px solid rgba(255, 255, 255, 0.2); /* Light transparent border */
+        border-top: 4px solid #1DA1F2; /* Twitter/X blue */
         border-radius: 50%;
         animation: spin 1s linear infinite;
       }
@@ -266,10 +280,17 @@ async function fetchChannelChat() {
   // Try primary URL, then fallback
   for (const url of [FILE_URL, FALLBACK_URL]) {
     try {
+      // Set up fetch with timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
+
       const res = await fetch(url, {
-        cache: "no-store",
-        headers: { Accept: "text/html" }
+        cache: "default", // Allow browser caching
+        headers: { Accept: "text/html" },
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId); // Clear timeout if fetch succeeds
 
       if (!res.ok) {
         throw new Error(`HTTP error! Status: ${res.status} (${res.statusText})`);
@@ -359,7 +380,8 @@ window.addEventListener("DOMContentLoaded", () => {
   fetchChannelChat();
   updateUrl();
 });
-</script>
+</script>        
+
       
 </body>
 </html>
