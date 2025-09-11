@@ -1,0 +1,1975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Floating Chat Input with Curve</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-image: url("https://i.ibb.co/HfvQJj50/Screenshot-20250730-222749.jpg");
+            background-repeat: no-repeat;
+            background-position: center top;
+            background-size: cover;
+            background-color: #f9f9f9;
+            font-family: Arial, sans-serif;
+            height: 100vh;
+        }
+
+        .messages-container {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            bottom: 20px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            pointer-events: auto;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            animation: slideIn 0.3s ease-out;
+            position: relative;
+            transition: transform 0.2s ease;
+            touch-action: pan-y;
+        }
+
+        .message.sent {
+            align-self: flex-end;
+            background: #749cbf;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.sent::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            right: 15px;
+            width: 15px;
+            height: 15px;
+            background-color: #749cbf;
+            transform: rotate(45deg);
+            border-radius: 0 0 4px 0;
+        }
+
+        .message.reply {
+            align-self: flex-start;
+            background: #f1f1f1;
+            color: #333;
+            border-bottom-left-radius: 4px;
+            position: relative;
+            padding: 8px 12px;
+        }
+
+        .message.reply::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 15px;
+            width: 15px;
+            height: 15px;
+            background-color: #f1f1f1;
+            transform: rotate(45deg);
+            border-radius: 0 0 0 4px;
+        }
+
+        .message.reply.sent {
+            align-self: flex-end;
+            background: #749cbf;
+            color: white;
+            border-bottom-left-radius: 18px;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.reply.sent::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            right: 15px;
+            left: auto;
+            background-color: #749cbf;
+            border-radius: 0 0 4px 0;
+        }
+
+        .message.reply.sent .reply-header {
+            color: rgba(255, 255, 255, 0.9);
+            border-left: 3px solid rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .message.reply.sent .reply-content {
+            color: rgba(255, 255, 255, 0.8);
+            border-left: 3px solid rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .message.reply.sent .main-message {
+            color: white;
+        }
+
+        .message.reply.sent .timestamp {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .message.reply .reply-header {
+            font-size: 14px;
+            color: #749cbf;
+            font-weight: 500;
+            margin-bottom: 2px;
+            border-left: 3px solid #749cbf;
+            padding-left: 8px;
+            background: rgba(116, 156, 191, 0.1);
+            margin: -8px -8px 0 -8px;
+            padding: 4px 8px 4px 12px;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .message.reply .reply-content {
+            font-size: 14px;
+            color: #333;
+            margin: 0 -8px 8px -8px;
+            padding: 4px 8px 4px 19px;
+            border-left: 3px solid #749cbf;
+            background: rgba(116, 156, 191, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .message.reply .reply-content.audio-reply {
+            padding: 6px 8px 6px 12px;
+        }
+
+        .message.reply .reply-content .audio-reply-icon {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            background: #749cbf;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2px;
+        }
+
+        .message.reply .reply-content .audio-reply-icon svg {
+            width: 10px;
+            height: 10px;
+            fill: white;
+        }
+
+        .message.reply .reply-content .audio-reply-text {
+            color: #749cbf;
+            font-weight: 500;
+        }
+
+        .message.reply.sent .reply-content.audio-reply .audio-reply-icon {
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .message.reply.sent .reply-content.audio-reply .audio-reply-icon svg {
+            fill: #749cbf;
+        }
+
+        .message.reply.sent .reply-content.audio-reply .audio-reply-text {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .message.reply .main-message {
+            font-size: 15px;
+            color: #333;
+            margin-top: 8px;
+        }
+
+        .message.reply .timestamp {
+            font-size: 12px;
+            color: #888;
+            margin-top: 4px;
+            display: block;
+            text-align: left;
+        }
+
+        .message.received {
+            align-self: flex-start;
+            background: #f1f1f1;
+            color: #333;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message.received::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 15px;
+            width: 15px;
+            height: 15px;
+            background-color: #f1f1f1;
+            transform: rotate(45deg);
+            border-radius: 0 0 0 4px;
+        }
+
+        .message.sent .timestamp,
+        .message.received .timestamp {
+            font-size: 12px;
+            margin-top: 4px;
+            display: block;
+            text-align: left;
+        }
+
+        .message.sent .timestamp {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .message.received .timestamp {
+            color: #888;
+        }
+
+        .message.audio {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            min-width: 200px;
+        }
+
+        .audio-play-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #749cbf;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(116, 156, 191, 0.3);
+        }
+
+        .audio-play-btn:hover {
+            background: #6a8db5;
+            box-shadow: 0 4px 12px rgba(116, 156, 191, 0.4);
+            transform: scale(1.05);
+        }
+
+        .audio-play-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 6px rgba(116, 156, 191, 0.5);
+        }
+
+        .message.audio.sent .audio-play-btn {
+            background: #749cbf;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .message.audio.sent .audio-play-btn:hover {
+            background: #6a8db5;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transform: scale(1.05);
+        }
+
+        .message.audio.sent .audio-play-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+        }
+
+        .message.audio.sent .audio-play-btn svg {
+            fill: white;
+        }
+
+        .message.audio.sent .audio-bar {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        .message.audio.sent .audio-bar.played {
+            background: white;
+        }
+
+        .message.audio.sent .audio-info {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .message.audio.sent .audio-duration {
+            color: white;
+            font-weight: 500;
+        }
+
+        .message.audio.sent .audio-timestamp {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .audio-play-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: white;
+            margin-left: 2px;
+            transition: all 0.2s ease;
+        }
+
+        .audio-play-btn.playing svg {
+            margin-left: 0;
+        }
+
+        .audio-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .audio-waveform {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            height: 20px;
+            cursor: pointer;
+            position: relative;
+            user-select: none;
+            flex-wrap: nowrap;
+            overflow: hidden;
+            padding: 0 8px;
+            box-sizing: border-box;
+        }
+
+        .audio-bar {
+            flex: 1;
+            min-width: 2px;
+            max-width: 3px;
+            background: #c5c5c5;
+            border-radius: 1px;
+            transition: background-color 0.1s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .audio-bar:hover {
+            opacity: 0.8;
+        }
+
+        .audio-bar.played {
+            background: #749cbf;
+        }
+
+        .message.audio.sent .audio-bar.played {
+            background: white;
+        }
+
+        .audio-waveform.dragging {
+            cursor: grabbing;
+        }
+
+        .audio-waveform.dragging .audio-bar {
+            cursor: grabbing;
+        }
+
+        .audio-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #666;
+            padding: 0 8px;
+        }
+
+        .audio-duration {
+            font-weight: 500;
+        }
+
+        .audio-timestamp {
+            color: #888;
+        }
+
+        .message.link-preview {
+            padding: 8px;
+            border-radius: 12px;
+            max-width: 80%;
+        }
+
+        .message.link-preview.sent .link-url {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 8px;
+            word-break: break-all;
+            line-height: 1.2;
+        }
+
+        .message.link-preview.sent .link-content {
+            background: rgba(116, 156, 191, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            border-left: 4px solid #FFFFFF;
+        }
+
+        .message.link-preview.sent .link-title {
+            color: #FFFFFF;
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 6px;
+        }
+
+        .message.link-preview.sent .link-description {
+            color: #FFFFFF;
+            font-size: 14px;
+            line-height: 1.4;
+            margin-bottom: 4px;
+        }
+
+        .message.link-preview.sent .link-site {
+            color: #FFFFFF;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .message.link-preview.sent .timestamp {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 4px;
+            display: block;
+            text-align: left;
+        }
+
+        .message.link-preview.received {
+            align-self: flex-start;
+            background: #f1f1f1;
+            color: #333;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message.link-preview.received::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 15px;
+            width: 15px;
+            height: 15px;
+            background-color: #f1f1f1;
+            transform: rotate(45deg);
+            border-radius: 0 0 0 4px;
+        }
+
+        .message.link-preview.received .link-url {
+            font-size: 13px;
+            color: #000000;
+            background: #ffffff;
+            margin-bottom: 8px;
+            word-break: break-all;
+            line-height: 1.2;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .message.link-preview.received .link-content {
+            background: rgba(116, 156, 191, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            border-left: 4px solid #749cbf;
+        }
+
+        .message.link-preview.received .link-title {
+            color: #000000;
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 6px;
+        }
+
+        .message.link-preview.received .link-description {
+            color: #000000;
+            font-size: 14px;
+            line-height: 1.4;
+            margin-bottom: 4px;
+        }
+
+        .message.link-preview.received .link-site {
+            color: #000000;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .message.link-preview.received .timestamp {
+            font-size: 12px;
+            color: #888;
+            margin-top: 4px;
+            display: block;
+            text-align: left;
+        }
+
+        .reply-icon {
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            top: 50%;
+            transform: translateY(-50%);
+            display: none;
+        }
+
+        .message.received .reply-icon,
+        .message.reply:not(.sent) .reply-icon,
+        .message.link-preview.received .reply-icon {
+            left: 0;
+            transform: translateX(-100%) translateY(-50%);
+        }
+
+        .message.sent .reply-icon,
+        .message.reply.sent .reply-icon,
+        .message.link-preview.sent .reply-icon {
+            right: 100%;
+            transform: translateX(-10px) translateY(-50%);
+        }
+
+        .reply-icon svg {
+            width: 24px;
+            height: 24px;
+            fill: #ffffff;
+        }
+
+        .checkmark {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .message.sent .checkmark,
+        .message.reply.sent .checkmark,
+        .message.link-preview.sent .checkmark {
+            display: flex;
+        }
+
+        .checkmark svg {
+            width: 16px;
+            height: 16px;
+            fill: #ffffff;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chat-input-container {
+            position: fixed;
+            bottom: -2px;
+            left: 49%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1000;
+            transition: bottom 0.3s ease;
+            width: 95% !important;
+        }
+
+        .chat-input-container.displaying-picker {
+            bottom: 328px;
+        }
+
+        .chat-input-container.keyboard-active {
+            bottom: 4px;
+        }
+
+        .message-bubble {
+            background: #fff;
+            display: flex;
+            align-items: center;
+            flex: 1;
+            padding: 10px 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            border-radius: 30px;
+            position: relative;
+        }
+
+        .message-bubble::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: -6px;
+            width: 15px;
+            height: 15px;
+            background-color: #fff;
+            transform: translateY(-50%) rotate(45deg);
+            border-radius: 0 4px 0 0;
+            box-shadow: 2px -2px 6px rgba(0,0,0,0.1);
+            z-index: -1;
+        }
+
+        .message-bubble .icon {
+            font-size: 20px;
+            color: #555;
+            cursor: pointer;
+        }
+
+        .message-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            padding: 8px;
+            font-size: 16px;
+            margin: 0 6px;
+            background: transparent;
+            color: #000;
+            white-space: pre-wrap;
+            overflow-wrap: break-word;
+            word-break: break-word;
+        }
+
+        .message-input[contenteditable][data-placeholder]:empty::before {
+            content: attr(data-placeholder);
+            color: #999;
+            pointer-events: none;
+            display: block;
+        }
+
+        .attach-btn {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+        }
+
+        .attach-btn i {
+            font-size: 20px;
+            color: #555;
+        }
+
+        .mic-btn {
+            background: #749cbf;
+            border: none;
+            border-radius: 50%;
+            width: 54px;
+            height: 54px;
+            display: flex;
+            position: relative;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            transition: transform 0.1s ease;
+            touch-action: none;
+            z-index: 1001;
+        }
+
+        .mic-btn.hold-state {
+            transform: scale(1.76) translateY(-5px);
+        }
+
+        .mic-btn.dragging {
+            transition: none;
+        }
+
+        .mic-btn svg {
+            width: 21px;
+            height: 21px;
+            fill: white;
+        }
+
+   .pattern-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.15;
+            background-image: 
+                radial-gradient(circle at 20% 30%, transparent 20%, rgba(255,255,255,0.1) 21%, rgba(255,255,255,0.1) 25%, transparent 26%),
+                radial-gradient(circle at 80% 70%, transparent 15%, rgba(255,255,255,0.08) 16%, rgba(255,255,255,0.08) 20%, transparent 21%),
+                radial-gradient(circle at 40% 80%, transparent 10%, rgba(255,255,255,0.06) 11%, rgba(255,255,255,0.06) 15%, transparent 16%);
+            background-size: 120px 120px, 80px 80px, 60px 60px;
+        }
+
+        .leaf-pattern {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            opacity: 0.1;
+        }
+
+        .leaf {
+            position: absolute;
+            width: 40px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 0 100% 0 100%;
+            transform-origin: 0 50%;
+        }
+
+        .leaf:nth-child(1) { top: 15%; left: 10%; transform: rotate(45deg); }
+        .leaf:nth-child(2) { top: 25%; left: 70%; transform: rotate(-30deg); }
+        .leaf:nth-child(3) { top: 60%; left: 20%; transform: rotate(120deg); }
+        .leaf:nth-child(4) { top: 45%; left: 85%; transform: rotate(-60deg); }
+        .leaf:nth-child(5) { top: 80%; left: 60%; transform: rotate(90deg); }
+
+        .container-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .main-container {
+            position: relative;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 20px;
+            margin-bottom: 20px;
+            z-index: 10;
+        }
+
+        .receiver-container {
+            position: relative;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding-left: 20px;
+            z-index: 10;
+        }
+
+        .circle-wrapper, .receiver-circle-wrapper {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .circle-wrapper.recording, .receiver-circle-wrapper.playing {
+            width: 300px;
+            height: 300px;
+        }
+
+        .progress-ring {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .progress-ring.hidden {
+            opacity: 0;
+        }
+
+        .progress-ring circle {
+            fill: none;
+            stroke-width: 4;
+            stroke-linecap: round;
+        }
+
+        .progress-ring .bg {
+            stroke: none;
+        }
+
+        .progress-ring .progress {
+            stroke: #fff;
+            transition: stroke-dashoffset 0.1s linear;
+        }
+
+        .recording-circle, .receiver-circle {
+            width: 218px;
+            height: 218px;
+            background-color: #222;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .circle-wrapper.recording .recording-circle, .receiver-circle-wrapper.playing .receiver-circle {
+            width: 297px;
+            height: 297px;
+            background-color: #444;
+        }
+
+        .recording-indicator, .receiver-indicator {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .recording-dot, .receiver-dot {
+            width: 40px;
+            height: 40px;
+            background: #ff4444;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            opacity: 0;
+        }
+
+        .time-display, .receiver-time-display {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .recording-time, .receiver-time {
+            opacity: 0.9;
+        }
+
+        .recording-dot-small, .receiver-dot-small {
+            width: 6px;
+            height: 6px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .timestamp, .receiver-timestamp {
+            position: absolute;
+            bottom: -35px;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .timestamp {
+            right: 30px;
+        }
+
+        .receiver-timestamp {
+            left: 30px;
+        }
+
+        .checkmark {
+            width: 16px;
+            height: 16px;
+        }
+
+        .checkmark svg {
+            width: 100%;
+            height: 100%;
+            fill: white;
+        }
+
+        .instructions {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            text-align: center;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .circle-wrapper.recording + .instructions, .receiver-circle-wrapper.playing + .instructions {
+            opacity: 0;
+        }
+
+
+        @media (max-width: 480px) {
+            .chat-input-container {
+                width: 100% !important;
+                gap: 6px;
+                background: #fff;
+                height: 52px;
+            }
+
+            .message-bubble {
+                padding: 6px 12px;
+                box-shadow: 0 2px 6px 5px rgba(0,0,0,0.1);
+            }
+
+            .mic-btn {
+                width: 55px;
+                height: 55px;
+                top: -2px;
+                left: 2px;
+                margin-top: 2px;
+            }
+
+            .mic-btn.hold-state {
+                transform: scale(1.9) translateY(-5px);
+            }
+
+            .message-input {
+                font-size: 15px;
+            }
+
+            .messages-container {
+                padding: 15px;
+                bottom: 70px;
+            }
+        }
+
+        .emoji-picker-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 381px;
+            background: #dde5e8;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 1002;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+            transform: translateY(100%);
+        }
+
+        .emoji-picker-container.active {
+            transform: translateY(0);
+        }
+
+        .emoji-picker-topbar {
+            width: 100%;
+            height: 50px;
+            background-color: #fff;
+        }
+
+        .emoji-picker-content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+            gap: 10px;
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .emoji-picker-content span {
+            font-size: 24px;
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .emoji-picker-navbar {
+            width: 100%;
+            height: 40px;
+            background-color: #fff;
+            border-top: 0.5px solid #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            padding: 0 15px;
+            box-sizing: border-box;
+            color: #777;
+        }
+
+        .emoji-picker-navbar span.active {
+            background-color: #f5f5f5;
+            color: #6a6969;
+            font-weight: bold;
+        }
+
+        .emoji-picker-navbar span {
+            padding: 6px 12px;
+            border-radius: 18px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: normal;
+            color: #777;
+        }
+
+        .message-content {
+            font-size: 15px;
+        }
+
+     @media (max-width: 768px) {
+            .circle-wrapper, .receiver-circle-wrapper {
+                width: 160px;
+                height: 160px;
+            }
+
+            .circle-wrapper.recording, .receiver-circle-wrapper.playing {
+                width: 240px;
+                height: 240px;
+            }
+
+            .recording-circle, .receiver-circle {
+                width: 158px;
+                height: 158px;
+            }
+
+            .circle-wrapper.recording .recording-circle, .receiver-circle-wrapper.playing .receiver-circle {
+                width: 237px;
+                height: 237px;
+            }
+
+            .recording-indicator, .receiver-indicator {
+                width: 60px;
+                height: 60px;
+                display: none;
+            }
+
+            .recording-dot, .receiver-dot {
+                width: 35px;
+                height: 35px;
+            }
+
+            .time-display, .receiver-time-display, .timestamp, .receiver-timestamp {
+                font-size: 14px;
+            }
+
+            .timestamp {
+                right: 20px;
+                bottom: -30px;
+            }
+
+            .receiver-timestamp {
+                left: 20px;
+                bottom: -30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="messages-container" id="messages-container">
+        <!-- Messages will be added here dynamically -->
+    </div>
+
+    <script>
+        const messagesContainer = document.getElementById('messages-container');
+        let isDragging = false;
+        let dragTarget = null;
+        let activeAudioButton = null;
+
+        function parseDuration(duration) {
+            const parts = duration.split(':').map(Number);
+            return parts[0] * 60 + parts[1];
+        }
+
+        function formatDuration(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${minutes}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function addMessage(text, type = 'sent', timestamp = '7:25 AM') {
+            if (!text.trim()) return;
+            
+            const message = document.createElement('div');
+            message.className = `message ${type}`;
+            
+            if (type === 'reply') {
+                message.innerHTML = `
+                    <div class="reply-header">Mykeespage</div>
+                    <div class="reply-content">Thanks! This looks great</div>
+                    <div class="main-message">Do you know what time it is?</div>
+                    <div class="timestamp">7:24 AM</div>
+                `;
+            } else {
+                message.innerHTML = `
+                    <div class="message-content">${text}</div>
+                    <div class="timestamp">${timestamp}</div>
+                `;
+            }
+            
+            if (type === 'sent' || type === 'reply sent') {
+                const checkmark = document.createElement('div');
+                checkmark.className = 'checkmark';
+                checkmark.innerHTML = `
+                    <svg viewBox="0 0 24 24">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                    </svg>
+                `;
+                message.appendChild(checkmark);
+            }
+            
+            messagesContainer.appendChild(message);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            addSwipeListeners(message);
+        }
+
+        function addAudioMessage(duration, timestamp, type = 'received') {
+            const message = document.createElement('div');
+            message.className = `message audio ${type}`;
+            
+            const totalSeconds = parseDuration(duration);
+            if (totalSeconds < 1) return; // Prevent invalid durations
+            const maxBars = 45; // Fixed to 45 bars for any duration
+            const barHeights = Array(maxBars).fill().map(() => Math.floor(Math.random() * 15) + 5);
+            let waveformBars = '';
+            for (let i = 0; i < maxBars; i++) {
+                waveformBars += `<div class="audio-bar" style="height: ${barHeights[i]}px;" data-index="${i}"></div>`;
+            }
+            
+            message.innerHTML = `
+                <button class="audio-play-btn" onclick="toggleAudioPlayback(this)" data-duration="${duration}">
+                    <svg class="play-icon" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                    <svg class="pause-icon" viewBox="0 0 24 24" style="display: none;">
+                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                    </svg>
+                </button>
+                <div class="audio-content">
+                    <div class="audio-waveform" onmousedown="startWaveformDrag(event, this)" ontouchstart="startWaveformDrag(event, this)">
+                        ${waveformBars}
+                    </div>
+                    <div class="audio-info">
+                        <span class="audio-duration">${duration}</span>
+                        <span class="audio-timestamp">${timestamp}</span>
+                    </div>
+                </div>
+            `;
+            
+            if (type === 'sent') {
+                const checkmark = document.createElement('div');
+                checkmark.className = 'checkmark';
+                checkmark.innerHTML = `
+                    <svg viewBox="0 0 24 24">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                    </svg>
+                `;
+                message.appendChild(checkmark);
+            }
+            
+            messagesContainer.appendChild(message);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            addSwipeListeners(message);
+        }
+
+        function addLinkPreview(url, title, description, site, timestamp, type = 'sent') {
+            const message = document.createElement('div');
+            message.className = `message link-preview ${type}`;
+            
+            message.innerHTML = `
+                <div class="link-url">${url}</div>
+                <div class="link-content">
+                    <div class="link-title">${title}</div>
+                    <div class="link-description">${description}</div>
+                    <div class="link-site">${site}</div>
+                </div>
+                <div class="timestamp">${timestamp}</div>
+            `;
+            
+            if (type === 'sent') {
+                const checkmark = document.createElement('div');
+                checkmark.className = 'checkmark';
+                checkmark.innerHTML = `
+                    <svg viewBox="0 0 24 24">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                    </svg>
+                `;
+                message.appendChild(checkmark);
+            }
+            
+            messagesContainer.appendChild(message);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            addSwipeListeners(message);
+        }
+
+        function addReplyMessage(text, replyToUser, replyToText, timestamp, type = 'reply', isAudioReply = false) {
+            const message = document.createElement('div');
+            message.className = `message ${type}`;
+            
+            let replyContentHtml;
+            if (isAudioReply) {
+                replyContentHtml = `
+                    <div class="reply-content audio-reply">
+                        <div class="audio-reply-icon">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                <g id="SVGRepo_iconCarrier">
+                                    <path d="M7.25 7C7.25 4.37665 9.37665 2.25 12 2.25C14.6234 2.25 16.75 4.37665 16.75 7V11C16.75 13.6234 14.6234 15.75 12 15.75C9.37665 15.75 7.25 13.6234 7.25 11V7Z" fill="#000000"></path>
+                                    <path d="M5.75 10C5.75 9.58579 5.41421 9.25 5 9.25C4.58579 9.25 4.25 9.58579 4.25 10V11C4.25 15.0272 7.3217 18.3369 11.25 18.7142V21C11.25 21.4142 11.5858 21.75 12 21.75C12.4142 21.75 12.75 21.4142 12.75 21V18.7142C16.6783 18.3369 19.75 15.0272 19.75 11V10C19.75 9.58579 19.4142 9.25 19 9.25C18.5858 9.25 18.25 9.58579 18.25 10V11C18.25 14.4518 15.4518 17.25 12 17.25C8.54822 17.25 5.75 14.4518 5.75 11V10Z" fill="#000000"></path>
+                                </g>
+                            </svg>
+                        </div>
+                        <span class="audio-reply-text">${replyToText}</span>
+                    </div>`;
+            } else {
+                replyContentHtml = `<div class="reply-content">${replyToText}</div>`;
+            }
+            
+            message.innerHTML = `
+                <div class="reply-header">${replyToUser}</div>
+                ${replyContentHtml}
+                <div class="main-message">${text}</div>
+                <div class="timestamp">${timestamp}</div>
+            `;
+            
+            if (type === 'reply sent') {
+                const checkmark = document.createElement('div');
+                checkmark.className = 'checkmark';
+                checkmark.innerHTML = `
+                    <svg viewBox="0 0 24 24">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                    </svg>
+                `;
+                message.appendChild(checkmark);
+            }
+            
+            messagesContainer.appendChild(message);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            addSwipeListeners(message);
+        }
+
+        function addSwipeListeners(message) {
+            let startX = 0;
+            let startY = 0;
+            let currentX = 0;
+            let currentY = 0;
+            let isSwiping = false;
+            let swipeDistance = 0;
+            let verticalDistance = 0;
+
+            const isSent = message.classList.contains('sent') || message.classList.contains('reply sent') || message.classList.contains('link-preview sent');
+            const minSwipeDistance = 30;
+            const swipeThreshold = 150;
+
+            const replyIcon = document.createElement('div');
+            replyIcon.className = 'reply-icon';
+            replyIcon.innerHTML = `
+                <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                    <g id="SVGRepo_iconCarrier">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M10.0303 6.46967C10.3232 6.76256 10.3232 7.23744 10.0303 7.53033L6.31066 11.25L14.5 11.25C15.4534 11.25 16.8667 11.5298 18.0632 12.3913C19.298 13.2804 20.25 14.7556 20.25 17C20.25 17.4142 19.9142 17.75 19.5 17.75C19.0858 17.75 18.75 17.4142 18.75 17C18.75 15.2444 18.0353 14.2196 17.1868 13.6087C16.3 12.9702 15.2133 12.75 14.5 12.75L6.31066 12.75L10.0303 16.4697C10.3232 16.7626 10.3232 17.2374 10.0303 17.5303C9.73744 17.8232 9.26256 17.8232 8.96967 17.5303L3.96967 12.5303C3.67678 12.2374 3.67678 11.7626 3.96967 11.4697L8.96967 6.46967C9.26256 6.17678 9.73744 6.17678 10.0303 6.46967Z" fill="#ffffff"></path>
+                    </g>
+                </svg>
+            `;
+            message.appendChild(replyIcon);
+
+            const handleStart = (e) => {
+                isSwiping = true;
+                startX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+                startY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+                message.style.transition = 'none';
+            };
+
+            const handleMove = (e) => {
+                if (!isSwiping) return;
+                currentX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+                currentY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+                swipeDistance = currentX - startX;
+                verticalDistance = currentY - startY;
+
+                if (Math.abs(swipeDistance) >= minSwipeDistance && Math.abs(swipeDistance) > Math.abs(verticalDistance) * 2) {
+                    e.preventDefault();
+                    if (isSent) {
+                        if (swipeDistance < 0) swipeDistance = 0;
+                        message.style.transform = `translateX(${swipeDistance}px)`;
+                        replyIcon.style.display = 'flex';
+                    } else {
+                        if (swipeDistance < 0) swipeDistance = 0;
+                        message.style.transform = `translateX(${swipeDistance}px)`;
+                        replyIcon.style.display = 'flex';
+                    }
+                } else {
+                    message.style.transform = 'translateX(0)';
+                    replyIcon.style.display = 'none';
+                }
+            };
+
+            const handleEnd = (e) => {
+                if (!isSwiping) return;
+                isSwiping = false;
+                message.style.transition = 'transform 0.2s ease';
+                replyIcon.style.display = 'none';
+
+                if (swipeDistance > swipeThreshold) {
+                    triggerReply(message);
+                    message.style.transform = 'translateX(150px)';
+                    setTimeout(() => {
+                        message.style.transform = 'translateX(0)';
+                    }, 300);
+                } else {
+                    message.style.transform = 'translateX(0)';
+                }
+
+                startX = 0;
+                startY = 0;
+                currentX = 0;
+                currentY = 0;
+                swipeDistance = 0;
+                verticalDistance = 0;
+            };
+
+            message.addEventListener('touchstart', handleStart, { passive: true });
+            message.addEventListener('touchmove', handleMove, { passive: false });
+            message.addEventListener('touchend', handleEnd);
+            message.addEventListener('mousedown', handleStart);
+            message.addEventListener('mousemove', handleMove);
+            message.addEventListener('mouseup', handleEnd);
+            message.addEventListener('mouseleave', handleEnd);
+        }
+
+        function triggerReply(message) {
+            console.log('Swipe to reply triggered for message:', message);
+        }
+
+        function startWaveformDrag(event, waveformElement) {
+            event.preventDefault();
+            isDragging = true;
+            dragTarget = waveformElement;
+            waveformElement.classList.add('dragging');
+            
+            handleWaveformSeek(event, waveformElement);
+            
+            document.addEventListener('mousemove', handleWaveformDrag);
+            document.addEventListener('mouseup', endWaveformDrag);
+            document.addEventListener('touchmove', handleWaveformDrag, { passive: false });
+            document.addEventListener('touchend', endWaveformDrag);
+        }
+
+        function handleWaveformDrag(event) {
+            if (!isDragging || !dragTarget) return;
+            event.preventDefault();
+            handleWaveformSeek(event, dragTarget);
+        }
+
+        function endWaveformDrag(event) {
+            if (!isDragging) return;
+            
+            isDragging = false;
+            if (dragTarget) {
+                dragTarget.classList.remove('dragging');
+                dragTarget = null;
+            }
+            
+            document.removeEventListener('mousemove', handleWaveformDrag);
+            document.removeEventListener('mouseup', endWaveformDrag);
+            document.removeEventListener('touchmove', handleWaveformDrag);
+            document.removeEventListener('touchend', endWaveformDrag);
+        }
+
+        function handleWaveformSeek(event, waveformElement) {
+            const rect = waveformElement.getBoundingClientRect();
+            const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+            const x = clientX - rect.left;
+            const width = rect.width;
+            const progress = Math.max(0, Math.min(1, x / width));
+            
+            const audioMessage = waveformElement.closest('.message.audio');
+            const playButton = audioMessage.querySelector('.audio-play-btn');
+            const durationSpan = audioMessage.querySelector('.audio-duration');
+            const waveformBars = audioMessage.querySelectorAll('.audio-bar');
+            
+            const totalDuration = parseDuration(playButton.getAttribute('data-duration'));
+            const seekTime = Math.floor(progress * totalDuration);
+            const totalBars = 45; // Fixed to 45 bars
+            const playedBars = Math.floor(progress * totalBars);
+            
+            if (playButton.playbackInterval) {
+                clearInterval(playButton.playbackInterval);
+                playButton.playbackInterval = null;
+            }
+            
+            playButton.currentTime = seekTime;
+            playButton.totalDuration = totalDuration;
+            
+            durationSpan.textContent = formatDuration(seekTime);
+            
+            waveformBars.forEach((bar, index) => {
+                if (index <= playedBars) {
+                    bar.classList.add('played');
+                } else {
+                    bar.classList.remove('played');
+                }
+            });
+            
+            if (playButton.classList.contains('playing')) {
+                startPlaybackFromCurrentTime(playButton);
+            }
+        }
+
+        function startPlaybackFromCurrentTime(button) {
+            const audioMessage = button.closest('.message.audio');
+            const durationSpan = audioMessage.querySelector('.audio-duration');
+            const waveformBars = audioMessage.querySelectorAll('.audio-bar');
+            
+            const totalDuration = button.totalDuration;
+            const totalBars = 45; // Fixed to 45 bars
+            let currentTime = button.currentTime || 0;
+            
+            const interval = totalDuration < 2 ? 100 : 1000; // Faster updates for short durations
+            button.playbackInterval = setInterval(() => {
+                currentTime += interval / 1000; // Increment by interval in seconds
+                button.currentTime = currentTime;
+                
+                durationSpan.textContent = formatDuration(Math.floor(currentTime));
+                
+                const progress = currentTime / totalDuration;
+                const playedBars = Math.floor(progress * totalBars);
+                
+                waveformBars.forEach((bar, index) => {
+                    if (index <= playedBars) {
+                        bar.classList.add('played');
+                    } else {
+                        bar.classList.remove('played');
+                    }
+                });
+                
+                if (currentTime >= totalDuration) {
+                    clearInterval(button.playbackInterval);
+                    button.playbackInterval = null;
+                    button.classList.remove('playing');
+                    button.querySelector('.play-icon').style.display = 'block';
+                    button.querySelector('.pause-icon').style.display = 'none';
+                    
+                    durationSpan.textContent = button.getAttribute('data-duration');
+                    button.currentTime = 0;
+                    
+                    waveformBars.forEach(bar => {
+                        bar.classList.remove('played');
+                    });
+                    
+                    if (activeAudioButton === button) {
+                        activeAudioButton = null;
+                    }
+                }
+            }, interval);
+        }
+
+        function toggleAudioPlayback(button) {
+            const playIcon = button.querySelector('.play-icon');
+            const pauseIcon = button.querySelector('.pause-icon');
+            const audioMessage = button.closest('.message.audio');
+            const durationSpan = audioMessage.querySelector('.audio-duration');
+            const waveformBars = audioMessage.querySelectorAll('.audio-bar');
+            
+            if (activeAudioButton && activeAudioButton !== button) {
+                const activeAudioMessage = activeAudioButton.closest('.message.audio');
+                const activeDurationSpan = activeAudioMessage.querySelector('.audio-duration');
+                const activeWaveformBars = activeAudioMessage.querySelectorAll('.audio-bar');
+                
+                clearInterval(activeAudioButton.playbackInterval);
+                activeAudioButton.playbackInterval = null;
+                activeAudioButton.classList.remove('playing');
+                activeAudioButton.querySelector('.play-icon').style.display = 'block';
+                activeAudioButton.querySelector('.pause-icon').style.display = 'none';
+                
+                activeDurationSpan.textContent = activeAudioButton.getAttribute('data-duration');
+                activeAudioButton.currentTime = 0;
+                
+                activeWaveformBars.forEach(bar => {
+                    bar.classList.remove('played');
+                });
+                
+                activeAudioButton = null;
+            }
+            
+            if (button.classList.contains('playing')) {
+                button.classList.remove('playing');
+                playIcon.style.display = 'block';
+                pauseIcon.style.display = 'none';
+                
+                if (button.playbackInterval) {
+                    clearInterval(button.playbackInterval);
+                    button.playbackInterval = null;
+                }
+                
+                durationSpan.textContent = button.getAttribute('data-duration');
+                button.currentTime = 0;
+                
+                waveformBars.forEach(bar => {
+                    bar.classList.remove('played');
+                });
+                
+                if (activeAudioButton === button) {
+                    activeAudioButton = null;
+                }
+            } else {
+                button.classList.add('playing');
+                playIcon.style.display = 'none';
+                pauseIcon.style.display = 'block';
+                
+                const durationAttr = button.getAttribute('data-duration');
+                button.totalDuration = parseDuration(durationAttr);
+                
+                if (button.currentTime === undefined) {
+                    button.currentTime = 0;
+                }
+                
+                if (button.currentTime === 0) {
+                    durationSpan.textContent = '0:00';
+                    button.currentTime = 0;
+                }
+                
+                activeAudioButton = button;
+                startPlaybackFromCurrentTime(button);
+            }
+        }
+
+        // Initialize demo messages
+        setTimeout(() => {
+            addAudioMessage("0:01", "11:50 PM", "received");
+            addAudioMessage("0:45", "12:00 PM", "received");
+            addAudioMessage("1:30", "12:05 PM", "sent");
+            addAudioMessage("10:00", "12:10 PM", "sent");
+            addReplyMessage("Do you know what time it is?", "Mykeespage", "Thanks! This looks great", "7:24 AM", "reply");
+            
+            setTimeout(() => {
+                addReplyMessage("I've heard you", "Mykee", "voice message 0:45", "7:25 AM", "reply sent", true);
+            }, 800);
+            
+            setTimeout(() => {
+                addReplyMessage("That sounds good!", "Mykeespage", "voice message 1:30", "7:26 AM", "reply", true);
+            }, 1000);
+            
+            setTimeout(() => {
+                addReplyMessage("It's 7:24 AM! Hope you're having a great morning! 😊", "Mykee", "Do you know what time it is?", "7:25 AM", "reply sent");
+            }, 1500);
+            
+            setTimeout(() => {
+                addLinkPreview(
+                    "https://www.facebook.com/goodwallapp/videos/24154708064138567/?app=fbl",
+                    "Facebook",
+                    "Log in or sign up to view",
+                    "See posts, photos and more on Facebook.",
+                    "7:25 AM",
+                    "sent"
+                );
+            }, 2000);
+            
+            setTimeout(() => {
+                addLinkPreview(
+                    "https://www.facebook.com/goodwallapp/videos/24154708064138567/?app=fbl",
+                    "Facebook",
+                    "Log in or sign up to view",
+                    "See posts, photos and more on Facebook.",
+                    "7:26 AM",
+                    "received"
+                );
+            }, 2500);
+
+            setTimeout(() => {
+                addMessage("Hi how are you doing", "sent", "7:27 AM");
+            }, 3000);
+
+            setTimeout(() => {
+                addMessage("I'm doing great!", "received", "7:28 AM");
+            }, 3500);
+        }, 500);
+
+      // Create DOM structure dynamically
+        function createVoiceNoteInterface() {
+            // Create pattern overlay
+            const patternOverlay = document.createElement('div');
+            patternOverlay.className = 'pattern-overlay';
+            document.body.appendChild(patternOverlay);
+
+            // Create leaf pattern
+            const leafPattern = document.createElement('div');
+            leafPattern.className = 'leaf-pattern';
+            
+            // Create 5 leaves
+            for (let i = 0; i < 5; i++) {
+                const leaf = document.createElement('div');
+                leaf.className = 'leaf';
+                leafPattern.appendChild(leaf);
+            }
+            document.body.appendChild(leafPattern);
+
+            // Create container wrapper
+            const containerWrapper = document.createElement('div');
+            containerWrapper.className = 'container-wrapper';
+
+            // Create sender UI (main-container)
+            const mainContainer = document.createElement('div');
+            mainContainer.className = 'main-container';
+
+            // Create circle wrapper for sender
+            const circleWrapper = document.createElement('div');
+            circleWrapper.className = 'circle-wrapper';
+            circleWrapper.id = 'recordingCircleWrapper';
+
+            // Create SVG progress ring for sender
+            const progressRing = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            progressRing.setAttribute('class', 'progress-ring');
+            progressRing.setAttribute('id', 'recordingProgressRing');
+            progressRing.setAttribute('viewBox', '0 0 220 220');
+
+            const bgCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            bgCircle.setAttribute('class', 'bg');
+            bgCircle.setAttribute('cx', '110');
+            bgCircle.setAttribute('cy', '110');
+            bgCircle.setAttribute('r', '108');
+
+            const progressCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            progressCircle.setAttribute('class', 'progress');
+            progressCircle.setAttribute('cx', '110');
+            progressCircle.setAttribute('cy', '110');
+            progressCircle.setAttribute('r', '108');
+
+            progressRing.appendChild(bgCircle);
+            progressRing.appendChild(progressCircle);
+
+            // Create recording circle
+            const recordingCircle = document.createElement('div');
+            recordingCircle.className = 'recording-circle';
+            recordingCircle.id = 'recordingCircle';
+
+            // Create time display for sender
+            const timeDisplay = document.createElement('div');
+            timeDisplay.className = 'time-display';
+
+            const recordingTime = document.createElement('span');
+            recordingTime.className = 'recording-time';
+            recordingTime.id = 'recordingTime';
+            recordingTime.textContent = '00:04';
+
+            const recordingDotSmall = document.createElement('div');
+            recordingDotSmall.className = 'recording-dot-small';
+
+            timeDisplay.appendChild(recordingTime);
+            timeDisplay.appendChild(recordingDotSmall);
+
+            // Create recording indicator
+            const recordingIndicator = document.createElement('div');
+            recordingIndicator.className = 'recording-indicator';
+
+            const recordingDot = document.createElement('div');
+            recordingDot.className = 'recording-dot';
+
+            recordingIndicator.appendChild(recordingDot);
+
+            recordingCircle.appendChild(timeDisplay);
+            recordingCircle.appendChild(recordingIndicator);
+
+            circleWrapper.appendChild(progressRing);
+            circleWrapper.appendChild(recordingCircle);
+
+            // Create timestamp for sender
+            const timestamp = document.createElement('div');
+            timestamp.className = 'timestamp';
+            timestamp.id = 'timestamp';
+
+            const timestampSpan = document.createElement('span');
+            timestampSpan.textContent = '6:06 AM';
+
+            const checkmark = document.createElement('div');
+            checkmark.className = 'checkmark';
+            checkmark.innerHTML = `<svg viewBox="0 0 24 24">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+            </svg>`;
+
+            timestamp.appendChild(timestampSpan);
+            timestamp.appendChild(checkmark);
+
+            mainContainer.appendChild(circleWrapper);
+            mainContainer.appendChild(timestamp);
+
+            // Create receiver UI
+            const receiverContainer = document.createElement('div');
+            receiverContainer.className = 'receiver-container';
+
+            // Create receiver circle wrapper
+            const receiverCircleWrapper = document.createElement('div');
+            receiverCircleWrapper.className = 'receiver-circle-wrapper';
+            receiverCircleWrapper.id = 'receiverCircleWrapper';
+
+            // Create SVG progress ring for receiver
+            const receiverProgressRing = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            receiverProgressRing.setAttribute('class', 'progress-ring');
+            receiverProgressRing.setAttribute('id', 'receiverProgressRing');
+            receiverProgressRing.setAttribute('viewBox', '0 0 220 220');
+
+            const receiverBgCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            receiverBgCircle.setAttribute('class', 'bg');
+            receiverBgCircle.setAttribute('cx', '110');
+            receiverBgCircle.setAttribute('cy', '110');
+            receiverBgCircle.setAttribute('r', '108');
+
+            const receiverProgressCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            receiverProgressCircle.setAttribute('class', 'progress');
+            receiverProgressCircle.setAttribute('cx', '110');
+            receiverProgressCircle.setAttribute('cy', '110');
+            receiverProgressCircle.setAttribute('r', '108');
+
+            receiverProgressRing.appendChild(receiverBgCircle);
+            receiverProgressRing.appendChild(receiverProgressCircle);
+
+            // Create receiver circle
+            const receiverCircle = document.createElement('div');
+            receiverCircle.className = 'receiver-circle';
+            receiverCircle.id = 'receiverCircle';
+
+            // Create time display for receiver
+            const receiverTimeDisplay = document.createElement('div');
+            receiverTimeDisplay.className = 'receiver-time-display';
+
+            const receiverTime = document.createElement('span');
+            receiverTime.className = 'receiver-time';
+            receiverTime.id = 'receiverTime';
+            receiverTime.textContent = '00:04';
+
+            const receiverDotSmall = document.createElement('div');
+            receiverDotSmall.className = 'receiver-dot-small';
+
+            receiverTimeDisplay.appendChild(receiverTime);
+            receiverTimeDisplay.appendChild(receiverDotSmall);
+
+            // Create receiver indicator
+            const receiverIndicator = document.createElement('div');
+            receiverIndicator.className = 'receiver-indicator';
+
+            const receiverDot = document.createElement('div');
+            receiverDot.className = 'receiver-dot';
+
+            receiverIndicator.appendChild(receiverDot);
+
+            receiverCircle.appendChild(receiverTimeDisplay);
+            receiverCircle.appendChild(receiverIndicator);
+
+            receiverCircleWrapper.appendChild(receiverProgressRing);
+            receiverCircleWrapper.appendChild(receiverCircle);
+
+            // Create receiver timestamp
+            const receiverTimestamp = document.createElement('div');
+            receiverTimestamp.className = 'receiver-timestamp';
+            receiverTimestamp.id = 'receiverTimestamp';
+
+            const receiverTimestampSpan = document.createElement('span');
+            receiverTimestampSpan.textContent = '6:05 AM';
+
+            receiverTimestamp.appendChild(receiverTimestampSpan);
+
+            receiverContainer.appendChild(receiverCircleWrapper);
+            receiverContainer.appendChild(receiverTimestamp);
+
+            // Assemble everything
+            containerWrapper.appendChild(mainContainer);
+            containerWrapper.appendChild(receiverContainer);
+            document.body.appendChild(containerWrapper);
+        }
+
+        // Initialize the interface
+        createVoiceNoteInterface();
+
+        // Sender functionality
+        let isRecording = false;
+        let recordingTime = 0;
+        let recordingInterval;
+        let recordingProgress = 0;
+        const recordingDuration = 4; // Duration in seconds
+        
+        const recordingCircleWrapper = document.getElementById('recordingCircleWrapper');
+        const recordingCircle = document.getElementById('recordingCircle');
+        const recordingTimeDisplay = document.getElementById('recordingTime');
+        const timestampDisplay = document.getElementById('timestamp');
+        const recordingProgressRing = document.getElementById('recordingProgressRing');
+        const recordingProgressCircle = recordingProgressRing.querySelector('.progress');
+        const radius = 108;
+        const circumference = 2 * Math.PI * radius;
+
+        // Receiver functionality
+        let isPlaying = false;
+        let playingTime = 0;
+        let playingInterval;
+        let playingProgress = 0;
+        const playingDuration = 4; // Duration in seconds
+        
+        const receiverCircleWrapper = document.getElementById('receiverCircleWrapper');
+        const receiverCircle = document.getElementById('receiverCircle');
+        const receiverTimeDisplay = document.getElementById('receiverTime');
+        const receiverTimestampDisplay = document.getElementById('receiverTimestamp');
+        const receiverProgressRing = document.getElementById('receiverProgressRing');
+        const receiverProgressCircle = receiverProgressRing.querySelector('.progress');
+
+        // Initialize progress circles
+        recordingProgressCircle.style.strokeDasharray = circumference;
+        recordingProgressCircle.style.strokeDashoffset = circumference;
+        receiverProgressCircle.style.strokeDasharray = circumference;
+        receiverProgressCircle.style.strokeDashoffset = circumference;
+
+        // Update current time
+        function updateCurrentTime(element) {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { 
+                hour: 'numeric', 
+                minute: '2-digit',
+                hour12: true 
+            });
+            element.querySelector('span').textContent = timeString;
+        }
+
+        // Format time
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Sender: Start recording
+        function startRecording() {
+            isRecording = true;
+            recordingTime = 0;
+            recordingProgress = 0;
+            recordingCircleWrapper.classList.add('recording');
+            recordingProgressRing.classList.remove('hidden');
+            
+            recordingInterval = setInterval(() => {
+                recordingTime++;
+                recordingProgress = (recordingTime / recordingDuration) * 100; // Scale progress to duration
+                const offset = circumference - (recordingProgress / 100) * circumference;
+                recordingProgressCircle.style.strokeDashoffset = offset;
+                recordingTimeDisplay.textContent = formatTime(recordingTime);
+                
+                if (recordingTime >= recordingDuration) {
+                    stopRecording(); // Auto-stop when timer reaches duration
+                }
+            }, 1000); // Update every second
+        }
+
+        // Sender: Stop recording
+        function stopRecording() {
+            isRecording = false;
+            recordingCircleWrapper.classList.remove('recording');
+            
+            if (recordingInterval) {
+                clearInterval(recordingInterval);
+            }
+            
+            setTimeout(() => {
+                recordingTime = recordingDuration;
+                recordingProgress = 0;
+                recordingTimeDisplay.textContent = formatTime(recordingTime);
+                recordingProgressCircle.style.strokeDashoffset = circumference;
+                recordingProgressRing.classList.add('hidden');
+            }, 500);
+        }
+
+        // Receiver: Start playing
+        function startPlaying() {
+            isPlaying = true;
+            playingTime = 0;
+            playingProgress = 0;
+            receiverCircleWrapper.classList.add('playing');
+            receiverProgressRing.classList.remove('hidden');
+            
+            playingInterval = setInterval(() => {
+                playingTime++;
+                playingProgress = (playingTime / playingDuration) * 100; // Scale progress to duration
+                const offset = circumference - (playingProgress / 100) * circumference;
+                receiverProgressCircle.style.strokeDashoffset = offset;
+                receiverTimeDisplay.textContent = formatTime(playingTime);
+                
+                if (playingTime >= playingDuration) {
+                    stopPlaying(); // Auto-stop when timer reaches duration
+                }
+            }, 1000); // Update every second
+        }
+
+        // Receiver: Stop playing
+        function stopPlaying() {
+            isPlaying = false;
+            receiverCircleWrapper.classList.remove('playing');
+            
+            if (playingInterval) {
+                clearInterval(playingInterval);
+            }
+            
+            setTimeout(() => {
+                playingTime = playingDuration;
+                playingProgress = 0;
+                receiverTimeDisplay.textContent = formatTime(playingTime);
+                receiverProgressCircle.style.strokeDashoffset = circumference;
+                receiverProgressRing.classList.add('hidden');
+            }, 500);
+        }
+
+        // Sender: Toggle recording
+        recordingCircle.addEventListener('click', () => {
+            if (isRecording) {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        });
+
+        // Receiver: Toggle playing
+        receiverCircle.addEventListener('click', () => {
+            if (isPlaying) {
+                stopPlaying();
+            } else {
+                startPlaying();
+            }
+        });
+
+        // Initialize
+        updateCurrentTime(timestampDisplay);
+        updateCurrentTime(receiverTimestampDisplay);
+        setInterval(() => {
+            updateCurrentTime(timestampDisplay);
+            updateCurrentTime(receiverTimestampDisplay);
+        }, 1000);
+        
+        // Set initial times
+        recordingTime = recordingDuration;
+        recordingTimeDisplay.textContent = formatTime(recordingTime);
+        playingTime = playingDuration;
+        receiverTimeDisplay.textContent = formatTime(playingTime);
+
+        // Add touch support for mobile
+        recordingCircle.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (isRecording) {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        });
+
+        receiverCircle.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (isPlaying) {
+                stopPlaying();
+            } else {
+                startPlaying();
+            }
+        });
+    </script>
+</body>
+</html>
