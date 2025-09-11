@@ -196,8 +196,9 @@
         .message.reply .timestamp {
             font-size: 12px;
             color: #888;
-            float: left;
             margin-top: 4px;
+            display: block;
+            text-align: left;
         }
 
         .message.received {
@@ -217,6 +218,22 @@
             background-color: #f1f1f1;
             transform: rotate(45deg);
             border-radius: 0 0 0 4px;
+        }
+
+        .message.sent .timestamp,
+        .message.received .timestamp {
+            font-size: 12px;
+            margin-top: 4px;
+            display: block;
+            text-align: left;
+        }
+
+        .message.sent .timestamp {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .message.received .timestamp {
+            color: #888;
         }
 
         .message.audio {
@@ -322,10 +339,16 @@
             cursor: pointer;
             position: relative;
             user-select: none;
+            flex-wrap: nowrap;
+            overflow: hidden;
+            padding: 0 8px;
+            box-sizing: border-box;
         }
 
         .audio-bar {
-            width: 3px;
+            flex: 1;
+            min-width: 2px;
+            max-width: 3px;
             background: #c5c5c5;
             border-radius: 1px;
             transition: background-color 0.1s ease;
@@ -339,6 +362,10 @@
 
         .audio-bar.played {
             background: #749cbf;
+        }
+
+        .message.audio.sent .audio-bar.played {
+            background: white;
         }
 
         .audio-waveform.dragging {
@@ -355,6 +382,7 @@
             align-items: center;
             font-size: 12px;
             color: #666;
+            padding: 0 8px;
         }
 
         .audio-duration {
@@ -409,8 +437,9 @@
         .message.link-preview.sent .timestamp {
             font-size: 12px;
             color: rgba(255, 255, 255, 0.7);
-            float: right;
             margin-top: 4px;
+            display: block;
+            text-align: left;
         }
 
         .message.link-preview.received {
@@ -473,8 +502,9 @@
         .message.link-preview.received .timestamp {
             font-size: 12px;
             color: #888;
-            float: left;
             margin-top: 4px;
+            display: block;
+            text-align: left;
         }
 
         .reply-icon {
@@ -765,6 +795,10 @@
             font-weight: normal;
             color: #777;
         }
+
+        .message-content {
+            font-size: 15px;
+        }
     </style>
 </head>
 <body>
@@ -778,7 +812,18 @@
         let dragTarget = null;
         let activeAudioButton = null;
 
-        function addMessage(text, type = 'sent') {
+        function parseDuration(duration) {
+            const parts = duration.split(':').map(Number);
+            return parts[0] * 60 + parts[1];
+        }
+
+        function formatDuration(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${minutes}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function addMessage(text, type = 'sent', timestamp = '7:25 AM') {
             if (!text.trim()) return;
             
             const message = document.createElement('div');
@@ -792,10 +837,10 @@
                     <div class="timestamp">7:24 AM</div>
                 `;
             } else {
-                message.textContent = text;
-                if (type === 'sent') {
-                    message.innerHTML += `<div class="timestamp">7:25 AM</div>`;
-                }
+                message.innerHTML = `
+                    <div class="message-content">${text}</div>
+                    <div class="timestamp">${timestamp}</div>
+                `;
             }
             
             if (type === 'sent' || type === 'reply sent') {
@@ -818,10 +863,13 @@
             const message = document.createElement('div');
             message.className = `message audio ${type}`;
             
+            const totalSeconds = parseDuration(duration);
+            if (totalSeconds < 1) return; // Prevent invalid durations
+            const maxBars = 45; // Fixed to 45 bars for any duration
+            const barHeights = Array(maxBars).fill().map(() => Math.floor(Math.random() * 15) + 5);
             let waveformBars = '';
-            const barHeights = [6, 12, 8, 15, 10, 18, 14, 9, 16, 11, 7, 13, 19, 8, 12, 6, 14, 17, 10, 15, 9, 11, 13, 8, 16];
-            for (let i = 0; i < 25; i++) {
-                waveformBars += `<div class="audio-bar" style="height: ${barHeights[i] || 10}px;" data-index="${i}"></div>`;
+            for (let i = 0; i < maxBars; i++) {
+                waveformBars += `<div class="audio-bar" style="height: ${barHeights[i]}px;" data-index="${i}"></div>`;
             }
             
             message.innerHTML = `
@@ -1078,19 +1126,9 @@
             const durationSpan = audioMessage.querySelector('.audio-duration');
             const waveformBars = audioMessage.querySelectorAll('.audio-bar');
             
-            const durationText = durationSpan.textContent;
-            let totalDuration = 33;
-            
-            if (durationText.includes(':')) {
-                const parts = durationText.split(':');
-                totalDuration = parseInt(parts[0]) * 60 + parseInt(parts[1]);
-                if (totalDuration !== 25 && totalDuration !== 33) {
-                    totalDuration = durationText === '0:25' ? 25 : 33;
-                }
-            }
-            
+            const totalDuration = parseDuration(playButton.getAttribute('data-duration'));
             const seekTime = Math.floor(progress * totalDuration);
-            const totalBars = waveformBars.length;
+            const totalBars = 45; // Fixed to 45 bars
             const playedBars = Math.floor(progress * totalBars);
             
             if (playButton.playbackInterval) {
@@ -1101,9 +1139,7 @@
             playButton.currentTime = seekTime;
             playButton.totalDuration = totalDuration;
             
-            const minutes = Math.floor(seekTime / 60);
-            const seconds = seekTime % 60;
-            durationSpan.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            durationSpan.textContent = formatDuration(seekTime);
             
             waveformBars.forEach((bar, index) => {
                 if (index <= playedBars) {
@@ -1123,17 +1159,16 @@
             const durationSpan = audioMessage.querySelector('.audio-duration');
             const waveformBars = audioMessage.querySelectorAll('.audio-bar');
             
-            const totalDuration = button.totalDuration || 33;
-            const totalBars = waveformBars.length;
+            const totalDuration = button.totalDuration;
+            const totalBars = 45; // Fixed to 45 bars
             let currentTime = button.currentTime || 0;
             
+            const interval = totalDuration < 2 ? 100 : 1000; // Faster updates for short durations
             button.playbackInterval = setInterval(() => {
-                currentTime++;
+                currentTime += interval / 1000; // Increment by interval in seconds
                 button.currentTime = currentTime;
                 
-                const minutes = Math.floor(currentTime / 60);
-                const seconds = currentTime % 60;
-                durationSpan.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                durationSpan.textContent = formatDuration(Math.floor(currentTime));
                 
                 const progress = currentTime / totalDuration;
                 const playedBars = Math.floor(progress * totalBars);
@@ -1141,6 +1176,8 @@
                 waveformBars.forEach((bar, index) => {
                     if (index <= playedBars) {
                         bar.classList.add('played');
+                    } else {
+                        bar.classList.remove('played');
                     }
                 });
                 
@@ -1151,9 +1188,7 @@
                     button.querySelector('.play-icon').style.display = 'block';
                     button.querySelector('.pause-icon').style.display = 'none';
                     
-                    const totalMinutes = Math.floor(totalDuration / 60);
-                    const totalSeconds = totalDuration % 60;
-                    durationSpan.textContent = `${totalMinutes}:${totalSeconds.toString().padStart(2, '0')}`;
+                    durationSpan.textContent = button.getAttribute('data-duration');
                     button.currentTime = 0;
                     
                     waveformBars.forEach(bar => {
@@ -1164,7 +1199,7 @@
                         activeAudioButton = null;
                     }
                 }
-            }, 1000);
+            }, interval);
         }
 
         function toggleAudioPlayback(button) {
@@ -1185,10 +1220,7 @@
                 activeAudioButton.querySelector('.play-icon').style.display = 'block';
                 activeAudioButton.querySelector('.pause-icon').style.display = 'none';
                 
-                const totalDuration = activeAudioButton.totalDuration || 33;
-                const totalMinutes = Math.floor(totalDuration / 60);
-                const totalSeconds = totalDuration % 60;
-                activeDurationSpan.textContent = `${totalMinutes}:${totalSeconds.toString().padStart(2, '0')}`;
+                activeDurationSpan.textContent = activeAudioButton.getAttribute('data-duration');
                 activeAudioButton.currentTime = 0;
                 
                 activeWaveformBars.forEach(bar => {
@@ -1208,6 +1240,13 @@
                     button.playbackInterval = null;
                 }
                 
+                durationSpan.textContent = button.getAttribute('data-duration');
+                button.currentTime = 0;
+                
+                waveformBars.forEach(bar => {
+                    bar.classList.remove('played');
+                });
+                
                 if (activeAudioButton === button) {
                     activeAudioButton = null;
                 }
@@ -1216,21 +1255,16 @@
                 playIcon.style.display = 'none';
                 pauseIcon.style.display = 'block';
                 
-                const durationAttr = button.getAttribute('data-duration') || durationSpan.textContent;
-                let totalDuration = 33;
-                if (durationAttr && durationAttr.includes(':')) {
-                    const parts = durationAttr.split(':');
-                    totalDuration = parseInt(parts[0]) * 60 + parseInt(parts[1]);
-                }
-                button.totalDuration = totalDuration;
+                const durationAttr = button.getAttribute('data-duration');
+                button.totalDuration = parseDuration(durationAttr);
                 
                 if (button.currentTime === undefined) {
                     button.currentTime = 0;
                 }
                 
                 if (button.currentTime === 0) {
-                    durationSpan.textContent = '0:01';
-                    button.currentTime = 1;
+                    durationSpan.textContent = '0:00';
+                    button.currentTime = 0;
                 }
                 
                 activeAudioButton = button;
@@ -1240,16 +1274,18 @@
 
         // Initialize demo messages
         setTimeout(() => {
-            addAudioMessage("0:33", "12:00 PM", "received");
-            addAudioMessage("0:25", "12:05 PM", "sent");
+            addAudioMessage("0:01", "11:50 PM", "received");
+            addAudioMessage("0:45", "12:00 PM", "received");
+            addAudioMessage("1:30", "12:05 PM", "sent");
+            addAudioMessage("10:00", "12:10 PM", "sent");
             addReplyMessage("Do you know what time it is?", "Mykeespage", "Thanks! This looks great", "7:24 AM", "reply");
             
             setTimeout(() => {
-                addReplyMessage("That sounds good!", "Mykeespage", "voice message 0:25", "7:26 AM", "reply", true);
+                addReplyMessage("I've heard you", "Mykee", "voice message 0:45", "7:25 AM", "reply sent", true);
             }, 800);
             
             setTimeout(() => {
-                addReplyMessage("I've heard you", "Mykee", "voice message 0:33", "7:25 AM", "reply sent", true);
+                addReplyMessage("That sounds good!", "Mykeespage", "voice message 1:30", "7:26 AM", "reply", true);
             }, 1000);
             
             setTimeout(() => {
@@ -1277,6 +1313,14 @@
                     "received"
                 );
             }, 2500);
+
+            setTimeout(() => {
+                addMessage("Hi how are you doing", "sent", "7:27 AM");
+            }, 3000);
+
+            setTimeout(() => {
+                addMessage("I'm doing great!", "received", "7:28 AM");
+            }, 3500);
         }, 500);
     </script>
 </body>
