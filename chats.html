@@ -530,7 +530,8 @@
 
         .message.sent .reply-icon,
         .message.reply.sent .reply-icon,
-        .message.link-preview.sent .reply-icon {
+        .message.link-preview.sent .reply-icon,
+        .message.voice-note-message.sent .reply-icon {
             right: 100%;
             transform: translateX(-10px) translateY(-50%);
         }
@@ -554,7 +555,8 @@
 
         .message.sent .checkmark,
         .message.reply.sent .checkmark,
-        .message.link-preview.sent .checkmark {
+        .message.link-preview.sent .checkmark,
+        .message.voice-note-message.sent .checkmark {
             display: flex;
         }
 
@@ -564,236 +566,188 @@
             fill: #ffffff;
         }
 
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .chat-input-container {
-            position: fixed;
-            bottom: -2px;
-            left: 49%;
-            transform: translateX(-50%);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            z-index: 1000;
-            transition: bottom 0.3s ease;
-            width: 95% !important;
-        }
-
-        .chat-input-container.displaying-picker {
-            bottom: 328px;
-        }
-
-        .chat-input-container.keyboard-active {
-            bottom: 4px;
-        }
-
-        .message-bubble {
-            background: #fff;
-            display: flex;
-            align-items: center;
-            flex: 1;
-            padding: 10px 12px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-            border-radius: 30px;
-            position: relative;
-        }
-
-        .message-bubble::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            right: -6px;
-            width: 15px;
-            height: 15px;
-            background-color: #fff;
-            transform: translateY(-50%) rotate(45deg);
-            border-radius: 0 4px 0 0;
-            box-shadow: 2px -2px 6px rgba(0,0,0,0.1);
-            z-index: -1;
-        }
-
-        .message-bubble .icon {
-            font-size: 20px;
-            color: #555;
-            cursor: pointer;
-        }
-
-        .message-input {
-            flex: 1;
-            border: none;
-            outline: none;
-            padding: 8px;
-            font-size: 16px;
-            margin: 0 6px;
-            background: transparent;
-            color: #000;
-            white-space: pre-wrap;
-            overflow-wrap: break-word;
-            word-break: break-word;
-        }
-
-        .message-input[contenteditable][data-placeholder]:empty::before {
-            content: attr(data-placeholder);
-            color: #999;
-            pointer-events: none;
-            display: block;
-        }
-
-        .attach-btn {
-            background: none;
-            border: none;
-            padding: 0;
-            cursor: pointer;
-        }
-
-        .attach-btn i {
-            font-size: 20px;
-            color: #555;
-        }
-
-        .mic-btn {
-            background: #749cbf;
-            border: none;
-            border-radius: 50%;
-            width: 54px;
-            height: 54px;
-            display: flex;
-            position: relative;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-            transition: transform 0.1s ease;
-            touch-action: none;
-            z-index: 1001;
-        }
-
-        .mic-btn.hold-state {
-            transform: scale(1.76) translateY(-5px);
-        }
-
-        .mic-btn.dragging {
-            transition: none;
-        }
-
-        .mic-btn svg {
-            width: 21px;
-            height: 21px;
-            fill: white;
-        }
-
-        @media (max-width: 480px) {
-            .chat-input-container {
-                width: 100% !important;
-                gap: 6px;
-                background: #fff;
-                height: 52px;
-            }
-
-            .message-bubble {
-                padding: 6px 12px;
-                box-shadow: 0 2px 6px 5px rgba(0,0,0,0.1);
-            }
-
-            .mic-btn {
-                width: 55px;
-                height: 55px;
-                top: -2px;
-                left: 2px;
-                margin-top: 2px;
-            }
-
-            .mic-btn.hold-state {
-                transform: scale(1.9) translateY(-5px);
-            }
-
-            .message-input {
-                font-size: 15px;
-            }
-
-            .messages-container {
-                padding: 15px;
-                bottom: 70px;
-            }
-        }
-
-        .emoji-picker-container {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 381px;
-            background: #dde5e8;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-            z-index: 1002;
+        .voice-note-message.sent {
+            align-self: flex-end;
             display: flex;
             flex-direction: column;
-            transition: transform 0.3s ease;
-            transform: translateY(100%);
+            align-items: flex-end;
         }
 
-        .emoji-picker-container.active {
-            transform: translateY(0);
+        .voice-note-message.received {
+            align-self: flex-start;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
         }
 
-        .emoji-picker-topbar {
-            width: 100%;
-            height: 50px;
-            background-color: #fff;
-        }
-
-        .emoji-picker-content {
-            flex: 1;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
-            gap: 10px;
-            padding: 15px;
-            overflow-y: auto;
-        }
-
-        .emoji-picker-content span {
-            font-size: 24px;
-            text-align: center;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .emoji-picker-navbar {
-            width: 100%;
-            height: 40px;
-            background-color: #fff;
-            border-top: 0.5px solid #ccc;
+        .receiver-circle-wrapper {
+            position: relative;
+            width: 220px;
+            height: 220px;
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 20px;
-            padding: 0 15px;
-            box-sizing: border-box;
-            color: #777;
+            transition: all 0.3s ease;
         }
 
-        .emoji-picker-navbar span.active {
-            background-color: #f5f5f5;
-            color: #6a6969;
-            font-weight: bold;
+        .voice-note-message.sent .receiver-circle-wrapper {
+            align-self: flex-end;
         }
 
-        .emoji-picker-navbar span {
-            padding: 6px 12px;
-            border-radius: 18px;
+        .receiver-circle-wrapper.playing {
+            width: 300px;
+            height: 300px;
+        }
+
+        .progress-ring {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .progress-ring.hidden {
+            opacity: 0;
+        }
+
+        .progress-ring circle {
+            fill: none;
+            stroke-width: 4;
+            stroke-linecap: round;
+        }
+
+        .progress-ring .bg {
+            stroke: none;
+        }
+
+        .progress-ring .progress {
+            stroke: #fff;
+            transition: stroke-dashoffset 0.1s linear;
+        }
+
+        .receiver-circle {
+            width: 218px;
+            height: 218px;
+            background-color: #222;
+            border-radius: 50%;
+            transition: all 0.3s ease;
             cursor: pointer;
-            font-size: 14px;
-            font-weight: normal;
-            color: #777;
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .receiver-circle-wrapper.playing .receiver-circle {
+            width: 297px;
+            height: 297px;
+            background-color: #444;
+        }
+
+        .receiver-indicator {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .receiver-dot {
+            width: 40px;
+            height: 40px;
+            background: #ff4444;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            opacity: 0;
+        }
+
+        .receiver-time-display {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .receiver-time {
+            opacity: 0.9;
+        }
+
+        .receiver-dot-small {
+            width: 6px;
+            height: 6px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .timestamp, .receiver-timestamp {
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .timestamp {
+            justify-content: flex-end;
+        }
+
+        .receiver-timestamp {
+            justify-content: flex-start;
+        }
+
+        @media (max-width: 768px) {
+            .receiver-circle-wrapper {
+                width: 160px;
+                height: 160px;
+            }
+
+            .receiver-circle-wrapper.playing {
+                width: 240px;
+                height: 240px;
+            }
+
+            .receiver-circle {
+                width: 158px;
+                height: 158px;
+            }
+
+            .receiver-circle-wrapper.playing .receiver-circle {
+                width: 237px;
+                height: 237px;
+            }
+
+            .receiver-indicator {
+                width: 60px;
+                height: 60px;
+                display: none;
+            }
+
+            .receiver-dot {
+                width: 35px;
+                height: 35px;
+            }
+
+            .receiver-time-display, .receiver-timestamp {
+                font-size: 14px;
+            }
         }
 
         .message-content {
@@ -821,6 +775,12 @@
             const minutes = Math.floor(seconds / 60);
             const secs = seconds % 60;
             return `${minutes}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
         }
 
         function addMessage(text, type = 'sent', timestamp = '7:25 AM') {
@@ -985,6 +945,140 @@
             addSwipeListeners(message);
         }
 
+        function addVoiceNoteMessage(type = 'sent', timestamp = '6:06 AM') {
+            const message = document.createElement('div');
+            message.className = `voice-note-message ${type}`;
+            
+            // Create circle wrapper
+            const circleWrapper = document.createElement('div');
+            circleWrapper.className = 'receiver-circle-wrapper';
+            circleWrapper.id = type === 'sent' ? 'recordingCircleWrapper' : 'receiverCircleWrapper';
+
+            // Create SVG progress ring
+            const progressRing = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            progressRing.setAttribute('class', 'progress-ring');
+            progressRing.setAttribute('id', type === 'sent' ? 'recordingProgressRing' : 'receiverProgressRing');
+            progressRing.setAttribute('viewBox', '0 0 220 220');
+
+            const bgCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            bgCircle.setAttribute('class', 'bg');
+            bgCircle.setAttribute('cx', '110');
+            bgCircle.setAttribute('cy', '110');
+            bgCircle.setAttribute('r', '108');
+
+            const progressCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            progressCircle.setAttribute('class', 'progress');
+            progressCircle.setAttribute('cx', '110');
+            progressCircle.setAttribute('cy', '110');
+            progressCircle.setAttribute('r', '108');
+
+            progressRing.appendChild(bgCircle);
+            progressRing.appendChild(progressCircle);
+
+            // Create receiver circle
+            const circle = document.createElement('div');
+            circle.className = 'receiver-circle';
+            circle.id = type === 'sent' ? 'recordingCircle' : 'receiverCircle';
+
+            // Create time display
+            const timeDisplay = document.createElement('div');
+            timeDisplay.className = 'receiver-time-display';
+
+            const time = document.createElement('span');
+            time.className = 'receiver-time';
+            time.id = type === 'sent' ? 'recordingTime' : 'receiverTime';
+            time.textContent = '00:00';
+
+            const dotSmall = document.createElement('div');
+            dotSmall.className = 'receiver-dot-small';
+
+            timeDisplay.appendChild(time);
+            timeDisplay.appendChild(dotSmall);
+
+            // Create indicator
+            const indicator = document.createElement('div');
+            indicator.className = 'receiver-indicator';
+
+            const dot = document.createElement('div');
+            dot.className = 'receiver-dot';
+
+            indicator.appendChild(dot);
+
+            circle.appendChild(timeDisplay);
+            circle.appendChild(indicator);
+
+            circleWrapper.appendChild(progressRing);
+            circleWrapper.appendChild(circle);
+
+            // Create timestamp
+            const timestampDiv = document.createElement('div');
+            timestampDiv.className = type === 'sent' ? 'timestamp' : 'receiver-timestamp';
+            timestampDiv.id = type === 'sent' ? 'timestamp' : 'receiverTimestamp';
+
+            const timestampSpan = document.createElement('span');
+            timestampSpan.textContent = timestamp;
+
+            if (type === 'sent') {
+                const checkmark = document.createElement('div');
+                checkmark.className = 'checkmark';
+                checkmark.innerHTML = `
+                    <svg viewBox="0 0 24 24">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                    </svg>`;
+                timestampDiv.appendChild(timestampSpan);
+                timestampDiv.appendChild(checkmark);
+            } else {
+                timestampDiv.appendChild(timestampSpan);
+            }
+
+            message.appendChild(circleWrapper);
+            message.appendChild(timestampDiv);
+
+            messagesContainer.appendChild(message);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            addSwipeListeners(message);
+
+            // Initialize playback state for this voice note
+            const voiceNoteElements = {
+                circleWrapper,
+                circle,
+                timeDisplay: time,
+                timestampDisplay: timestampDiv,
+                isPlaying: false,
+                playingTime: 0,
+                playingInterval: null,
+                playingProgress: 0,
+                playingDuration: 4 // Duration in seconds
+            };
+
+            // Initialize progress circle
+            const radius = 108;
+            const circumference = 2 * Math.PI * radius;
+            const progressCircleElement = circleWrapper.querySelector('.progress');
+            progressCircleElement.style.strokeDasharray = circumference;
+            progressCircleElement.style.strokeDashoffset = circumference;
+
+            // Add event listeners for this voice note
+            circle.addEventListener('click', () => {
+                if (voiceNoteElements.isPlaying) {
+                    stopPlaying(voiceNoteElements);
+                } else {
+                    startPlaying(voiceNoteElements);
+                }
+            });
+
+            circle.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                if (voiceNoteElements.isPlaying) {
+                    stopPlaying(voiceNoteElements);
+                } else {
+                    startPlaying(voiceNoteElements);
+                }
+            });
+
+            return voiceNoteElements;
+        }
+
         function addSwipeListeners(message) {
             let startX = 0;
             let startY = 0;
@@ -994,7 +1088,7 @@
             let swipeDistance = 0;
             let verticalDistance = 0;
 
-            const isSent = message.classList.contains('sent') || message.classList.contains('reply sent') || message.classList.contains('link-preview sent');
+            const isSent = message.classList.contains('sent') || message.classList.contains('reply sent') || message.classList.contains('link-preview sent') || message.classList.contains('voice-note-message sent');
             const minSwipeDistance = 30;
             const swipeThreshold = 150;
 
@@ -1272,7 +1366,71 @@
             }
         }
 
+        // Playback functions for voice notes
+        function startPlaying(elements) {
+            if (!elements) return;
+            elements.isPlaying = true;
+            elements.playingTime = 0;
+            elements.playingProgress = 0;
+            elements.circleWrapper.classList.add('playing');
+            const progressRing = elements.circleWrapper.querySelector('.progress-ring');
+            progressRing.classList.remove('hidden');
+            
+            const radius = 108;
+            const circumference = 2 * Math.PI * radius;
+            elements.playingInterval = setInterval(() => {
+                elements.playingTime++;
+                elements.playingProgress = (elements.playingTime / elements.playingDuration) * 100;
+                const offset = circumference - (elements.playingProgress / 100) * circumference;
+                elements.circleWrapper.querySelector('.progress').style.strokeDashoffset = offset;
+                elements.timeDisplay.textContent = formatTime(elements.playingTime);
+                
+                if (elements.playingTime >= elements.playingDuration) {
+                    stopPlaying(elements);
+                }
+            }, 1000);
+        }
+
+        function stopPlaying(elements) {
+            if (!elements) return;
+            elements.isPlaying = false;
+            elements.circleWrapper.classList.remove('playing');
+            
+            if (elements.playingInterval) {
+                clearInterval(elements.playingInterval);
+                elements.playingInterval = null;
+            }
+            
+            setTimeout(() => {
+                elements.playingTime = elements.playingDuration;
+                elements.playingProgress = 0;
+                elements.timeDisplay.textContent = formatTime(elements.playingTime);
+                const radius = 108;
+                const circumference = 2 * Math.PI * radius;
+                elements.circleWrapper.querySelector('.progress').style.strokeDashoffset = circumference;
+                elements.circleWrapper.querySelector('.progress-ring').classList.add('hidden');
+            }, 500);
+        }
+
+        // Update current time for timestamps
+        function updateCurrentTime(element) {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { 
+                hour: 'numeric', 
+                minute: '2-digit',
+                hour12: true 
+            });
+            element.querySelector('span').textContent = timeString;
+        }
+
         // Initialize demo messages
+        let voiceNoteElements = [];
+
+        function initializeVoiceNote(voiceNote, type) {
+            voiceNoteElements.push(voiceNote);
+            updateCurrentTime(voiceNote.timestampDisplay);
+        }
+
         setTimeout(() => {
             addAudioMessage("0:01", "11:50 PM", "received");
             addAudioMessage("0:45", "12:00 PM", "received");
@@ -1321,6 +1479,23 @@
             setTimeout(() => {
                 addMessage("I'm doing great!", "received", "7:28 AM");
             }, 3500);
+
+            setTimeout(() => {
+                const receiverVoiceNote = addVoiceNoteMessage("received", "6:05 AM");
+                initializeVoiceNote(receiverVoiceNote, "received");
+            }, 4000);
+
+            setTimeout(() => {
+                const senderVoiceNote = addVoiceNoteMessage("sent", "6:06 AM");
+                initializeVoiceNote(senderVoiceNote, "sent");
+            }, 4500);
+
+            // Update timestamps periodically
+            setInterval(() => {
+                voiceNoteElements.forEach(voiceNote => {
+                    updateCurrentTime(voiceNote.timestampDisplay);
+                });
+            }, 1000);
         }, 500);
     </script>
 </body>
