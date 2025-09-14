@@ -643,10 +643,22 @@
             justify-content: center;
         }
 
+        .receiver-circle.disabled {
+            background-color: #666;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
         .receiver-circle-wrapper.playing .receiver-circle {
             width: 297px;
             height: 297px;
             background-color: #444;
+        }
+
+        .receiver-circle-wrapper.playing .receiver-circle.disabled {
+            width: 297px;
+            height: 297px;
+            background-color: #666;
         }
 
         .receiver-indicator {
@@ -734,6 +746,11 @@
                 height: 237px;
             }
 
+            .receiver-circle-wrapper.playing .receiver-circle.disabled {
+                width: 237px;
+                height: 237px;
+            }
+
             .receiver-indicator {
                 width: 60px;
                 height: 60px;
@@ -765,6 +782,8 @@
         let isDragging = false;
         let dragTarget = null;
         let activeAudioButton = null;
+        let voiceNoteElements = [];
+        let isPlaybackBlocked = false;
 
         function parseDuration(duration) {
             const parts = duration.split(':').map(Number);
@@ -945,7 +964,7 @@
             addSwipeListeners(message);
         }
 
-        function addVoiceNoteMessage(type = 'sent', timestamp = '6:06 AM') {
+        function addVoiceNoteMessage(type = 'sent', timestamp = '6:06 AM', duration = 4) {
             const message = document.createElement('div');
             message.className = `voice-note-message ${type}`;
             
@@ -987,7 +1006,7 @@
             const time = document.createElement('span');
             time.className = 'receiver-time';
             time.id = type === 'sent' ? 'recordingTime' : 'receiverTime';
-            time.textContent = '00:00';
+            time.textContent = formatTime(duration); // Set initial time to duration
 
             const dotSmall = document.createElement('div');
             dotSmall.className = 'receiver-dot-small';
@@ -1039,7 +1058,7 @@
             addSwipeListeners(message);
 
             // Initialize playback state for this voice note
-            const voiceNoteElements = {
+            const voiceNoteElementsInstance = {
                 circleWrapper,
                 circle,
                 timeDisplay: time,
@@ -1048,7 +1067,7 @@
                 playingTime: 0,
                 playingInterval: null,
                 playingProgress: 0,
-                playingDuration: 4 // Duration in seconds
+                playingDuration: duration // Duration in seconds
             };
 
             // Initialize progress circle
@@ -1060,23 +1079,52 @@
 
             // Add event listeners for this voice note
             circle.addEventListener('click', () => {
-                if (voiceNoteElements.isPlaying) {
-                    stopPlaying(voiceNoteElements);
+                // Stop all other playing voice notes
+                voiceNoteElements.forEach(other => {
+                    if (other !== voiceNoteElementsInstance && other.isPlaying) {
+                        stopPlaying(other);
+                    }
+                });
+                if (isPlaybackBlocked) {
+                    console.log('Playback blocked due to recent screenshot-related event');
+                    voiceNoteElementsInstance.circle.classList.add('disabled');
+                    setTimeout(() => {
+                        voiceNoteElementsInstance.circle.classList.remove('disabled');
+                    }, 2000);
+                    return;
+                }
+                if (voiceNoteElementsInstance.isPlaying) {
+                    stopPlaying(voiceNoteElementsInstance);
                 } else {
-                    startPlaying(voiceNoteElements);
+                    startPlaying(voiceNoteElementsInstance);
                 }
             });
 
             circle.addEventListener('touchstart', (e) => {
                 e.preventDefault();
-                if (voiceNoteElements.isPlaying) {
-                    stopPlaying(voiceNoteElements);
+                // Stop all other playing voice notes
+                voiceNoteElements.forEach(other => {
+                    if (other !== voiceNoteElementsInstance && other.isPlaying) {
+                        stopPlaying(other);
+                    }
+                });
+                if (isPlaybackBlocked) {
+                    console.log('Playback blocked due to recent screenshot-related event');
+                    voiceNoteElementsInstance.circle.classList.add('disabled');
+                    setTimeout(() => {
+                        voiceNoteElementsInstance.circle.classList.remove('disabled');
+                    }, 2000);
+                    return;
+                }
+                if (voiceNoteElementsInstance.isPlaying) {
+                    stopPlaying(voiceNoteElementsInstance);
                 } else {
-                    startPlaying(voiceNoteElements);
+                    startPlaying(voiceNoteElementsInstance);
                 }
             });
 
-            return voiceNoteElements;
+            voiceNoteElements.push(voiceNoteElementsInstance);
+            return voiceNoteElementsInstance;
         }
 
         function addSwipeListeners(message) {
@@ -1375,20 +1423,23 @@
             elements.circleWrapper.classList.add('playing');
             const progressRing = elements.circleWrapper.querySelector('.progress-ring');
             progressRing.classList.remove('hidden');
+            elements.timeDisplay.textContent = '00:00'; // Start at 00:00 during playback
             
             const radius = 108;
             const circumference = 2 * Math.PI * radius;
+            // Adjust interval based on duration
+            const interval = elements.playingDuration <= 1 ? 100 : elements.playingDuration < 5 ? 500 : 1000;
             elements.playingInterval = setInterval(() => {
-                elements.playingTime++;
+                elements.playingTime += interval / 1000; // Increment time by interval in seconds
                 elements.playingProgress = (elements.playingTime / elements.playingDuration) * 100;
                 const offset = circumference - (elements.playingProgress / 100) * circumference;
                 elements.circleWrapper.querySelector('.progress').style.strokeDashoffset = offset;
-                elements.timeDisplay.textContent = formatTime(elements.playingTime);
+                elements.timeDisplay.textContent = formatTime(Math.floor(elements.playingTime));
                 
                 if (elements.playingTime >= elements.playingDuration) {
                     stopPlaying(elements);
                 }
-            }, 1000);
+            }, interval);
         }
 
         function stopPlaying(elements) {
@@ -1402,9 +1453,9 @@
             }
             
             setTimeout(() => {
-                elements.playingTime = elements.playingDuration;
+                elements.playingTime = 0; // Reset to 0
                 elements.playingProgress = 0;
-                elements.timeDisplay.textContent = formatTime(elements.playingTime);
+                elements.timeDisplay.textContent = formatTime(elements.playingDuration); // Reset to duration
                 const radius = 108;
                 const circumference = 2 * Math.PI * radius;
                 elements.circleWrapper.querySelector('.progress').style.strokeDashoffset = circumference;
@@ -1423,9 +1474,26 @@
             element.querySelector('span').textContent = timeString;
         }
 
-        // Initialize demo messages
-        let voiceNoteElements = [];
+        // Pause all voice notes and block playback on visibility change or blur
+        function handleScreenshotEvent() {
+            isPlaybackBlocked = true;
+            voiceNoteElements.forEach(voiceNote => {
+                if (voiceNote.isPlaying) {
+                    stopPlaying(voiceNote);
+                }
+                voiceNote.circle.classList.add('disabled');
+            });
+            console.log('Playback blocked due to screenshot-related event');
+            setTimeout(() => {
+                isPlaybackBlocked = false;
+                voiceNoteElements.forEach(voiceNote => {
+                    voiceNote.circle.classList.remove('disabled');
+                });
+                console.log('Playback re-enabled');
+            }, 2000); // Block playback for 2 seconds
+        }
 
+        // Initialize demo messages
         function initializeVoiceNote(voiceNote, type) {
             voiceNoteElements.push(voiceNote);
             updateCurrentTime(voiceNote.timestampDisplay);
@@ -1481,12 +1549,12 @@
             }, 3500);
 
             setTimeout(() => {
-                const receiverVoiceNote = addVoiceNoteMessage("received", "6:05 AM");
+                const receiverVoiceNote = addVoiceNoteMessage("received", "6:05 AM", 1); // 1-second duration
                 initializeVoiceNote(receiverVoiceNote, "received");
             }, 4000);
 
             setTimeout(() => {
-                const senderVoiceNote = addVoiceNoteMessage("sent", "6:06 AM");
+                const senderVoiceNote = addVoiceNoteMessage("sent", "6:06 AM", 6); // 6-second duration
                 initializeVoiceNote(senderVoiceNote, "sent");
             }, 4500);
 
@@ -1496,6 +1564,17 @@
                     updateCurrentTime(voiceNote.timestampDisplay);
                 });
             }, 1000);
+
+            // Add event listeners for visibility change and blur
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'hidden') {
+                    handleScreenshotEvent();
+                }
+            });
+
+            window.addEventListener('blur', () => {
+                handleScreenshotEvent();
+            });
         }, 500);
     </script>
 </body>
