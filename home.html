@@ -45,6 +45,19 @@
             font-size: 20px;
             font-weight: 600;
             color: black;
+            display: flex;
+            align-items: center;
+            max-width: 200px; /* Constrain width to prevent overlap with right SVGs */
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .header-title .fade-text {
+            background: linear-gradient(to right, black 0%, transparent 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
 
         .header-icons {
@@ -72,7 +85,7 @@
 
         .telegram-ring circle {
             fill: none;
-            stroke: #d1d4db; /* Changed to light gray */
+            stroke: #d1d4db;
             stroke-width: 2;
             stroke-linecap: round;
             stroke-dasharray: 1, 200;
@@ -905,7 +918,7 @@
                 // Show "Connecting" with loader for 1 second
                 messagesIcon.classList.add('hidden');
                 telegramRing.classList.remove('hidden');
-                headerTitle.textContent = 'Connecting';
+                headerTitle.innerHTML = 'Connecting';
                 storiesContainer.classList.add('hidden');
                 chatList.classList.add('hidden');
                 storiesLoadingSkeleton.classList.remove('hidden');
@@ -915,7 +928,7 @@
                 setTimeout(() => {
                     telegramRing.classList.add('hidden');
                     messagesIcon.classList.remove('hidden');
-                    headerTitle.textContent = 'Messages';
+                    headerTitle.innerHTML = 'Messages';
                     storiesLoadingSkeleton.classList.add('hidden');
                     loadingSkeleton.classList.add('hidden');
                     storiesContainer.classList.remove('hidden');
@@ -924,10 +937,10 @@
                     renderChats();
                 }, 1000);
             } else {
-                // Show "Offline" with persistent loader
+                // Show "Waiting for Network" with fading "for Network" and persistent loader
                 messagesIcon.classList.add('hidden');
                 telegramRing.classList.remove('hidden');
-                headerTitle.textContent = 'Offline';
+                headerTitle.innerHTML = '<span>Waiting</span><span class="fade-text"> for Network</span>';
                 storiesContainer.classList.add('hidden');
                 chatList.classList.add('hidden');
                 storiesLoadingSkeleton.classList.remove('hidden');
