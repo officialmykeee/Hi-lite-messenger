@@ -65,15 +65,15 @@
         }
 
         .telegram-ring {
-            width: 24px; /* Matches .icon size */
+            width: 24px;
             height: 24px;
             animation: rotate 2s linear infinite;
         }
 
         .telegram-ring circle {
             fill: none;
-            stroke: #749cbf; /* Matches app's primary color */
-            stroke-width: 2; /* Slimmer ring */
+            stroke: #d1d4db; /* Changed to light gray */
+            stroke-width: 2;
             stroke-linecap: round;
             stroke-dasharray: 1, 200;
             stroke-dashoffset: 0;
@@ -890,49 +890,71 @@
             }
         }
 
-        // Function to show loading state
-        function showLoading() {
-            // Hide real content
-            document.getElementById('storiesContainer').classList.add('hidden');
-            document.getElementById('chatList').classList.add('hidden');
-            document.getElementById('storiesLoadingSkeleton').classList.remove('hidden');
-            document.getElementById('loadingSkeleton').classList.remove('hidden');
+        // Function to update UI based on network status
+        function updateNetworkStatus() {
+            const isOnline = navigator.onLine;
+            const messagesIcon = document.querySelector('.messages-icon');
+            const telegramRing = document.querySelector('.telegram-ring');
+            const headerTitle = document.querySelector('.header-title');
+            const storiesContainer = document.getElementById('storiesContainer');
+            const chatList = document.getElementById('chatList');
+            const storiesLoadingSkeleton = document.getElementById('storiesLoadingSkeleton');
+            const loadingSkeleton = document.getElementById('loadingSkeleton');
 
-            // Show loading state in header
-            document.querySelector('.messages-icon').classList.add('hidden');
-            document.querySelector('.telegram-ring').classList.remove('hidden');
-            document.querySelector('.header-title').textContent = 'Connecting';
-        }
+            if (isOnline) {
+                // Show "Connecting" with loader for 1 second
+                messagesIcon.classList.add('hidden');
+                telegramRing.classList.remove('hidden');
+                headerTitle.textContent = 'Connecting';
+                storiesContainer.classList.add('hidden');
+                chatList.classList.add('hidden');
+                storiesLoadingSkeleton.classList.remove('hidden');
+                loadingSkeleton.classList.remove('hidden');
 
-        // Function to hide loading state
-        function hideLoading() {
-            // Hide skeleton content
-            document.getElementById('storiesLoadingSkeleton').classList.add('hidden');
-            document.getElementById('loadingSkeleton').classList.add('hidden');
-            document.getElementById('storiesContainer').classList.remove('hidden');
-            document.getElementById('chatList').classList.remove('hidden');
-
-            // Restore header to normal state
-            document.querySelector('.telegram-ring').classList.add('hidden');
-            document.querySelector('.messages-icon').classList.remove('hidden');
-            document.querySelector('.header-title').textContent = 'Messages';
+                // Simulate loading for 1 second, then show content
+                setTimeout(() => {
+                    telegramRing.classList.add('hidden');
+                    messagesIcon.classList.remove('hidden');
+                    headerTitle.textContent = 'Messages';
+                    storiesLoadingSkeleton.classList.add('hidden');
+                    loadingSkeleton.classList.add('hidden');
+                    storiesContainer.classList.remove('hidden');
+                    chatList.classList.remove('hidden');
+                    renderStories();
+                    renderChats();
+                }, 1000);
+            } else {
+                // Show "Offline" with persistent loader
+                messagesIcon.classList.add('hidden');
+                telegramRing.classList.remove('hidden');
+                headerTitle.textContent = 'Offline';
+                storiesContainer.classList.add('hidden');
+                chatList.classList.add('hidden');
+                storiesLoadingSkeleton.classList.remove('hidden');
+                loadingSkeleton.classList.remove('hidden');
+            }
         }
 
         // Initialize the app
         function init() {
             renderStoriesSkeleton();
             renderSkeleton();
-            showLoading();
-            setTimeout(() => {
-                hideLoading();
-                renderStories();
-                renderChats();
-            }, 1000);
+
+            // Initial network status check
+            updateNetworkStatus();
+
+            // Listen for network status changes
+            window.addEventListener('online', updateNetworkStatus);
+            window.addEventListener('offline', updateNetworkStatus);
 
             // Add FAB click handler
             const fab = document.querySelector('.fab');
             fab.addEventListener('click', () => {
-                console.log('FAB clicked! Add your action here (e.g., open new chat modal).');
+                if (navigator.onLine) {
+                    console.log('FAB clicked! Add your action here (e.g., open new chat modal).');
+                } else {
+                    console.log('Cannot perform action: Device is offline.');
+                }
             });
         }
 
