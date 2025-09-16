@@ -338,6 +338,8 @@
     let startX = 0;
     let isDragging = false;
     let timers = [];
+    let lastTapTime = 0;
+    const DOUBLE_TAP_THRESHOLD = 300; // ms for double-tap detection
 
     // Handle cube flip
     function updateStory() {
@@ -377,6 +379,7 @@
       const username = storyEl.dataset.username;
       const media = JSON.parse(storyEl.dataset.stories);
       let currentSegmentIndex = 0;
+      let tapCount = 0; // Track taps on last segment
 
       const usernameEl = storyEl.querySelector(".username");
       usernameEl.textContent = username;
@@ -394,6 +397,7 @@
 
       function showStory(idx) {
         currentSegmentIndex = idx;
+        tapCount = 0; // Reset tap count when showing a new segment
         storyEl.style.backgroundImage = `url(${media[idx]})`;
         const fills = storyEl.querySelectorAll(".progress-fill");
         fills.forEach((f, i) => {
@@ -408,9 +412,9 @@
         const t = setTimeout(() => {
           if (idx < media.length - 1) {
             showStory(idx + 1);
-          } else if (currentIndex < total - 1) {
-            currentIndex++;
-            updateStory();
+          } else {
+            // Auto-loop to start of current user's story
+            showStory(0);
           }
         }, 3000);
         timers.push(t);
@@ -421,11 +425,10 @@
       // Tap handling
       storyEl.querySelector(".tap-left").onclick = (e) => {
         e.stopPropagation();
+        clearTimers();
         if (currentSegmentIndex > 0) {
-          clearTimers();
           showStory(currentSegmentIndex - 1);
         } else if (currentIndex > 0) {
-          clearTimers();
           currentIndex--;
           updateStory();
         }
@@ -433,14 +436,20 @@
 
       storyEl.querySelector(".tap-right").onclick = (e) => {
         e.stopPropagation();
+        clearTimers();
+        const currentTime = Date.now();
         if (currentSegmentIndex < media.length - 1) {
-          clearTimers();
           showStory(currentSegmentIndex + 1);
-        } else if (currentIndex < total - 1) {
-          clearTimers();
-          currentIndex++;
-          updateStory();
+        } else {
+          // On last segment, check for double-tap to switch users
+          if (currentTime - lastTapTime < DOUBLE_TAP_THRESHOLD && currentIndex < total - 1) {
+            currentIndex++;
+            updateStory();
+          } else {
+            showStory(0); // Restart current user's story
+          }
         }
+        lastTapTime = currentTime;
       };
     }
 
