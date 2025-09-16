@@ -38,17 +38,67 @@
       backface-visibility: hidden;
       background-size: cover;
       background-position: center;
-      border-radius: 16px;
+      border-radius: 0;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
     }
 
-    .username {
-      padding: 10px;
+    /* Header on story */
+    .header {
+      position: absolute;
+      top: 16px;
+      left: 12px;
+      right: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 11;
       color: #fff;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .profile-pic {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #fff;
+    }
+
+    .user-details {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.2;
+    }
+
+    .username {
       font-weight: bold;
+      font-size: 15px;
       text-shadow: 0 0 5px rgba(0,0,0,0.7);
+    }
+
+    .timestamp {
+      font-size: 12px;
+      color: #fff;
+    }
+
+    .menu {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .dot {
+      width: 5px;
+      height: 5px;
+      background-color: #fff;
+      border-radius: 50%;
     }
 
     .progress-container {
@@ -58,6 +108,7 @@
       left: 8px;
       right: 8px;
       gap: 4px;
+      z-index: 10;
     }
 
     .progress-bar {
@@ -80,89 +131,213 @@
       top: 0;
       bottom: 0;
       width: 50%;
-      z-index: 5;
+      z-index: 15;
     }
     .tap-left { left: 0; }
     .tap-right { right: 0; }
 
-    /* Cube faces */
-    .story:nth-child(1) {
-      transform: rotateY(0deg) translateZ(160px);
-      background-image: url("https://picsum.photos/id/1015/600/1000");
-    }
-    .story:nth-child(2) {
-      transform: rotateY(90deg) translateZ(160px);
-      background-image: url("https://picsum.photos/id/1016/600/1000");
-    }
-    .story:nth-child(3) {
-      transform: rotateY(180deg) translateZ(160px);
-      background-image: url("https://picsum.photos/id/1018/600/1000");
-    }
-    .story:nth-child(4) {
-      transform: rotateY(-90deg) translateZ(160px);
-      background-image: url("https://picsum.photos/id/1020/600/1000");
+    .input-container {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 400px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      z-index: 12;
     }
 
-    .bottom-bar {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 60px;
-      background: rgba(0,0,0,0.6);
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      border-radius: 0 0 16px 16px;
+    .svg-icon.heart {
+      width: 32px; 
+      height: 32px; 
+      fill: #fff;
+      transition: fill 0.3s ease;
+      cursor: pointer;
     }
+
+    .svg-icon.heart.liked path {
+      fill: #ff69b4; 
+    }
+
+    /* Cube faces */
+    .story:nth-child(1) { transform: rotateY(0deg) translateZ(160px); }
+    .story:nth-child(2) { transform: rotateY(90deg) translateZ(160px); }
+    .story:nth-child(3) { transform: rotateY(180deg) translateZ(160px); }
+    .story:nth-child(4) { transform: rotateY(270deg) translateZ(160px); }
+    .story:nth-child(5) { transform: rotateY(360deg) translateZ(160px); }
+    .story:nth-child(6) { transform: rotateY(450deg) translateZ(160px); }
   </style>
 </head>
 <body>
   <div class="story-container">
     <div class="story-wrapper" id="storyWrapper">
-      <!-- User 1 -->
-      <div class="story" data-username="UserOne" data-stories='["https://picsum.photos/id/1015/600/1000","https://picsum.photos/id/1019/600/1000"]'>
+      <!-- My story -->
+      <div class="story" data-username="My story" data-stories='["https://picsum.photos/id/1000/600/1000"]'>
         <div class="progress-container"></div>
-        <div class="username"></div>
+        <div class="header">
+          <div class="user-info">
+            <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="My story">
+            <div class="user-details">
+              <span class="username">My story</span>
+              <span class="timestamp">Just now</span>
+            </div>
+          </div>
+          <div class="menu">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+        </div>
+        <div class="input-container">
+          <svg class="svg-icon heart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.03L12 21.35Z"/>
+          </svg>
+        </div>
         <div class="tap-zone tap-left"></div>
         <div class="tap-zone tap-right"></div>
       </div>
 
-      <!-- User 2 -->
-      <div class="story" data-username="UserTwo" data-stories='["https://picsum.photos/id/1016/600/1000","https://picsum.photos/id/1024/600/1000","https://picsum.photos/id/1027/600/1000"]'>
+      <!-- Emily -->
+      <div class="story" data-username="Emily" data-stories='["https://picsum.photos/id/1011/600/1000","https://picsum.photos/id/1019/600/1000"]'>
         <div class="progress-container"></div>
-        <div class="username"></div>
+        <div class="header">
+          <div class="user-info">
+            <img class="profile-pic" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face" alt="Emily">
+            <div class="user-details">
+              <span class="username">Emily</span>
+              <span class="timestamp">August 15 at 11:00 PM</span>
+            </div>
+          </div>
+          <div class="menu">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+        </div>
+        <div class="input-container">
+          <svg class="svg-icon heart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.03L12 21.35Z"/>
+          </svg>
+        </div>
         <div class="tap-zone tap-left"></div>
         <div class="tap-zone tap-right"></div>
       </div>
 
-      <!-- User 3 -->
-      <div class="story" data-username="UserThree" data-stories='["https://picsum.photos/id/1018/600/1000"]'>
+      <!-- Michael -->
+      <div class="story" data-username="Michael" data-stories='["https://picsum.photos/id/1015/600/1000","https://picsum.photos/id/1024/600/1000","https://picsum.photos/id/1027/600/1000"]'>
         <div class="progress-container"></div>
-        <div class="username"></div>
+        <div class="header">
+          <div class="user-info">
+            <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="Michael">
+            <div class="user-details">
+              <span class="username">Michael</span>
+              <span class="timestamp">August 15 at 12:00 PM</span>
+            </div>
+          </div>
+          <div class="menu">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+        </div>
+        <div class="input-container">
+          <svg class="svg-icon heart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.03L12 21.35Z"/>
+          </svg>
+        </div>
         <div class="tap-zone tap-left"></div>
         <div class="tap-zone tap-right"></div>
       </div>
 
-      <!-- User 4 -->
-      <div class="story" data-username="UserFour" data-stories='["https://picsum.photos/id/1020/600/1000","https://picsum.photos/id/1025/600/1000"]'>
+      <!-- Sarah -->
+      <div class="story" data-username="Sarah" data-stories='["https://picsum.photos/id/1018/600/1000"]'>
         <div class="progress-container"></div>
-        <div class="username"></div>
+        <div class="header">
+          <div class="user-info">
+            <img class="profile-pic" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face" alt="Sarah">
+            <div class="user-details">
+              <span class="username">Sarah</span>
+              <span class="timestamp">Just now</span>
+            </div>
+          </div>
+          <div class="menu">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+        </div>
+        <div class="input-container">
+          <svg class="svg-icon heart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.03L12 21.35Z"/>
+          </svg>
+        </div>
+        <div class="tap-zone tap-left"></div>
+        <div class="tap-zone tap-right"></div>
+      </div>
+
+      <!-- David -->
+      <div class="story" data-username="David" data-stories='["https://picsum.photos/id/1020/600/1000","https://picsum.photos/id/1025/600/1000"]'>
+        <div class="progress-container"></div>
+        <div class="header">
+          <div class="user-info">
+            <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="David">
+            <div class="user-details">
+              <span class="username">David</span>
+              <span class="timestamp">Just now</span>
+            </div>
+          </div>
+          <div class="menu">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+        </div>
+        <div class="input-container">
+          <svg class="svg-icon heart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.03L12 21.35Z"/>
+          </svg>
+        </div>
+        <div class="tap-zone tap-left"></div>
+        <div class="tap-zone tap-right"></div>
+      </div>
+
+      <!-- Jessica -->
+      <div class="story" data-username="Jessica" data-stories='["https://picsum.photos/id/1033/600/1000"]'>
+        <div class="progress-container"></div>
+        <div class="header">
+          <div class="user-info">
+            <img class="profile-pic" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face" alt="Jessica">
+            <div class="user-details">
+              <span class="username">Jessica</span>
+              <span class="timestamp">Just now</span>
+            </div>
+          </div>
+          <div class="menu">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+        </div>
+        <div class="input-container">
+          <svg class="svg-icon heart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.03L12 21.35Z"/>
+          </svg>
+        </div>
         <div class="tap-zone tap-left"></div>
         <div class="tap-zone tap-right"></div>
       </div>
     </div>
-    <div class="bottom-bar">Sponsored</div>
   </div>
 
   <script>
     const wrapper = document.getElementById("storyWrapper");
     let currentIndex = 0;
-    const total = 4;
+    const total = 6;
     let startX = 0;
     let isDragging = false;
+    let timers = [];
 
     // Handle cube flip
     function updateStory() {
@@ -170,9 +345,9 @@
       initUserStories(currentIndex);
     }
 
+    // Drag handling
     wrapper.addEventListener("mousedown", startDrag);
     wrapper.addEventListener("touchstart", startDrag);
-
     wrapper.addEventListener("mouseup", endDrag);
     wrapper.addEventListener("touchend", endDrag);
 
@@ -192,22 +367,21 @@
       } else if (deltaX > 50 && currentIndex > 0) {
         currentIndex--;
       }
-
       updateStory();
     }
 
     // Story playback per user
-    let timers = [];
     function initUserStories(index) {
       clearTimers();
       const storyEl = wrapper.children[index];
       const username = storyEl.dataset.username;
       const media = JSON.parse(storyEl.dataset.stories);
+      let currentSegmentIndex = 0;
 
       const usernameEl = storyEl.querySelector(".username");
-      const progressContainer = storyEl.querySelector(".progress-container");
       usernameEl.textContent = username;
 
+      const progressContainer = storyEl.querySelector(".progress-container");
       progressContainer.innerHTML = "";
       media.forEach(() => {
         const bar = document.createElement("div");
@@ -218,8 +392,8 @@
         progressContainer.appendChild(bar);
       });
 
-      let currentStory = 0;
       function showStory(idx) {
+        currentSegmentIndex = idx;
         storyEl.style.backgroundImage = `url(${media[idx]})`;
         const fills = storyEl.querySelectorAll(".progress-fill");
         fills.forEach((f, i) => {
@@ -244,18 +418,26 @@
 
       showStory(0);
 
-      // Tap zones
-      storyEl.querySelector(".tap-left").onclick = () => {
-        if (currentStory > 0) {
-          currentStory--;
-          showStory(currentStory);
+      // Tap handling
+      storyEl.querySelector(".tap-left").onclick = (e) => {
+        e.stopPropagation();
+        if (currentSegmentIndex > 0) {
+          clearTimers();
+          showStory(currentSegmentIndex - 1);
+        } else if (currentIndex > 0) {
+          clearTimers();
+          currentIndex--;
+          updateStory();
         }
       };
-      storyEl.querySelector(".tap-right").onclick = () => {
-        if (currentStory < media.length - 1) {
-          currentStory++;
-          showStory(currentStory);
+
+      storyEl.querySelector(".tap-right").onclick = (e) => {
+        e.stopPropagation();
+        if (currentSegmentIndex < media.length - 1) {
+          clearTimers();
+          showStory(currentSegmentIndex + 1);
         } else if (currentIndex < total - 1) {
+          clearTimers();
           currentIndex++;
           updateStory();
         }
@@ -266,6 +448,15 @@
       timers.forEach(t => clearTimeout(t));
       timers = [];
     }
+
+    // Heart icon click handler
+    const heartIcons = document.querySelectorAll(".heart");
+    heartIcons.forEach(icon => {
+      icon.addEventListener("click", (e) => {
+        icon.classList.toggle("liked");
+        e.stopPropagation();
+      });
+    });
 
     updateStory();
   </script>
