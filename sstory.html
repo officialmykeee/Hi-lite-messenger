@@ -109,9 +109,17 @@
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 20px;
+            padding: 0; /* Remove padding to let image fill */
             font-size: 1.5em;
             font-weight: 600;
+            overflow: hidden; /* Ensure image doesn't overflow */
+        }
+
+        .status-content img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Cover the entire content area */
+            display: block;
         }
 
         .navigation {
@@ -167,7 +175,7 @@
                 </div>
             </div>
             <div class="status-content">
-                Emily's first status!
+                <img src="https://picsum.photos/id/1000/500/800" alt="Story Image">
             </div>
         </div>
 
@@ -185,7 +193,7 @@
                 </div>
             </div>
             <div class="status-content">
-                Michael's first status!
+                <img src="https://picsum.photos/id/1000/500/800" alt="Story Image">
             </div>
         </div>
 
@@ -203,7 +211,7 @@
                 </div>
             </div>
             <div class="status-content">
-                Michael's second status!
+                <img src="https://picsum.photos/id/1000/500/800" alt="Story Image">
             </div>
         </div>
 
@@ -221,7 +229,7 @@
                 </div>
             </div>
             <div class="status-content">
-                Michael's third status!
+                <img src="https://picsum.photos/id/1000/500/800" alt="Story Image">
             </div>
         </div>
 
@@ -240,7 +248,7 @@
                 </div>
             </div>
             <div class="status-content">
-                Sarah's first status!
+                <img src="https://picsum.photos/id/1000/500/800" alt="Story Image">
             </div>
         </div>
 
@@ -259,7 +267,7 @@
                 </div>
             </div>
             <div class="status-content">
-                Sarah's second status!
+                <img src="https://picsum.photos/id/1000/500/800" alt="Story Image">
             </div>
         </div>
 
@@ -278,7 +286,7 @@
                 </div>
             </div>
             <div class="status-content">
-                Sarah's third status!
+                <img src="https://picsum.photos/id/1000/500/800" alt="Story Image">
             </div>
         </div>
 
@@ -297,7 +305,7 @@
                 </div>
             </div>
             <div class="status-content">
-                Sarah's fourth status!
+                <img src="https://picsum.photos/id/1000/500/800" alt="Story Image">
             </div>
         </div>
         
@@ -418,4 +426,5 @@
 
 </body>
 </html>
+
 
