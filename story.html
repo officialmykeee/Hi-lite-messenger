@@ -44,7 +44,6 @@
       justify-content: space-between;
     }
 
-    /* Header on story */
     .header {
       position: absolute;
       top: 16px;
@@ -161,26 +160,23 @@
       fill: #ff69b4; 
     }
 
-    /* Cube faces */
     .story:nth-child(1) { transform: rotateY(0deg) translateZ(160px); }
     .story:nth-child(2) { transform: rotateY(90deg) translateZ(160px); }
     .story:nth-child(3) { transform: rotateY(180deg) translateZ(160px); }
     .story:nth-child(4) { transform: rotateY(270deg) translateZ(160px); }
-    .story:nth-child(5) { transform: rotateY(360deg) translateZ(160px); }
-    .story:nth-child(6) { transform: rotateY(450deg) translateZ(160px); }
   </style>
 </head>
 <body>
   <div class="story-container">
     <div class="story-wrapper" id="storyWrapper">
-      <!-- My story -->
-      <div class="story" data-username="My story" data-stories='["https://picsum.photos/id/1000/600/1000"]'>
+      <!-- User 1 -->
+      <div class="story" data-username="UserOne" data-stories='["https://picsum.photos/id/1015/600/1000","https://picsum.photos/id/1019/600/1000"]'>
         <div class="progress-container"></div>
         <div class="header">
           <div class="user-info">
-            <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="My story">
+            <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="UserOne">
             <div class="user-details">
-              <span class="username">My story</span>
+              <span class="username">UserOne</span>
               <span class="timestamp">Just now</span>
             </div>
           </div>
@@ -199,14 +195,14 @@
         <div class="tap-zone tap-right"></div>
       </div>
 
-      <!-- Emily -->
-      <div class="story" data-username="Emily" data-stories='["https://picsum.photos/id/1011/600/1000","https://picsum.photos/id/1019/600/1000"]'>
+      <!-- User 2 -->
+      <div class="story" data-username="UserTwo" data-stories='["https://picsum.photos/id/1016/600/1000","https://picsum.photos/id/1024/600/1000","https://picsum.photos/id/1027/600/1000"]'>
         <div class="progress-container"></div>
         <div class="header">
           <div class="user-info">
-            <img class="profile-pic" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face" alt="Emily">
+            <img class="profile-pic" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face" alt="UserTwo">
             <div class="user-details">
-              <span class="username">Emily</span>
+              <span class="username">UserTwo</span>
               <span class="timestamp">August 15 at 11:00 PM</span>
             </div>
           </div>
@@ -225,40 +221,14 @@
         <div class="tap-zone tap-right"></div>
       </div>
 
-      <!-- Michael -->
-      <div class="story" data-username="Michael" data-stories='["https://picsum.photos/id/1015/600/1000","https://picsum.photos/id/1024/600/1000","https://picsum.photos/id/1027/600/1000"]'>
+      <!-- User 3 -->
+      <div class="story" data-username="UserThree" data-stories='["https://picsum.photos/id/1018/600/1000"]'>
         <div class="progress-container"></div>
         <div class="header">
           <div class="user-info">
-            <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="Michael">
+            <img class="profile-pic" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face" alt="UserThree">
             <div class="user-details">
-              <span class="username">Michael</span>
-              <span class="timestamp">August 15 at 12:00 PM</span>
-            </div>
-          </div>
-          <div class="menu">
-            <span class="dot"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-          </div>
-        </div>
-        <div class="input-container">
-          <svg class="svg-icon heart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.03L12 21.35Z"/>
-          </svg>
-        </div>
-        <div class="tap-zone tap-left"></div>
-        <div class="tap-zone tap-right"></div>
-      </div>
-
-      <!-- Sarah -->
-      <div class="story" data-username="Sarah" data-stories='["https://picsum.photos/id/1018/600/1000"]'>
-        <div class="progress-container"></div>
-        <div class="header">
-          <div class="user-info">
-            <img class="profile-pic" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face" alt="Sarah">
-            <div class="user-details">
-              <span class="username">Sarah</span>
+              <span class="username">UserThree</span>
               <span class="timestamp">Just now</span>
             </div>
           </div>
@@ -277,40 +247,14 @@
         <div class="tap-zone tap-right"></div>
       </div>
 
-      <!-- David -->
-      <div class="story" data-username="David" data-stories='["https://picsum.photos/id/1020/600/1000","https://picsum.photos/id/1025/600/1000"]'>
+      <!-- User 4 -->
+      <div class="story" data-username="UserFour" data-stories='["https://picsum.photos/id/1020/600/1000","https://picsum.photos/id/1025/600/1000"]'>
         <div class="progress-container"></div>
         <div class="header">
           <div class="user-info">
-            <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="David">
+            <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="UserFour">
             <div class="user-details">
-              <span class="username">David</span>
-              <span class="timestamp">Just now</span>
-            </div>
-          </div>
-          <div class="menu">
-            <span class="dot"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-          </div>
-        </div>
-        <div class="input-container">
-          <svg class="svg-icon heart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.03L12 21.35Z"/>
-          </svg>
-        </div>
-        <div class="tap-zone tap-left"></div>
-        <div class="tap-zone tap-right"></div>
-      </div>
-
-      <!-- Jessica -->
-      <div class="story" data-username="Jessica" data-stories='["https://picsum.photos/id/1033/600/1000"]'>
-        <div class="progress-container"></div>
-        <div class="header">
-          <div class="user-info">
-            <img class="profile-pic" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face" alt="Jessica">
-            <div class="user-details">
-              <span class="username">Jessica</span>
+              <span class="username">UserFour</span>
               <span class="timestamp">Just now</span>
             </div>
           </div>
@@ -334,12 +278,10 @@
   <script>
     const wrapper = document.getElementById("storyWrapper");
     let currentIndex = 0;
-    const total = 6;
+    const total = 4;
     let startX = 0;
     let isDragging = false;
     let timers = [];
-    let lastTapTime = 0;
-    const DOUBLE_TAP_THRESHOLD = 300; // ms for double-tap detection
 
     // Handle cube flip
     function updateStory() {
@@ -379,7 +321,6 @@
       const username = storyEl.dataset.username;
       const media = JSON.parse(storyEl.dataset.stories);
       let currentSegmentIndex = 0;
-      let tapCount = 0; // Track taps on last segment
 
       const usernameEl = storyEl.querySelector(".username");
       usernameEl.textContent = username;
@@ -397,7 +338,6 @@
 
       function showStory(idx) {
         currentSegmentIndex = idx;
-        tapCount = 0; // Reset tap count when showing a new segment
         storyEl.style.backgroundImage = `url(${media[idx]})`;
         const fills = storyEl.querySelectorAll(".progress-fill");
         fills.forEach((f, i) => {
@@ -412,9 +352,9 @@
         const t = setTimeout(() => {
           if (idx < media.length - 1) {
             showStory(idx + 1);
-          } else {
-            // Auto-loop to start of current user's story
-            showStory(0);
+          } else if (currentIndex < total - 1) {
+            currentIndex++;
+            updateStory();
           }
         }, 3000);
         timers.push(t);
@@ -427,29 +367,22 @@
         e.stopPropagation();
         clearTimers();
         if (currentSegmentIndex > 0) {
-          showStory(currentSegmentIndex - 1);
+          showStory(currentSegmentIndex - 1); // Restart progress bar
         } else if (currentIndex > 0) {
           currentIndex--;
-          updateStory();
+          updateStory(); // Move to previous user
         }
       };
 
       storyEl.querySelector(".tap-right").onclick = (e) => {
         e.stopPropagation();
         clearTimers();
-        const currentTime = Date.now();
         if (currentSegmentIndex < media.length - 1) {
-          showStory(currentSegmentIndex + 1);
-        } else {
-          // On last segment, check for double-tap to switch users
-          if (currentTime - lastTapTime < DOUBLE_TAP_THRESHOLD && currentIndex < total - 1) {
-            currentIndex++;
-            updateStory();
-          } else {
-            showStory(0); // Restart current user's story
-          }
+          showStory(currentSegmentIndex + 1); // Continue progress
+        } else if (currentIndex < total - 1) {
+          currentIndex++;
+          updateStory(); // Move to next user, continue progress
         }
-        lastTapTime = currentTime;
       };
     }
 
