@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Status Clone</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .status-container {
+            width: 360px;
+            height: 640px;
+            background-color: #000;
+            color: #fff;
+            border-radius: 20px;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        .status-bar {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            height: 4px;
+            display: flex;
+            gap: 4px;
+            z-index: 10;
+        }
+
+        .progress-bar {
+            flex: 1;
+            background-color: rgba(255, 255, 255, 0.4);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: #fff;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.1s linear;
+        }
+
+        .status-content {
+            width: 100%;
+            height: 100%;
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .status-content.active {
+            display: block;
+        }
+        
+        .status-content.active .user-info {
+            opacity: 1;
+        }
+
+        .user-info {
+            position: absolute;
+            top: 25px;
+            left: 15px;
+            display: flex;
+            align-items: center;
+            color: #fff;
+            z-index: 11;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            margin-right: 10px;
+        }
+        
+        .username {
+            font-weight: bold;
+            font-size: 1.1em;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .timestamp {
+            font-size: 0.8em;
+            color: #ccc;
+            margin-top: 2px;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .navigation-buttons {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: space-between;
+            z-index: 9;
+        }
+
+        .navigation-buttons div {
+            flex: 1;
+            height: 100%;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="status-container">
+    <div class="status-bar"></div>
+
+    <div class="status-content active" data-user="Emily" data-status-index="0" style="background-image: url('https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face');">
+        <div class="user-info">
+            <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="Emily">
+            <div>
+                <div class="username">Emily</div>
+                <div class="timestamp">Today At 12:30</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-content" data-user="Michael" data-status-index="0" style="background-image: url('https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face');">
+        <div class="user-info">
+            <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="Michael">
+            <div>
+                <div class="username">Michael</div>
+                <div class="timestamp">Just now</div>
+            </div>
+        </div>
+    </div>
+    <div class="status-content" data-user="Michael" data-status-index="1" style="background-image: url('https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face');">
+        <div class="user-info">
+            <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="Michael">
+            <div>
+                <div class="username">Michael</div>
+                <div class="timestamp">5 min ago</div>
+            </div>
+        </div>
+    </div>
+    <div class="status-content" data-user="Michael" data-status-index="2" style="background-image: url('https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face');">
+        <div class="user-info">
+            <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="Michael">
+            <div>
+                <div class="username">Michael</div>
+                <div class="timestamp">10 min ago</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-content" data-user="Sarah" data-status-index="0" style="background-image: url('https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face');">
+        <div class="user-info">
+            <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="Sarah">
+            <div>
+                <div class="username">Sarah</div>
+                <div class="timestamp">Just now</div>
+            </div>
+        </div>
+    </div>
+    <div class="status-content" data-user="Sarah" data-status-index="1" style="background-image: url('https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face');">
+        <div class="user-info">
+            <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="Sarah">
+            <div>
+                <div class="username">Sarah</div>
+                <div class="timestamp">2 min ago</div>
+            </div>
+        </div>
+    </div>
+    <div class="status-content" data-user="Sarah" data-status-index="2" style="background-image: url('https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face');">
+        <div class="user-info">
+            <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="Sarah">
+            <div>
+                <div class="username">Sarah</div>
+                <div class="timestamp">5 min ago</div>
+            </div>
+        </div>
+    </div>
+    <div class="status-content" data-user="Sarah" data-status-index="3" style="background-image: url('https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face');">
+        <div class="user-info">
+            <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="Sarah">
+            <div>
+                <div class="username">Sarah</div>
+                <div class="timestamp">10 min ago</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation-buttons">
+        <div id="prev"></div>
+        <div id="next"></div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const statusContainer = document.querySelector('.status-container');
+        const statusBar = document.querySelector('.status-bar');
+        const statusContents = document.querySelectorAll('.status-content');
+        const prevButton = document.getElementById('prev');
+        const nextButton = document.getElementById('next');
+
+        const users = {
+            'Emily': 1,
+            'Michael': 3,
+            'Sarah': 4
+        };
+
+        let currentStatusIndex = 0;
+        let userStatusIndices = {};
+        let interval;
+        const statusDuration = 5000; // 5 seconds
+        let isPaused = false;
+        let progressBarWidths = {};
+
+        function initializeStatus() {
+            let index = 0;
+            for (const user in users) {
+                userStatusIndices[user] = {
+                    start: index,
+                    end: index + users[user] - 1
+                };
+                index += users[user];
+            }
+            
+            updateProgressBar();
+            showStatus(currentStatusIndex);
+            startAutoAdvance();
+        }
+
+        function updateProgressBar() {
+            const currentStatus = statusContents[currentStatusIndex];
+            const currentUser = currentStatus.dataset.user;
+            const statusCount = users[currentUser];
+
+            statusBar.innerHTML = '';
+            for (let i = 0; i < statusCount; i++) {
+                const progressBar = document.createElement('div');
+                progressBar.classList.add('progress-bar');
+                const progress = document.createElement('div');
+                progress.classList.add('progress');
+                progressBar.appendChild(progress);
+                statusBar.appendChild(progressBar);
+            }
+            
+            let currentUserStatusIndex = parseInt(currentStatus.dataset.statusIndex);
+            const progressBars = statusBar.querySelectorAll('.progress-bar');
+            
+            for(let i = 0; i < progressBars.length; i++) {
+                const progress = progressBars[i].querySelector('.progress');
+                if (i < currentUserStatusIndex) {
+                    progress.style.transform = 'scaleX(1)';
+                } else if (i === currentUserStatusIndex) {
+                    progress.style.transform = `scaleX(${progressBarWidths[currentStatusIndex] || 0})`;
+                } else {
+                    progress.style.transform = 'scaleX(0)';
+                }
+            }
+        }
+
+        function showStatus(index) {
+            statusContents.forEach(content => content.classList.remove('active'));
+            if (statusContents[index]) {
+                statusContents[index].classList.add('active');
+            }
+            currentStatusIndex = index;
+            updateProgressBar();
+        }
+
+        function startAutoAdvance() {
+            clearInterval(interval);
+            let startTime = Date.now();
+            let elapsedTime = 0;
+
+            const updateProgress = () => {
+                if (isPaused) {
+                    startTime = Date.now() - elapsedTime;
+                    return;
+                }
+                elapsedTime = Date.now() - startTime;
+                
+                const currentStatus = statusContents[currentStatusIndex];
+                const currentUserStatusIndex = parseInt(currentStatus.dataset.statusIndex);
+                const progressBars = statusBar.querySelectorAll('.progress-bar');
+                const progress = progressBars[currentUserStatusIndex]?.querySelector('.progress');
+
+                if (progress) {
+                    const progressValue = elapsedTime / statusDuration;
+                    progressBarWidths[currentStatusIndex] = progressValue;
+                    progress.style.transform = `scaleX(${progressValue})`;
+                    
+                    if (elapsedTime >= statusDuration) {
+                        nextStatus();
+                    }
+                }
+            };
+            
+            interval = setInterval(updateProgress, 10);
+        }
+
+        function nextStatus() {
+            // Reset progress for the previous status
+            const currentStatus = statusContents[currentStatusIndex];
+            if (currentStatus) {
+                const currentUserStatusIndex = parseInt(currentStatus.dataset.statusIndex);
+                const progressBars = statusBar.querySelectorAll('.progress-bar');
+                if (progressBars[currentUserStatusIndex]) {
+                    progressBars[currentUserStatusIndex].querySelector('.progress').style.transform = 'scaleX(1)';
+                }
+                progressBarWidths[currentStatusIndex] = 1;
+            }
+
+            if (currentStatusIndex < statusContents.length - 1) {
+                currentStatusIndex++;
+                showStatus(currentStatusIndex);
+                startAutoAdvance();
+            } else {
+                // End of statuses
+                clearInterval(interval);
+            }
+        }
+
+        function prevStatus() {
+            clearInterval(interval);
+            
+            const currentStatus = statusContents[currentStatusIndex];
+            if (currentStatus) {
+                const currentUserStatusIndex = parseInt(currentStatus.dataset.statusIndex);
+                const progressBars = statusBar.querySelectorAll('.progress-bar');
+                // Reset progress for the current status
+                if (progressBars[currentUserStatusIndex]) {
+                    progressBars[currentUserStatusIndex].querySelector('.progress').style.transform = 'scaleX(0)';
+                }
+                progressBarWidths[currentStatusIndex] = 0;
+            }
+
+            if (currentStatusIndex > 0) {
+                currentStatusIndex--;
+                showStatus(currentStatusIndex);
+                startAutoAdvance();
+            } else {
+                startAutoAdvance(); // Restart if at the beginning
+            }
+        }
+
+        nextButton.addEventListener('click', nextStatus);
+        prevButton.addEventListener('click', prevStatus);
+
+        statusContainer.addEventListener('mousedown', (e) => {
+            isPaused = true;
+            clearInterval(interval);
+        });
+
+        statusContainer.addEventListener('mouseup', (e) => {
+            isPaused = false;
+            startAutoAdvance();
+        });
+
+        initializeStatus();
+    });
+</script>
+
+</body>
+</html>
+
