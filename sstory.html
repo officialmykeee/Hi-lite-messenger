@@ -1,168 +1,422 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Telegram Status Clone</title>
-  <style>
-    /* Global reset */
-    * {
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Status Clone</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
-    body {
-      font-family: sans-serif;
-      background-color: #000; /* Black background */
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      overflow: hidden;
-    }
+        :root {
+            --bg-color: #000;
+            --text-color: #fff;
+            --progress-bar-bg: #555;
+            --progress-bar-fill: #fff;
+        }
 
-    .status-container {
-      width: 360px;
-      height: 640px;
-      background-color: #000;
-      color: #fff;
-      border-radius: 20px;
-      position: relative;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            flex-direction: column;
+        }
 
-    .status-bar {
-      position: absolute;
-      top: 15px;
-      left: 15px;
-      right: 15px;
-      height: 4px;
-      display: flex;
-      gap: 4px;
-      z-index: 10;
-    }
+        .status-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
 
-    .progress-bar {
-      flex: 1;
-      background-color: rgba(255, 255, 255, 0.3);
-      border-radius: 2px;
-      overflow: hidden;
-    }
+        .status-card {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            border-radius: 10px;
+        }
 
-    .progress {
-      height: 100%;
-      background-color: #fff;
-      transform: scaleX(0);
-      transform-origin: left;
-    }
+        .status-card.active {
+            opacity: 1;
+        }
 
-    .status-content {
-      flex: 1;
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      top: 0;
-      left: 0;
-      background-size: cover;
-      background-position: center;
-      opacity: 0;
-      transition: opacity 0.4s ease; /* Smooth fade */
-    }
+        .progress-bar-container {
+            display: flex;
+            padding: 5px;
+            gap: 4px;
+            width: 95%;
+            margin: 10px auto 0;
+        }
 
-    .status-content.active {
-      opacity: 1;
-      z-index: 5;
-    }
+        .progress-bar {
+            height: 3px;
+            background-color: var(--progress-bar-bg);
+            border-radius: 2px;
+            overflow: hidden;
+            flex-grow: 1;
+        }
 
-    .user-info {
-      position: absolute;
-      top: 55px;
-      left: 20px;
-      display: flex;
-      align-items: center;
-      color: #fff;
-      z-index: 11;
-      opacity: 0;
-      transition: opacity 0.4s ease;
-      padding: 5px 10px;
-      border-radius: 12px;
-      background: rgba(0,0,0,0.35); /* translucent background card */
-    }
+        .progress-bar .progress {
+            height: 100%;
+            width: 0;
+            background-color: var(--progress-bar-fill);
+            transition: width 0.1s linear;
+        }
 
-    .status-content.active .user-info {
-      opacity: 1;
-    }
+        .user-info {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            gap: 10px;
+        }
 
-    .profile-pic {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      border: 2px solid #fff;
-      margin-right: 10px;
-    }
+        .user-info .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--text-color);
+        }
 
-    .username {
-      font-weight: bold;
-      font-size: 1.1em;
-    }
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
 
-    .timestamp {
-      font-size: 0.8em;
-      color: #ccc;
-      margin-top: 2px;
-    }
+        .user-details .username {
+            font-weight: 600;
+        }
 
-    .navigation-buttons {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: space-between;
-      z-index: 9;
-    }
+        .user-details .timestamp {
+            font-size: 0.8em;
+            color: #ccc;
+        }
 
-    .navigation-buttons div {
-      flex: 1;
-      height: 100%;
-      cursor: pointer;
-      outline: none;
-    }
+        .status-content {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
 
-    .navigation-buttons div:active {
-      background: none; /* no flash */
-    }
-  </style>
+        .navigation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            z-index: 10;
+        }
+
+        .nav-zone {
+            flex-grow: 1;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .nav-zone.left {
+            width: 30%; /* Left tap area */
+        }
+
+        .nav-zone.right {
+            width: 70%; /* Right tap area */
+        }
+
+        @media (min-width: 600px) {
+            .status-container {
+                width: 375px;
+                height: 667px;
+                border-radius: 10px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="status-container">
-    <div class="status-bar"></div>
 
-    <div class="status-content active" 
-         data-user="Emily" data-status-index="0" 
-         style="background-image: url('https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=500&h=700&fit=crop');">
-      <div class="user-info">
-        <img class="profile-pic" 
-             src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop" alt="Emily">
-        <div>
-          <div class="username">Emily</div>
-          <div class="timestamp">Today at 12:30</div>
+    <div class="status-container">
+        <div class="status-card" data-user="emily">
+            <div class="progress-bar-container">
+                <div class="progress-bar">
+                    <div class="progress"></div>
+                </div>
+            </div>
+            <div class="user-info">
+                <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="Emily">
+                <div class="user-details">
+                    <span class="username">Emily</span>
+                    <span class="timestamp">Today at 12:30</span>
+                </div>
+            </div>
+            <div class="status-content">
+                Emily's first status!
+            </div>
         </div>
-      </div>
+
+        <div class="status-card" data-user="michael" data-status-index="0">
+            <div class="progress-bar-container">
+                <div class="progress-bar"><div class="progress"></div></div>
+                <div class="progress-bar"><div class="progress"></div></div>
+                <div class="progress-bar"><div class="progress"></div></div>
+            </div>
+            <div class="user-info">
+                <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="Michael">
+                <div class="user-details">
+                    <span class="username">Michael</span>
+                    <span class="timestamp">Just now</span>
+                </div>
+            </div>
+            <div class="status-content">
+                Michael's first status!
+            </div>
+        </div>
+
+        <div class="status-card" data-user="michael" data-status-index="1">
+            <div class="progress-bar-container">
+                <div class="progress-bar"><div class="progress"></div></div>
+                <div class="progress-bar"><div class="progress"></div></div>
+                <div class="progress-bar"><div class="progress"></div></div>
+            </div>
+            <div class="user-info">
+                <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="Michael">
+                <div class="user-details">
+                    <span class="username">Michael</span>
+                    <span class="timestamp">Just now</span>
+                </div>
+            </div>
+            <div class="status-content">
+                Michael's second status!
+            </div>
+        </div>
+
+        <div class="status-card" data-user="michael" data-status-index="2">
+            <div class="progress-bar-container">
+                <div class="progress-bar"><div class="progress"></div></div>
+                <div class="progress-bar"><div class="progress"></div></div>
+                <div class="progress-bar"><div class="progress"></div></div>
+            </div>
+            <div class="user-info">
+                <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="Michael">
+                <div class="user-details">
+                    <span class="username">Michael</span>
+                    <span class="timestamp">Just now</span>
+                </div>
+            </div>
+            <div class="status-content">
+                Michael's third status!
+            </div>
+        </div>
+
+        <div class="status-card" data-user="sarah" data-status-index="0">
+            <div class="progress-bar-container">
+                <div class="progress-bar"><div class="progress"></div></div>
+                <div class="progress-bar"><div class="progress"></div></div>
+                <div class="progress-bar"><div class="progress"></div></div>
+                <div class="progress-bar"><div class="progress"></div></div>
+            </div>
+            <div class="user-info">
+                <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="Sarah">
+                <div class="user-details">
+                    <span class="username">Sarah</span>
+                    <span class="timestamp">Just now</span>
+                </div>
+            </div>
+            <div class="status-content">
+                Sarah's first status!
+            </div>
+        </div>
+
+        <div class="status-card" data-user="sarah" data-status-index="1">
+            <div class="progress-bar-container">
+                <div class="progress-bar"><div class="progress"></div></div>
+                <div class="progress-bar"><div class="progress"></div></div>
+                <div class="progress-bar"><div class="progress"></div></div>
+                <div class="progress-bar"><div class="progress"></div></div>
+            </div>
+            <div class="user-info">
+                <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="Sarah">
+                <div class="user-details">
+                    <span class="username">Sarah</span>
+                    <span class="timestamp">Just now</span>
+                </div>
+            </div>
+            <div class="status-content">
+                Sarah's second status!
+            </div>
+        </div>
+
+        <div class="status-card" data-user="sarah" data-status-index="2">
+            <div class="progress-bar-container">
+                <div class="progress-bar"><div class="progress"></div></div>
+                <div class="progress-bar"><div class="progress"></div></div>
+                <div class="progress-bar"><div class="progress"></div></div>
+                <div class="progress-bar"><div class="progress"></div></div>
+            </div>
+            <div class="user-info">
+                <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="Sarah">
+                <div class="user-details">
+                    <span class="username">Sarah</span>
+                    <span class="timestamp">Just now</span>
+                </div>
+            </div>
+            <div class="status-content">
+                Sarah's third status!
+            </div>
+        </div>
+
+        <div class="status-card" data-user="sarah" data-status-index="3">
+            <div class="progress-bar-container">
+                <div class="progress-bar"><div class="progress"></div></div>
+                <div class="progress-bar"><div class="progress"></div></div>
+                <div class="progress-bar"><div class="progress"></div></div>
+                <div class="progress-bar"><div class="progress"></div></div>
+            </div>
+            <div class="user-info">
+                <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="Sarah">
+                <div class="user-details">
+                    <span class="username">Sarah</span>
+                    <span class="timestamp">Just now</span>
+                </div>
+            </div>
+            <div class="status-content">
+                Sarah's fourth status!
+            </div>
+        </div>
+        
+        <div class="navigation">
+            <div class="nav-zone left" onclick="prevStatus()"></div>
+            <div class="nav-zone right" onclick="nextStatus()"></div>
+        </div>
     </div>
 
-    <div class="navigation-buttons">
-      <div id="prev"></div>
-      <div id="next"></div>
-    </div>
-  </div>
+<script>
+    const statusCards = document.querySelectorAll('.status-card');
+    let timer;
+    const statusDuration = 5000; // 5 seconds
+    
+    // An array to map user stories. Each story has a duration and progress bars.
+    const userStories = [
+        { user: 'emily', statusCount: 1, currentStatus: 0, cards: document.querySelectorAll('[data-user="emily"]') },
+        { user: 'michael', statusCount: 3, currentStatus: 0, cards: document.querySelectorAll('[data-user="michael"]') },
+        { user: 'sarah', statusCount: 4, currentStatus: 0, cards: document.querySelectorAll('[data-user="sarah"]') }
+    ];
+
+    let currentStoryIndex = 0;
+
+    function showStatus(storyIndex, statusIndex) {
+        // Hide all status cards
+        statusCards.forEach(card => card.classList.remove('active'));
+
+        // Reset all progress bars
+        document.querySelectorAll('.progress').forEach(progress => {
+            progress.style.transition = 'none'; // Temporarily disable transition
+            progress.style.width = '0%';
+        });
+        
+        // Find the current story and its cards
+        const currentStory = userStories[storyIndex];
+        const currentCard = currentStory.cards[statusIndex];
+
+        if (currentCard) {
+            currentCard.classList.add('active');
+
+            // Find all progress bars for the current user
+            const progressBars = currentCard.querySelectorAll('.progress-bar');
+            
+            // Fill past progress bars
+            for (let i = 0; i < statusIndex; i++) {
+                if (progressBars[i]) {
+                    progressBars[i].querySelector('.progress').style.width = '100%';
+                }
+            }
+
+            // Animate the current progress bar
+            if (progressBars[statusIndex]) {
+                const currentProgress = progressBars[statusIndex].querySelector('.progress');
+                // A small delay is needed to restart the transition
+                setTimeout(() => {
+                    currentProgress.style.transition = `width ${statusDuration / 1000}s linear`;
+                    currentProgress.style.width = '100%';
+                }, 10);
+            }
+
+            // Set a timer to move to the next status
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                nextStatus();
+            }, statusDuration);
+        }
+    }
+
+    function nextStatus() {
+        const currentStory = userStories[currentStoryIndex];
+
+        // Move to the next status within the current story
+        if (currentStory.currentStatus < currentStory.statusCount - 1) {
+            currentStory.currentStatus++;
+            showStatus(currentStoryIndex, currentStory.currentStatus);
+        } else {
+            // Move to the next user story
+            currentStoryIndex++;
+            if (currentStoryIndex < userStories.length) {
+                // Reset the new story's status counter
+                userStories[currentStoryIndex].currentStatus = 0;
+                showStatus(currentStoryIndex, 0);
+            } else {
+                // All stories are done, loop back to the beginning
+                currentStoryIndex = 0;
+                userStories.forEach(story => story.currentStatus = 0);
+                showStatus(currentStoryIndex, 0);
+            }
+        }
+    }
+
+    function prevStatus() {
+        const currentStory = userStories[currentStoryIndex];
+
+        // Move to the previous status within the current story
+        if (currentStory.currentStatus > 0) {
+            currentStory.currentStatus--;
+            showStatus(currentStoryIndex, currentStory.currentStatus);
+        } else {
+            // Move to the previous user story
+            currentStoryIndex--;
+            if (currentStoryIndex >= 0) {
+                // Move to the last status of the previous story
+                const prevStory = userStories[currentStoryIndex];
+                prevStory.currentStatus = prevStory.statusCount - 1;
+                showStatus(currentStoryIndex, prevStory.currentStatus);
+            } else {
+                // Loop back to the last story
+                currentStoryIndex = userStories.length - 1;
+                const prevStory = userStories[currentStoryIndex];
+                prevStory.currentStatus = prevStory.statusCount - 1;
+                showStatus(currentStoryIndex, prevStory.currentStatus);
+            }
+        }
+    }
+
+    // Start the first story
+    showStatus(currentStoryIndex, 0);
+</script>
+
 </body>
 </html>
 
