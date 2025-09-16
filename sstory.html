@@ -12,6 +12,8 @@
             --text-color: #fff;
             --progress-bar-bg: #555;
             --progress-bar-fill: #fff;
+            --input-bg: rgba(255, 255, 255, 0.2);
+            --instagram-pink: #ED4956;
         }
 
         body {
@@ -42,15 +44,13 @@
             position: absolute;
             background-size: cover;
             background-position: center;
-            display: flex;
+            display: none;
             flex-direction: column;
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
             border-radius: 10px;
         }
 
         .status-card.active {
-            opacity: 1;
+            display: flex;
         }
 
         .progress-bar-container {
@@ -66,7 +66,7 @@
             background-color: var(--progress-bar-bg);
             border-radius: 2px;
             overflow: hidden;
-            flex-grow: 1;
+            flex: 1; /* Equal width for each bar */
         }
 
         .progress-bar .progress {
@@ -80,6 +80,7 @@
             align-items: center;
             padding: 10px;
             gap: 10px;
+            z-index: 20;
         }
 
         .user-info .profile-pic {
@@ -109,16 +110,17 @@
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 0; /* Remove padding to let image fill */
+            padding: 0;
             font-size: 1.5em;
             font-weight: 600;
-            overflow: hidden; /* Ensure image doesn't overflow */
+            overflow: hidden;
+            height: calc(100% - 150px);
         }
 
         .status-content img {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Cover the entire content area */
+            object-fit: cover;
             display: block;
         }
 
@@ -127,7 +129,7 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
+            height: calc(100% - 70px);
             display: flex;
             z-index: 10;
         }
@@ -141,11 +143,90 @@
         }
 
         .nav-zone.left {
-            width: 30%; /* Left tap area */
+            width: 30%;
         }
 
         .nav-zone.right {
-            width: 70%; /* Right tap area */
+            width: 70%;
+        }
+
+        .bottom-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            box-sizing: border-box;
+            z-index: 20;
+            background-color: var(--bg-color);
+        }
+
+        .reply-input-container {
+            flex-grow: 1;
+            margin-right: 15px;
+        }
+
+        .reply-input {
+            width: 100%;
+            padding: 10px 15px;
+            border-radius: 25px;
+            border: none;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-size: 1em;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        .reply-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .action-icon-btn {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        .action-icon-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: none;
+            stroke: var(--text-color);
+            stroke-width: 2;
+        }
+
+        .action-icon-btn.like-btn svg {
+            fill: none;
+            stroke: var(--text-color);
+            transition: fill 0.2s ease-in-out, stroke 0.2s ease-in-out;
+        }
+
+        .action-icon-btn.like-btn.liked svg {
+            fill: var(--instagram-pink);
+            stroke: var(--instagram-pink);
+        }
+
+        .heart-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 1px solid var(--input-bg);
+            padding: 5px;
         }
 
         @media (min-width: 600px) {
@@ -159,14 +240,9 @@
     </style>
 </head>
 <body>
-
     <div class="status-container">
         <div class="status-card" data-user="emily">
-            <div class="progress-bar-container">
-                <div class="progress-bar">
-                    <div class="progress"></div>
-                </div>
-            </div>
+            <div class="progress-bar-container"></div>
             <div class="user-info">
                 <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="Emily">
                 <div class="user-details">
@@ -180,11 +256,7 @@
         </div>
 
         <div class="status-card" data-user="michael" data-status-index="0">
-            <div class="progress-bar-container">
-                <div class="progress-bar"><div class="progress"></div></div>
-                <div class="progress-bar"><div class="progress"></div></div>
-                <div class="progress-bar"><div class="progress"></div></div>
-            </div>
+            <div class="progress-bar-container"></div>
             <div class="user-info">
                 <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="Michael">
                 <div class="user-details">
@@ -196,13 +268,8 @@
                 <img src="https://picsum.photos/id/1000/500/800" alt="Story Image">
             </div>
         </div>
-
         <div class="status-card" data-user="michael" data-status-index="1">
-            <div class="progress-bar-container">
-                <div class="progress-bar"><div class="progress"></div></div>
-                <div class="progress-bar"><div class="progress"></div></div>
-                <div class="progress-bar"><div class="progress"></div></div>
-            </div>
+            <div class="progress-bar-container"></div>
             <div class="user-info">
                 <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="Michael">
                 <div class="user-details">
@@ -211,16 +278,11 @@
                 </div>
             </div>
             <div class="status-content">
-                <img src="https://picsum.photos/id/1000/500/800" alt="Story Image">
+                <img src="https://picsum.photos/id/1001/500/800" alt="Story Image">
             </div>
         </div>
-
         <div class="status-card" data-user="michael" data-status-index="2">
-            <div class="progress-bar-container">
-                <div class="progress-bar"><div class="progress"></div></div>
-                <div class="progress-bar"><div class="progress"></div></div>
-                <div class="progress-bar"><div class="progress"></div></div>
-            </div>
+            <div class="progress-bar-container"></div>
             <div class="user-info">
                 <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="Michael">
                 <div class="user-details">
@@ -229,17 +291,12 @@
                 </div>
             </div>
             <div class="status-content">
-                <img src="https://picsum.photos/id/1000/500/800" alt="Story Image">
+                <img src="https://picsum.photos/id/1002/500/800" alt="Story Image">
             </div>
         </div>
 
         <div class="status-card" data-user="sarah" data-status-index="0">
-            <div class="progress-bar-container">
-                <div class="progress-bar"><div class="progress"></div></div>
-                <div class="progress-bar"><div class="progress"></div></div>
-                <div class="progress-bar"><div class="progress"></div></div>
-                <div class="progress-bar"><div class="progress"></div></div>
-            </div>
+            <div class="progress-bar-container"></div>
             <div class="user-info">
                 <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="Sarah">
                 <div class="user-details">
@@ -251,14 +308,8 @@
                 <img src="https://picsum.photos/id/1000/500/800" alt="Story Image">
             </div>
         </div>
-
         <div class="status-card" data-user="sarah" data-status-index="1">
-            <div class="progress-bar-container">
-                <div class="progress-bar"><div class="progress"></div></div>
-                <div class="progress-bar"><div class="progress"></div></div>
-                <div class="progress-bar"><div class="progress"></div></div>
-                <div class="progress-bar"><div class="progress"></div></div>
-            </div>
+            <div class="progress-bar-container"></div>
             <div class="user-info">
                 <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="Sarah">
                 <div class="user-details">
@@ -267,17 +318,11 @@
                 </div>
             </div>
             <div class="status-content">
-                <img src="https://picsum.photos/id/1000/500/800" alt="Story Image">
+                <img src="https://picsum.photos/id/1001/500/800" alt="Story Image">
             </div>
         </div>
-
         <div class="status-card" data-user="sarah" data-status-index="2">
-            <div class="progress-bar-container">
-                <div class="progress-bar"><div class="progress"></div></div>
-                <div class="progress-bar"><div class="progress"></div></div>
-                <div class="progress-bar"><div class="progress"></div></div>
-                <div class="progress-bar"><div class="progress"></div></div>
-            </div>
+            <div class="progress-bar-container"></div>
             <div class="user-info">
                 <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="Sarah">
                 <div class="user-details">
@@ -286,145 +331,162 @@
                 </div>
             </div>
             <div class="status-content">
-                <img src="https://picsum.photos/id/1000/500/800" alt="Story Image">
+                <img src="https://picsum.photos/id/1002/500/800" alt="Story Image">
+            </div>
+        </div>
+        <div class="status-card" data-user="sarah" data-status-index="3">
+            <div class="progress-bar-container"></div>
+            <div class="user-info">
+                <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="Sarah">
+                <div class="user-details">
+                    <span class="username">Sarah</span>
+                    <span class="timestamp">Just now</span>
+                </div>
+            </div>
+            <div class="status-content">
+                <img src="https://picsum.photos/id/1003/500/800" alt="Story Image">
             </div>
         </div>
 
-        <div class="status-card" data-user="sarah" data-status-index="3">
-            <div class="progress-bar-container">
-                <div class="progress-bar"><div class="progress"></div></div>
-                <div class="progress-bar"><div class="progress"></div></div>
-                <div class="progress-bar"><div class="progress"></div></div>
-                <div class="progress-bar"><div class="progress"></div></div>
-            </div>
-            <div class="user-info">
-                <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="Sarah">
-                <div class="user-details">
-                    <span class="username">Sarah</span>
-                    <span class="timestamp">Just now</span>
-                </div>
-            </div>
-            <div class="status-content">
-                <img src="https://picsum.photos/id/1000/500/800" alt="Story Image">
-            </div>
-        </div>
-        
         <div class="navigation">
             <div class="nav-zone left" onclick="prevStatus()"></div>
             <div class="nav-zone right" onclick="nextStatus()"></div>
         </div>
+
+        <div class="bottom-bar">
+            <div class="reply-input-container">
+                <input type="text" class="reply-input" placeholder="Reply privately...">
+            </div>
+            <button class="action-icon-btn like-btn" onclick="toggleLike(this)">
+                <div class="heart-container">
+                    <svg class="svg-icon heart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.03L12 21.35Z"></path>
+                    </svg>
+                </div>
+            </button>
+        </div>
     </div>
 
-<script>
-    const statusCards = document.querySelectorAll('.status-card');
-    let timer;
-    const statusDuration = 5000; // 5 seconds
-    
-    // An array to map user stories. Each story has a duration and progress bars.
-    const userStories = [
-        { user: 'emily', statusCount: 1, currentStatus: 0, cards: document.querySelectorAll('[data-user="emily"]') },
-        { user: 'michael', statusCount: 3, currentStatus: 0, cards: document.querySelectorAll('[data-user="michael"]') },
-        { user: 'sarah', statusCount: 4, currentStatus: 0, cards: document.querySelectorAll('[data-user="sarah"]') }
-    ];
+    <script>
+        const statusCards = document.querySelectorAll('.status-card');
+        let timer;
+        const statusDuration = 5000;
 
-    let currentStoryIndex = 0;
-
-    function showStatus(storyIndex, statusIndex) {
-        // Hide all status cards
-        statusCards.forEach(card => card.classList.remove('active'));
-
-        // Find the current story and its cards
-        const currentStory = userStories[storyIndex];
-        const currentCard = currentStory.cards[statusIndex];
-
-        if (currentCard) {
-            currentCard.classList.add('active');
-
-            // Find all progress bars for the current user
-            const progressBars = currentCard.querySelectorAll('.progress-bar');
-            
-            // Set up all progress bars without blinking
-            progressBars.forEach((bar, i) => {
-                const progress = bar.querySelector('.progress');
-                progress.style.transition = 'none'; // Ensure no transition
-                if (i < statusIndex) {
-                    progress.style.width = '100%'; // Past statuses are full
-                } else {
-                    progress.style.width = '0%'; // Future statuses are empty
-                }
+        // Dynamically create userStories based on data-user attributes
+        const userStories = [];
+        const users = [...new Set(Array.from(statusCards).map(card => card.dataset.user))];
+        users.forEach(user => {
+            const userCards = document.querySelectorAll(`[data-user="${user}"]`);
+            userStories.push({
+                user,
+                statusCount: userCards.length,
+                currentStatus: 0,
+                cards: userCards
             });
+        });
 
-            // Animate the current progress bar
-            if (progressBars[statusIndex]) {
-                const currentProgress = progressBars[statusIndex].querySelector('.progress');
-                // Use a small timeout to apply the transition to the current bar
-                setTimeout(() => {
-                    currentProgress.style.transition = `width ${statusDuration / 1000}s linear`;
-                    currentProgress.style.width = '100%';
-                }, 10);
+        let currentStoryIndex = 0;
+
+        function createProgressBars(statusCount) {
+            const container = document.createElement('div');
+            container.className = 'progress-bar-container';
+            for (let i = 0; i < statusCount; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'progress-bar';
+                const progress = document.createElement('div');
+                progress.className = 'progress';
+                bar.appendChild(progress);
+                container.appendChild(bar);
             }
-
-            // Set a timer to move to the next status
-            clearTimeout(timer);
-            timer = setTimeout(() => {
-                nextStatus();
-            }, statusDuration);
+            return container;
         }
-    }
 
-    function nextStatus() {
-        const currentStory = userStories[currentStoryIndex];
+        function showStatus(storyIndex, statusIndex) {
+            statusCards.forEach(card => card.classList.remove('active'));
 
-        // Move to the next status within the current story
-        if (currentStory.currentStatus < currentStory.statusCount - 1) {
-            currentStory.currentStatus++;
-            showStatus(currentStoryIndex, currentStory.currentStatus);
-        } else {
-            // Move to the next user story
-            currentStoryIndex++;
-            if (currentStoryIndex < userStories.length) {
-                // Reset the new story's status counter
-                userStories[currentStoryIndex].currentStatus = 0;
-                showStatus(currentStoryIndex, 0);
+            const currentStory = userStories[storyIndex];
+            const currentCard = currentStory.cards[statusIndex];
+
+            if (currentCard) {
+                currentCard.classList.add('active');
+
+                // Clear existing progress bars
+                const existingContainer = currentCard.querySelector('.progress-bar-container');
+                existingContainer.innerHTML = '';
+
+                // Dynamically create progress bars
+                const progressBarContainer = createProgressBars(currentStory.statusCount);
+                currentCard.replaceChild(progressBarContainer, existingContainer);
+
+                const progressBars = progressBarContainer.querySelectorAll('.progress-bar');
+
+                // Reset and animate progress bars
+                progressBars.forEach((bar, i) => {
+                    const progress = bar.querySelector('.progress');
+                    progress.style.transition = 'none';
+                    progress.style.width = i < statusIndex ? '100%' : '0%';
+                });
+
+                if (progressBars[statusIndex]) {
+                    const currentProgress = progressBars[statusIndex].querySelector('.progress');
+                    setTimeout(() => {
+                        currentProgress.style.transition = `width ${statusDuration / 1000}s linear`;
+                        currentProgress.style.width = '100%';
+                    }, 100); // Increased delay for reliable reset
+                }
+
+                clearTimeout(timer);
+                timer = setTimeout(() => {
+                    nextStatus();
+                }, statusDuration);
+            }
+        }
+
+        function nextStatus() {
+            const currentStory = userStories[currentStoryIndex];
+
+            if (currentStory.currentStatus < currentStory.statusCount - 1) {
+                currentStory.currentStatus++;
+                showStatus(currentStoryIndex, currentStory.currentStatus);
             } else {
-                // All stories are done, loop back to the beginning
-                currentStoryIndex = 0;
-                userStories.forEach(story => story.currentStatus = 0);
-                showStatus(currentStoryIndex, 0);
+                currentStoryIndex++;
+                if (currentStoryIndex < userStories.length) {
+                    userStories[currentStoryIndex].currentStatus = 0;
+                    showStatus(currentStoryIndex, 0);
+                } else {
+                    currentStoryIndex = 0;
+                    userStories.forEach(story => story.currentStatus = 0);
+                    showStatus(currentStoryIndex, 0);
+                }
             }
         }
-    }
 
-    function prevStatus() {
-        const currentStory = userStories[currentStoryIndex];
+        function prevStatus() {
+            const currentStory = userStories[currentStoryIndex];
 
-        // Move to the previous status within the current story
-        if (currentStory.currentStatus > 0) {
-            currentStory.currentStatus--;
-            showStatus(currentStoryIndex, currentStory.currentStatus);
-        } else {
-            // Move to the previous user story
-            currentStoryIndex--;
-            if (currentStoryIndex >= 0) {
-                // Move to the last status of the previous story
-                const prevStory = userStories[currentStoryIndex];
-                prevStory.currentStatus = prevStory.statusCount - 1;
-                showStatus(currentStoryIndex, prevStory.currentStatus);
+            if (currentStory.currentStatus > 0) {
+                currentStory.currentStatus--;
+                showStatus(currentStoryIndex, currentStory.currentStatus);
             } else {
-                // Loop back to the last story
-                currentStoryIndex = userStories.length - 1;
-                const prevStory = userStories[currentStoryIndex];
-                prevStory.currentStatus = prevStory.statusCount - 1;
-                showStatus(currentStoryIndex, prevStory.currentStatus);
+                currentStoryIndex--;
+                if (currentStoryIndex >= 0) {
+                    const prevStory = userStories[currentStoryIndex];
+                    prevStory.currentStatus = prevStory.statusCount - 1;
+                    showStatus(currentStoryIndex, prevStory.currentStatus);
+                } else {
+                    currentStoryIndex = userStories.length - 1;
+                    const prevStory = userStories[currentStoryIndex];
+                    prevStory.currentStatus = prevStory.statusCount - 1;
+                    showStatus(currentStoryIndex, prevStory.currentStatus);
+                }
             }
         }
-    }
 
-    // Start the first story
-    showStatus(currentStoryIndex, 0);
-</script>
+        function toggleLike(button) {
+            button.classList.toggle('liked');
+        }
 
+        showStatus(currentStoryIndex, 0);
+    </script>
 </body>
 </html>
-
-
