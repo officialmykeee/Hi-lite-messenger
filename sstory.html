@@ -110,7 +110,7 @@
 
         .status-content {
             flex-grow: 1;
-            position: relative; /* For absolute positioning of img */
+            position: relative;
             overflow: hidden;
             display: flex;
             justify-content: center;
@@ -122,8 +122,8 @@
             top: 0;
             left: 0;
             width: 100%;
-            max-height: calc(100% - 90px); /* Leave space for bottom-bar (70px) + 20px offset */
-            bottom: 20px; /* Move image up by 20px from bottom */
+            max-height: calc(92% - 87px); /* Mobile-responsive height */
+            bottom: 55px; /* Move image up for mobile */
             object-fit: cover;
             display: block;
         }
@@ -133,7 +133,7 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: calc(100% - 70px);
+            height: calc(100% - 136px); /* Adjusted for bottom-bar at 66px + 70px height */
             display: flex;
             z-index: 10;
         }
@@ -156,7 +156,7 @@
 
         .bottom-bar {
             position: absolute;
-            bottom: 0;
+            bottom: 66px; /* Mobile-responsive position */
             left: 0;
             width: 100%;
             height: 70px;
@@ -239,6 +239,16 @@
                 height: 667px;
                 border-radius: 10px;
                 box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            }
+            .bottom-bar {
+                bottom: 0; /* Reset to default for larger screens */
+            }
+            .status-content img {
+                max-height: calc(100% - 90px); /* Reset for larger screens */
+                bottom: 20px; /* Reset for larger screens */
+            }
+            .navigation {
+                height: calc(100% - 70px); /* Reset for larger screens */
             }
         }
     </style>
@@ -494,3 +504,4 @@
     </script>
 </body>
 </html>
+
