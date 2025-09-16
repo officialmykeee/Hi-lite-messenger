@@ -73,7 +73,6 @@
             height: 100%;
             width: 0;
             background-color: var(--progress-bar-fill);
-            transition: width 0.1s linear;
         }
 
         .user-info {
@@ -326,12 +325,6 @@
         // Hide all status cards
         statusCards.forEach(card => card.classList.remove('active'));
 
-        // Reset all progress bars
-        document.querySelectorAll('.progress').forEach(progress => {
-            progress.style.transition = 'none'; // Temporarily disable transition
-            progress.style.width = '0%';
-        });
-        
         // Find the current story and its cards
         const currentStory = userStories[storyIndex];
         const currentCard = currentStory.cards[statusIndex];
@@ -342,17 +335,21 @@
             // Find all progress bars for the current user
             const progressBars = currentCard.querySelectorAll('.progress-bar');
             
-            // Fill past progress bars
-            for (let i = 0; i < statusIndex; i++) {
-                if (progressBars[i]) {
-                    progressBars[i].querySelector('.progress').style.width = '100%';
+            // Set up all progress bars without blinking
+            progressBars.forEach((bar, i) => {
+                const progress = bar.querySelector('.progress');
+                progress.style.transition = 'none'; // Ensure no transition
+                if (i < statusIndex) {
+                    progress.style.width = '100%'; // Past statuses are full
+                } else {
+                    progress.style.width = '0%'; // Future statuses are empty
                 }
-            }
+            });
 
             // Animate the current progress bar
             if (progressBars[statusIndex]) {
                 const currentProgress = progressBars[statusIndex].querySelector('.progress');
-                // A small delay is needed to restart the transition
+                // Use a small timeout to apply the transition to the current bar
                 setTimeout(() => {
                     currentProgress.style.transition = `width ${statusDuration / 1000}s linear`;
                     currentProgress.style.width = '100%';
