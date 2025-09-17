@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Status Clone</title>
+    <style>
+        body {
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: sans-serif;
+            color: #fff;
+        }
+
+        .status-container {
+            width: 360px;
+            height: 640px;
+            background-color: #121212;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .status-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+        }
+
+        .status-content img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain; /* Ensures the image fits within the container without cropping */
+        }
+
+        .status-header {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            display: flex;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #333;
+            margin-right: 10px;
+            overflow: hidden;
+        }
+
+        .profile-pic img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-info {
+            flex-grow: 1;
+        }
+
+        .user-name {
+            font-size: 1em;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .status-time {
+            font-size: 0.8em;
+            color: #aaa;
+            margin: 0;
+        }
+
+        .progress-bar-container {
+            position: absolute;
+            top: 5px;
+            left: 15px;
+            right: 15px;
+            height: 3px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        .progress-bar {
+            width: 0;
+            height: 100%;
+            background-color: #fff;
+            border-radius: 5px;
+            transition: width 0.1s linear;
+        }
+
+        .controls {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            z-index: 5;
+        }
+
+        .control-left, .control-right {
+            flex: 1;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="status-container">
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        
+        <div class="status-header">
+            <div class="profile-pic">
+                <img src="https://via.placeholder.com/40" alt="Profile Picture">
+            </div>
+            <div class="user-info">
+                <h3 class="user-name">Alexa 🌞</h3>
+                <p class="status-time">Just Now</p>
+            </div>
+        </div>
+        
+        <div class="status-content">
+            <img src="https://i.ibb.co/fdmXYGVb/20250917-090208.jpg" alt="20250917-090208" border="0">
+        </div>
+
+        <div class="controls">
+            <div class="control-left" onclick="prevStatus()"></div>
+            <div class="control-right" onclick="nextStatus()"></div>
+        </div>
+    </div>
+
+    <script>
+        const progressBar = document.getElementById('progressBar');
+        const statusDuration = 5000; // 5 seconds
+        let progressInterval;
+        let progressWidth = 0;
+
+        function startProgress() {
+            progressWidth = 0;
+            progressBar.style.width = '0%';
+            const startTime = Date.now();
+
+            function updateProgress() {
+                const elapsedTime = Date.now() - startTime;
+                progressWidth = (elapsedTime / statusDuration) * 100;
+                
+                if (progressWidth >= 100) {
+                    progressBar.style.width = '100%';
+                    clearInterval(progressInterval);
+                    // Automatically move to the next status here
+                    // nextStatus(); 
+                } else {
+                    progressBar.style.width = progressWidth + '%';
+                }
+            }
+
+            progressInterval = setInterval(updateProgress, 50);
+        }
+
+        // Functions for navigation (can be expanded for multiple statuses)
+        function nextStatus() {
+            clearInterval(progressInterval);
+            // Logic to show next status content
+            startProgress();
+        }
+
+        function prevStatus() {
+            clearInterval(progressInterval);
+            // Logic to show previous status content
+            startProgress();
+        }
+
+        // Start the progress bar when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            startProgress();
+        });
+    </script>
+</body>
+</html>
+
