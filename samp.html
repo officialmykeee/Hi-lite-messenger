@@ -19,11 +19,19 @@
         .status-container {
             width: 360px;
             height: 640px;
-            background-color: #121212;
             border-radius: 10px;
             position: relative;
             overflow: hidden;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            perspective: 1000px;
+        }
+
+        .status-content-wrapper {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s ease;
         }
 
         .status-content {
@@ -36,6 +44,19 @@
             justify-content: center;
             align-items: center;
             font-size: 2em;
+            backface-visibility: hidden;
+        }
+
+        .status-content.front {
+            transform: rotateY(0deg) translateZ(180px);
+        }
+
+        .status-content.right {
+            transform: rotateY(90deg) translateZ(180px);
+        }
+
+        .status-content.left {
+            transform: rotateY(-90deg) translateZ(180px);
         }
 
         .status-content img {
@@ -85,27 +106,24 @@
             margin: 0;
         }
         
-        /* The container for all progress bars */
         .progress-bar-container {
             position: absolute;
             top: 5px;
             left: 15px;
             right: 15px;
             height: 3px;
-            display: flex; /* This is key for arranging multiple bars */
+            display: flex;
             gap: 5px;
             z-index: 10;
         }
 
-        /* The individual progress bar */
         .progress-bar {
-            flex: 1; /* Each bar takes equal space */
+            flex: 1;
             background-color: rgba(255, 255, 255, 0.3);
             border-radius: 5px;
             overflow: hidden;
         }
 
-        /* The active filling part of the bar */
         .progress-bar-fill {
             width: 0;
             height: 100%;
@@ -135,16 +153,19 @@
     <div class="status-container">
         <div class="status-header">
             <div class="profile-pic">
-                <img src="https://via.placeholder.com/40" alt="Profile Picture">
+                <img id="profilePic" src="https://via.placeholder.com/40" alt="Profile Picture">
             </div>
             <div class="user-info">
-                <h3 class="user-name">Alexa 🌞</h3>
-                <p class="status-time">Just Now</p>
+                <h3 class="user-name" id="userName"></h3>
+                <p class="status-time" id="statusTime"></p>
             </div>
         </div>
-        
-        <div class="status-content" id="statusContent">
-            </div>
+
+        <div class="status-content-wrapper" id="statusWrapper">
+            <div class="status-content front" id="frontContent"></div>
+            <div class="status-content right" id="rightContent"></div>
+            <div class="status-content left" id="leftContent"></div>
+        </div>
 
         <div class="controls">
             <div class="control-left" onclick="prevStatus()"></div>
@@ -153,43 +174,78 @@
     </div>
 
     <script>
-        // Array of statuses with their content (image URLs in this case)
-        const statuses = [
-            'https://picsum.photos/id/237/360/640',
-            'https://picsum.photos/id/1018/360/640',
-            'https://picsum.photos/id/1015/360/640',
-            'https://picsum.photos/id/1016/360/640'
+        const users = [
+            {
+                name: "Alexa 🌞",
+                profilePic: "https://via.placeholder.com/40/FF5733/FFFFFF",
+                statuses: [
+                    { content: 'https://picsum.photos/id/237/360/640', time: 'Just Now' },
+                    { content: 'https://picsum.photos/id/1018/360/640', time: '5 minutes ago' },
+                    { content: 'https://picsum.photos/id/1015/360/640', time: '1 hour ago' }
+                ]
+            },
+            {
+                name: "Sharon 🤪",
+                profilePic: "https://via.placeholder.com/40/33C1FF/FFFFFF",
+                statuses: [
+                    { content: 'https://picsum.photos/id/1016/360/640', time: '2 hours ago' }
+                ]
+            }
         ];
 
+        let currentUserIndex = 0;
         let currentStatusIndex = 0;
-        const statusDuration = 5000; // 5 seconds
+        const statusDuration = 5000;
         let progressInterval;
         let progressBarFills;
 
         const statusContainer = document.querySelector('.status-container');
-        const statusContent = document.getElementById('statusContent');
+        const profilePicEl = document.getElementById('profilePic');
+        const userNameEl = document.getElementById('userName');
+        const statusTimeEl = document.getElementById('statusTime');
+        
+        const statusWrapper = document.getElementById('statusWrapper');
+        const frontContent = document.getElementById('frontContent');
+        const rightContent = document.getElementById('rightContent');
+        const leftContent = document.getElementById('leftContent');
+
+        let currentAngle = 0;
+        let isAnimating = false;
 
         function createProgressBars() {
+            const oldContainer = statusContainer.querySelector('.progress-bar-container');
+            if (oldContainer) {
+                oldContainer.remove();
+            }
+
+            const currentStatuses = users[currentUserIndex].statuses;
             const progressBarContainer = document.createElement('div');
             progressBarContainer.className = 'progress-bar-container';
 
-            for (let i = 0; i < statuses.length; i++) {
+            currentStatuses.forEach(() => {
                 const progressBar = document.createElement('div');
                 progressBar.className = 'progress-bar';
-
                 const progressBarFill = document.createElement('div');
                 progressBarFill.className = 'progress-bar-fill';
                 progressBar.appendChild(progressBarFill);
-                
                 progressBarContainer.appendChild(progressBar);
-            }
+            });
+
             statusContainer.insertBefore(progressBarContainer, statusContainer.firstChild);
             progressBarFills = document.querySelectorAll('.progress-bar-fill');
         }
 
-        function updateStatus() {
-            // Update the image content
-            statusContent.innerHTML = `<img src="${statuses[currentStatusIndex]}" alt="Status Image">`;
+        function updateUI() {
+            const currentUser = users[currentUserIndex];
+            const currentStatus = currentUser.statuses[currentStatusIndex];
+
+            // Update user info
+            profilePicEl.src = currentUser.profilePic;
+            userNameEl.textContent = currentUser.name;
+            statusTimeEl.textContent = currentStatus.time;
+            
+            // Set the content for the current face
+            frontContent.innerHTML = `<img src="${currentStatus.content}" alt="Status Image">`;
 
             // Reset all progress bars
             progressBarFills.forEach(bar => bar.style.width = '0%');
@@ -199,10 +255,10 @@
         }
 
         function startProgress() {
+            const activeBar = progressBarFills[currentStatusIndex];
             let progressWidth = 0;
             const startTime = Date.now();
-            const activeBar = progressBarFills[currentStatusIndex];
-
+            
             progressInterval = setInterval(() => {
                 const elapsedTime = Date.now() - startTime;
                 progressWidth = (elapsedTime / statusDuration) * 100;
@@ -210,7 +266,7 @@
                 if (progressWidth >= 100) {
                     activeBar.style.width = '100%';
                     clearInterval(progressInterval);
-                    nextStatus(); // Automatically move to the next status
+                    nextStatus();
                 } else {
                     activeBar.style.width = progressWidth + '%';
                 }
@@ -219,20 +275,66 @@
 
         function nextStatus() {
             clearInterval(progressInterval);
-            currentStatusIndex = (currentStatusIndex + 1) % statuses.length;
-            updateStatus();
+            if (currentStatusIndex < users[currentUserIndex].statuses.length - 1) {
+                currentStatusIndex++;
+                updateUI();
+            } else {
+                nextUserWithCube();
+            }
         }
 
         function prevStatus() {
             clearInterval(progressInterval);
-            currentStatusIndex = (currentStatusIndex - 1 + statuses.length) % statuses.length;
-            updateStatus();
+            if (currentStatusIndex > 0) {
+                currentStatusIndex--;
+                updateUI();
+            } else {
+                prevUserWithCube();
+            }
         }
 
-        // Initialize the app
+        function nextUserWithCube() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            const nextUserIndex = (currentUserIndex + 1) % users.length;
+            rightContent.innerHTML = `<img src="${users[nextUserIndex].statuses[0].content}" alt="Next User Status">`;
+
+            currentAngle -= 90;
+            statusWrapper.style.transform = `rotateY(${currentAngle}deg)`;
+
+            statusWrapper.addEventListener('transitionend', () => {
+                currentUserIndex = nextUserIndex;
+                currentStatusIndex = 0;
+                createProgressBars();
+                updateUI();
+                isAnimating = false;
+            }, { once: true });
+        }
+
+        function prevUserWithCube() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            const prevUserIndex = (currentUserIndex - 1 + users.length) % users.length;
+            const lastStatusIndex = users[prevUserIndex].statuses.length - 1;
+            leftContent.innerHTML = `<img src="${users[prevUserIndex].statuses[lastStatusIndex].content}" alt="Previous User Status">`;
+            
+            currentAngle += 90;
+            statusWrapper.style.transform = `rotateY(${currentAngle}deg)`;
+
+            statusWrapper.addEventListener('transitionend', () => {
+                currentUserIndex = prevUserIndex;
+                currentStatusIndex = lastStatusIndex;
+                createProgressBars();
+                updateUI();
+                isAnimating = false;
+            }, { once: true });
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             createProgressBars();
-            updateStatus();
+            updateUI();
         });
     </script>
 </body>
