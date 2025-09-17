@@ -151,6 +151,7 @@
 <body>
 
     <div class="status-container">
+        
         <div class="status-header">
             <div class="profile-pic">
                 <img id="profilePic" src="https://via.placeholder.com/40" alt="Profile Picture">
@@ -239,18 +240,14 @@
             const currentUser = users[currentUserIndex];
             const currentStatus = currentUser.statuses[currentStatusIndex];
 
-            // Update user info
             profilePicEl.src = currentUser.profilePic;
             userNameEl.textContent = currentUser.name;
             statusTimeEl.textContent = currentStatus.time;
             
-            // Set the content for the current face
             frontContent.innerHTML = `<img src="${currentStatus.content}" alt="Status Image">`;
 
-            // Reset all progress bars
             progressBarFills.forEach(bar => bar.style.width = '0%');
             
-            // Start progress for the current bar
             startProgress();
         }
 
@@ -279,7 +276,14 @@
                 currentStatusIndex++;
                 updateUI();
             } else {
-                nextUserWithCube();
+                // Check if it's the last user
+                if (currentUserIndex === users.length - 1) {
+                    // It's the last status of the last user, so stop
+                    console.log("End of stories.");
+                    // You could add a UI element here to indicate the end
+                } else {
+                    nextUserWithCube();
+                }
             }
         }
 
@@ -289,7 +293,14 @@
                 currentStatusIndex--;
                 updateUI();
             } else {
-                prevUserWithCube();
+                // Check if it's the first user
+                if (currentUserIndex === 0) {
+                    // It's the first status of the first user, do nothing or reset
+                    console.log("Beginning of stories.");
+                    // You could add a UI element here to indicate the start
+                } else {
+                    prevUserWithCube();
+                }
             }
         }
 
@@ -299,6 +310,9 @@
 
             const nextUserIndex = (currentUserIndex + 1) % users.length;
             rightContent.innerHTML = `<img src="${users[nextUserIndex].statuses[0].content}" alt="Next User Status">`;
+            frontContent.className = 'status-content front';
+            rightContent.className = 'status-content right';
+            leftContent.className = 'status-content left';
 
             currentAngle -= 90;
             statusWrapper.style.transform = `rotateY(${currentAngle}deg)`;
@@ -319,6 +333,9 @@
             const prevUserIndex = (currentUserIndex - 1 + users.length) % users.length;
             const lastStatusIndex = users[prevUserIndex].statuses.length - 1;
             leftContent.innerHTML = `<img src="${users[prevUserIndex].statuses[lastStatusIndex].content}" alt="Previous User Status">`;
+            frontContent.className = 'status-content front';
+            rightContent.className = 'status-content right';
+            leftContent.className = 'status-content left';
             
             currentAngle += 90;
             statusWrapper.style.transform = `rotateY(${currentAngle}deg)`;
@@ -339,4 +356,3 @@
     </script>
 </body>
 </html>
-
