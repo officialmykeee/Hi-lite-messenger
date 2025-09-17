@@ -3,30 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WhatsApp Status Clone</title>
+    <title></title>
     <style>
+        :root {
+            --bg-color: #000;
+            --input-bg: rgba(255, 255, 255, 0.1);
+            --text-color: #fff;
+            --instagram-pink: #E1306C;
+        }
+
         body {
-            background-color: #000;
+            background-color: var(--bg-color);
             display: flex;
             justify-content: center;
-            align-items: center; /* Centered again */
+            align-items: center;
             height: 100vh;
             margin: 0;
             font-family: sans-serif;
-            color: #fff;
+            color: var(--text-color);
         }
 
         .status-container {
             width: 360px;
             height: 640px;
             border-radius: 10px;
-            position: relative;
+            position: absolute; /* Changed to absolute to position it over the body */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) translateY(-35px); /* Centered and moved up by half the bottom bar height */
             overflow: hidden;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
             perspective: 1000px;
             touch-action: none;
-            /* Move up after being centered */
-            transform: translateY(-20px); 
             -webkit-tap-highlight-color: transparent;
             outline: none;
             user-select: none;
@@ -155,6 +163,93 @@
             flex: 1;
             cursor: pointer;
         }
+
+        /* Bottom Bar Styles */
+        .bottom-bar {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 360px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            box-sizing: border-box;
+            z-index: 20;
+        }
+        
+        .reply-input-container {
+            flex-grow: 1;
+            margin-right: 15px;
+        }
+        
+        .reply-input {
+            width: 100%;
+            padding: 10px 15px;
+            border-radius: 25px;
+            border: none;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-size: 1em;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+        
+        .reply-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .action-icon-btn {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+        
+        .action-icon-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: none;
+            stroke: var(--text-color);
+            stroke-width: 2;
+        }
+        
+        .action-icon-btn.like-btn svg {
+            fill: none;
+            stroke: var(--text-color);
+            transition: fill 0.2s ease-in-out, stroke 0.2s ease-in-out;
+        }
+        
+        .action-icon-btn.like-btn.liked svg {
+            fill: var(--instagram-pink);
+            stroke: var(--instagram-pink);
+        }
+        
+        .heart-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 1px solid var(--input-bg);
+            padding: 5px;
+        }
+
+        @media (max-width: 400px) {
+            .status-container, .bottom-bar {
+                width: 100%;
+                border-radius: 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -181,6 +276,22 @@
             <div class="control-left" onclick="prevStatus()"></div>
             <div class="control-right" onclick="nextStatus()"></div>
         </div>
+    </div>
+
+    <div class="bottom-bar">
+        <div class="reply-input-container">
+            <input type="text" class="reply-input" placeholder="Reply privately...">
+        </div>
+        <button class="action-icon-btn like-btn" onclick="toggleLike(this)">
+            <div class="heart-container">
+                <svg class="svg-icon heart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 
+                             4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 
+                             14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 
+                             18.6 15.36 13.45 20.03L12 21.35Z"></path>
+                </svg>
+            </div>
+        </button>
     </div>
 
     <script>
@@ -380,6 +491,10 @@
             startX = 0;
         }
 
+        function toggleLike(button) {
+            button.classList.toggle('liked');
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             createProgressBars();
             updateUI();
@@ -387,3 +502,4 @@
     </script>
 </body>
 </html>
+
