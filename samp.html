@@ -9,7 +9,7 @@
             background-color: #000;
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* Changed to align at the top */
+            align-items: center; /* Centered again */
             height: 100vh;
             margin: 0;
             font-family: sans-serif;
@@ -25,7 +25,11 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
             perspective: 1000px;
             touch-action: none;
-            margin-top: 20px; /* Adds space from the top */
+            /* Move up after being centered */
+            transform: translateY(-20px); 
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+            user-select: none;
         }
 
         .status-content-wrapper {
@@ -142,6 +146,9 @@
             right: 0;
             display: flex;
             z-index: 5;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+            user-select: none;
         }
 
         .control-left, .control-right {
@@ -380,4 +387,3 @@
     </script>
 </body>
 </html>
-
