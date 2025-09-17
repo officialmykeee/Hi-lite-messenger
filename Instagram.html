@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Instagram Style Cube Flip with Fixed Tap and Drag</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instagram Style Cube Flip (Manual Drag)</title>
   <style>
     body {
       margin: 0;
@@ -13,8 +13,6 @@
       height: 100vh;
       background: #000;
       overflow: hidden;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      touch-action: manipulation;
     }
 
     .story-container {
@@ -41,432 +39,96 @@
       overflow: hidden;
     }
 
-    .story-content {
-      width: 100%;
-      height: 100%;
-      display: none;
-    }
-
-    .story-content.active {
-      display: block;
-    }
-
-    .story-content img,
-    .story-content video {
+    .story img {
       width: 100%;
       height: 100%;
       object-fit: cover;
       display: block;
     }
 
-    .story-content .text-content {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      font-size: 24px;
-      background: rgba(0, 0, 0, 0.7);
-      text-align: center;
-      padding: 20px;
-      box-sizing: border-box;
+    /* Cube faces */
+    .story:nth-child(1) {
+      transform: rotateY(0deg) translateZ(160px); /* front */
     }
-
-    /* Dynamically position cube faces */
-    .story {
-      transform: rotateY(calc(var(--index) * -90deg)) translateZ(160px);
+    .story:nth-child(2) {
+      transform: rotateY(90deg) translateZ(160px); /* right */
     }
-
-    .story-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      padding: 10px;
-      box-sizing: border-box;
-      z-index: 10;
-      pointer-events: none;
+    .story:nth-child(3) {
+      transform: rotateY(180deg) translateZ(160px); /* back */
     }
-
-    .progress-bar-container {
-      display: flex;
-      gap: 4px;
-      margin-bottom: 10px;
-      pointer-events: auto;
-    }
-
-    .progress-bar {
-      flex-grow: 1;
-      height: 2px;
-      background-color: rgba(255, 255, 255, 0.5);
-      border-radius: 1px;
-      overflow: hidden;
-      cursor: pointer;
-    }
-
-    .progress-bar-fill {
-      width: 0%;
-      height: 100%;
-      background-color: #fff;
-      transition: width 0.3s ease-in-out;
-    }
-    
-    .progress-bar-fill.active {
-      transition: width 4s linear;
-      width: 100%;
-    }
-
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .profile-pic-container {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      border: 2px solid #fff;
-      overflow: hidden;
-    }
-
-    .profile-pic {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .user-name-time {
-      display: flex;
-      flex-direction: column;
-      color: #fff;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
-    }
-
-    .user-name {
-      font-weight: bold;
-      font-size: 14px;
-    }
-
-    .time-stamp {
-      font-size: 12px;
-      opacity: 0.8;
-    }
-
-    .tap-area {
-      position: absolute;
-      top: 0;
-      height: 100%;
-      width: 48%; /* Slightly increased for better sensitivity */
-      z-index: 15;
-      pointer-events: auto;
-      cursor: pointer;
-    }
-
-    .tap-left {
-      left: 0;
-    }
-
-    .tap-right {
-      right: 0;
+    .story:nth-child(4) {
+      transform: rotateY(-90deg) translateZ(160px); /* left */
     }
   </style>
 </head>
 <body>
   <div class="story-container">
     <div class="story-wrapper" id="storyWrapper">
-      <div class="story" style="--index: 0;">
-        <div class="story-content" data-type="image">
-          <img src="https://picsum.photos/id/1015/600/1000" alt="Story 1">
-        </div>
-        <div class="story-content" data-type="image">
-          <img src="https://picsum.photos/id/1011/600/1000" alt="Story 2">
-        </div>
-        <div class="story-content" data-type="image">
-          <img src="https://picsum.photos/id/1012/600/1000" alt="Story 3">
-        </div>
-        <div class="story-content" data-type="text">
-          <div class="text-content">Hello, this is a text story!</div>
-        </div>
-        <div class="story-overlay" id="overlay-0"></div>
-        <div class="tap-area tap-left" data-user-index="0"></div>
-        <div class="tap-area tap-right" data-user-index="0"></div>
-      </div>
-      <div class="story" style="--index: 1;">
-        <div class="story-content" data-type="image">
-          <img src="https://picsum.photos/id/1016/600/1000" alt="Story 1">
-        </div>
-        <div class="story-content" data-type="image">
-          <img src="https://picsum.photos/id/1019/600/1000" alt="Story 2">
-        </div>
-        <div class="story-content" data-type="video">
-          <video src="https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4" muted></video>
-        </div>
-        <div class="story-content" data-type="image">
-          <img src="https://picsum.photos/id/1022/600/1000" alt="Story 4">
-        </div>
-        <div class="story-overlay" id="overlay-1"></div>
-        <div class="tap-area tap-left" data-user-index="1"></div>
-        <div class="tap-area tap-right" data-user-index="1"></div>
-      </div>
-      <div class="story" style="--index: 2;">
-        <div class="story-content" data-type="image">
-          <img src="https://picsum.photos/id/1018/600/1000" alt="Story 1">
-        </div>
-        <div class="story-content" data-type="image">
-          <img src="https://picsum.photos/id/1023/600/1000" alt="Story 2">
-        </div>
-        <div class="story-overlay" id="overlay-2"></div>
-        <div class="tap-area tap-left" data-user-index="2"></div>
-        <div class="tap-area tap-right" data-user-index="2"></div>
-      </div>
-      <div class="story" style="--index: 3;">
-        <div class="story-content" data-type="image">
-          <img src="https://picsum.photos/id/1020/600/1000" alt="Story 1">
-        </div>
-        <div class="story-overlay" id="overlay-3"></div>
-        <div class="tap-area tap-left" data-user-index="3"></div>
-        <div class="tap-area tap-right" data-user-index="3"></div>
-      </div>
+      <div class="story"><img src="https://picsum.photos/id/1015/600/1000" alt="Story 1"></div>
+      <div class="story"><img src="https://picsum.photos/id/1016/600/1000" alt="Story 2"></div>
+      <div class="story"><img src="https://picsum.photos/id/1018/600/1000" alt="Story 3"></div>
+      <div class="story"><img src="https://picsum.photos/id/1020/600/1000" alt="Story 4"></div>
     </div>
   </div>
+
   <script>
     const wrapper = document.getElementById("storyWrapper");
-    let currentIndex = 0; // Tracks the current cube face (user)
-    let currentStory = 0; // Tracks the current story within the user's set
-    const totalUsers = document.querySelectorAll('.story').length; // Dynamic user count
+    let currentIndex = 0;
+    const total = 4;
     let startX = 0;
     let currentRotation = 0;
     let isDragging = false;
-    let progressTimer;
-    let lastTapTime = 0;
-    let touchStartTime = 0;
-    const tapCooldown = 300; // Debounce taps (ms)
-    const dragThreshold = 80; // Sensitive drag threshold
-    const touchDurationThreshold = 200; // Max touch duration for taps (ms)
 
     const flipAngle = 90;
-
-    // User info for overlays (extendable for future users)
-    const userInfo = [
-      { name: "Emily 🌛", profilePic: "https://picsum.photos/id/1025/100/100" },
-      { name: "Alexis 🌞", profilePic: "https://picsum.photos/id/1025/100/100" },
-      { name: "Alexis 🌞", profilePic: "https://picsum.photos/id/1025/100/100" },
-      { name: "Alexis 🌞", profilePic: "https://picsum.photos/id/1025/100/100" }
-    ];
-
-    // Generate progress bars dynamically and initialize overlays
-    function initializeOverlays() {
-      document.querySelectorAll('.story').forEach((story, index) => {
-        const stories = story.querySelectorAll('.story-content');
-        const overlay = document.getElementById(`overlay-${index}`);
-        const progressBarContainer = document.createElement('div');
-        progressBarContainer.className = 'progress-bar-container';
-
-        stories.forEach((_, storyIdx) => {
-          const progressBar = document.createElement('div');
-          progressBar.className = 'progress-bar';
-          const progressBarFill = document.createElement('div');
-          progressBarFill.className = 'progress-bar-fill';
-          progressBarFill.id = `pb-${index}-${storyIdx}`;
-          progressBar.appendChild(progressBarFill);
-          progressBarContainer.appendChild(progressBar);
-        });
-
-        const userInfoDiv = document.createElement('div');
-        userInfoDiv.className = 'user-info';
-        const user = userInfo[index] || { name: "Default User", profilePic: "https://picsum.photos/id/1025/100/100" };
-        userInfoDiv.innerHTML = `
-          <div class="profile-pic-container">
-            <img class="profile-pic" src="${user.profilePic}" alt="User Profile Picture">
-          </div>
-          <div class="user-name-time">
-            <span class="user-name">${user.name}</span>
-            <span class="time-stamp">Just Now</span>
-          </div>
-        `;
-
-        overlay.appendChild(progressBarContainer);
-        overlay.appendChild(userInfoDiv);
-      });
-    }
+    const dragThreshold = 120; // px needed to flip
 
     function updateStory() {
-      clearInterval(progressTimer);
-
-      // Get the current story set
-      const currentStorySet = document.querySelectorAll('.story')[currentIndex];
-      const stories = currentStorySet.querySelectorAll('.story-content');
-      const storiesPerUser = stories.length;
-
-      // Hide all story content and show only the current one
-      stories.forEach((content, idx) => {
-        content.classList.toggle('active', idx === currentStory);
-        if (content.dataset.type === 'video' && idx === currentStory) {
-          content.querySelector('video').play();
-        } else if (content.dataset.type === 'video') {
-          content.querySelector('video').pause();
-        }
-      });
-
-      // Reset all progress bars for the current user
-      for (let i = 0; i < storiesPerUser; i++) {
-        const pb = document.getElementById(`pb-${currentIndex}-${i}`);
-        pb.style.transition = 'none';
-        pb.style.width = i < currentStory ? '100%' : '0%';
-        pb.classList.remove('active');
-      }
-
-      // Update cube rotation
       wrapper.style.transition = "transform 0.4s ease-in-out";
       wrapper.style.transform = `rotateY(${currentIndex * -flipAngle}deg)`;
       currentRotation = currentIndex * -flipAngle;
-
-      // Start progress for the current story
-      const activeProgressBar = document.getElementById(`pb-${currentIndex}-${currentStory}`);
-      if (activeProgressBar) {
-        setTimeout(() => {
-          activeProgressBar.classList.add('active');
-          progressTimer = setTimeout(() => {
-            nextStory();
-          }, 4000);
-        }, 50);
-      }
-    }
-
-    function nextStory() {
-      const currentStorySet = document.querySelectorAll('.story')[currentIndex];
-      const storiesPerUser = currentStorySet.querySelectorAll('.story-content').length;
-
-      if (currentStory < storiesPerUser - 1) {
-        currentStory++;
-        updateStory();
-      } else {
-        // On the last story, trigger a drag-flip animation to the next user
-        currentIndex++;
-        currentStory = 0;
-        if (currentIndex >= totalUsers) {
-          currentIndex = 0;
-        }
-        updateStory();
-      }
-    }
-
-    function prevStory() {
-      if (currentStory > 0) {
-        currentStory--;
-        updateStory();
-      } else {
-        // Trigger a drag-flip animation to the previous user
-        currentIndex--;
-        if (currentIndex < 0) {
-          currentIndex = totalUsers - 1;
-        }
-        const prevStorySet = document.querySelectorAll('.story')[currentIndex];
-        currentStory = prevStorySet.querySelectorAll('.story-content').length - 1;
-        updateStory();
-      }
     }
 
     function startDrag(e) {
-      // Only allow dragging on the last story
-      const currentStorySet = document.querySelectorAll('.story')[currentIndex];
-      const storiesPerUser = currentStorySet.querySelectorAll('.story-content').length;
-      if (currentStory === storiesPerUser - 1) {
-        clearInterval(progressTimer);
-        isDragging = true;
-        startX = e.pageX || e.touches[0].pageX;
-        touchStartTime = Date.now();
-        wrapper.style.transition = "none";
-      }
+      isDragging = true;
+      startX = e.pageX || e.touches[0].pageX;
+      wrapper.style.transition = "none"; // disable smooth snap while dragging
     }
 
     function onDrag(e) {
       if (!isDragging) return;
       let currentX = e.pageX || e.touches[0].pageX;
       let deltaX = currentX - startX;
+
+      // Rotate cube live as user drags
       wrapper.style.transform = `rotateY(${currentRotation + deltaX / 3}deg)`;
     }
 
     function endDrag(e) {
       if (!isDragging) return;
       isDragging = false;
+
       let endX = e.pageX || e.changedTouches[0].pageX;
       let deltaX = endX - startX;
 
-      if (Math.abs(deltaX) > dragThreshold) {
-        if (deltaX < 0 && currentIndex < totalUsers - 1) {
-          currentIndex++;
-        } else if (deltaX > 0) {
-          currentIndex--;
-          if (currentIndex < 0) {
-            currentIndex = totalUsers - 1;
-          }
-        }
-        currentStory = 0;
-        updateStory();
-      } else {
-        // Revert rotation if drag distance is insufficient
-        updateStory();
+      if (deltaX < -dragThreshold && currentIndex < total - 1) {
+        currentIndex++;
+      } else if (deltaX > dragThreshold && currentIndex > 0) {
+        currentIndex--;
       }
+
+      updateStory();
     }
 
-    // Tap navigation with debounce
-    function handleTap(direction, index) {
-      const now = Date.now();
-      if (now - lastTapTime < tapCooldown) return;
-      lastTapTime = now;
-
-      if (parseInt(index) === currentIndex) {
-        if (direction === 'left') {
-          prevStory();
-        } else if (direction === 'right') {
-          nextStory();
-        }
-      }
-    }
-
-    // Register tap events dynamically
-    document.querySelectorAll('.tap-left').forEach((el) => {
-      const index = el.dataset.userIndex;
-      el.addEventListener('click', () => handleTap('left', index));
-      el.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        if (Date.now() - touchStartTime < touchDurationThreshold) {
-          handleTap('left', index);
-        }
-      });
-    });
-
-    document.querySelectorAll('.tap-right').forEach((el) => {
-      const index = el.dataset.userIndex;
-      el.addEventListener('click', () => handleTap('right', index));
-      el.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        if (Date.now() - touchStartTime < touchDurationThreshold) {
-          handleTap('right', index);
-        }
-      });
-    });
-
-    // Mouse + Touch events for dragging
+    // Mouse + Touch events
     wrapper.addEventListener("mousedown", startDrag);
     wrapper.addEventListener("mousemove", onDrag);
     wrapper.addEventListener("mouseup", endDrag);
-    wrapper.addEventListener("touchstart", (e) => {
-      touchStartTime = Date.now();
-      startDrag(e);
-    });
+
+    wrapper.addEventListener("touchstart", startDrag);
     wrapper.addEventListener("touchmove", onDrag);
     wrapper.addEventListener("touchend", endDrag);
 
-    // Initialize overlays and progress bars
-    initializeOverlays();
-
-    // Initial load
     updateStory();
   </script>
 </body>
 </html>
-
