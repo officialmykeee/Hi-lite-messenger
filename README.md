@@ -4,6 +4,8 @@ using
 
 https://webtorrent.io/, to save user's file images and videos 
 
+using Treakfik to handle catching and load balancing 
+using this to handle only traffic (https://www.fastly.com/pricing) for free for 100k users using CDN too
 using gun.js to save profile picture username/authentication and messages
 
 
