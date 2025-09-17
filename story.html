@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WhatsApp Status Clone</title>
+    <title></title>
     <style>
         :root {
             --bg-color: #000;
@@ -27,7 +27,10 @@
             width: 360px;
             height: 640px;
             border-radius: 10px;
-            position: relative; 
+            position: absolute; /* Changed to absolute to position it over the body */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) translateY(27px); /* Centered and moved up by half the bottom bar height */
             overflow: hidden;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
             perspective: 1000px;
