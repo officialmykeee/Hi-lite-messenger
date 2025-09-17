@@ -9,7 +9,7 @@
             background-color: #000;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start; /* Changed to align at the top */
             height: 100vh;
             margin: 0;
             font-family: sans-serif;
@@ -24,7 +24,8 @@
             overflow: hidden;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
             perspective: 1000px;
-            touch-action: none; /* Prevents default browser scroll on drag */
+            touch-action: none;
+            margin-top: 20px; /* Adds space from the top */
         }
 
         .status-content-wrapper {
