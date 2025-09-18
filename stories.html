@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
+    <title>Stories</title>
     <style>
         :root {
             --bg-color: #000;
@@ -21,6 +21,7 @@
             margin: 0;
             font-family: sans-serif;
             color: var(--text-color);
+            overflow: hidden; /* Prevent body scroll */
         }
 
         .status-container {
@@ -296,7 +297,7 @@
         
         <div class="status-header" id="statusHeader">
             <div class="profile-pic">
-                <img id="profilePic" src="https://via.placeholder.com/40" alt="Profile Picture">
+                <img id="profilePic" src="" alt="Profile Picture">
             </div>
             <div class="user-info">
                 <h3 class="user-name" id="userName"></h3>
@@ -335,9 +336,10 @@
     </div>
 
     <script>
+        // Story data with a new `id` field that matches the `index.html` file
         const users = [
             {
-                id: 'emily',
+                id: '1',
                 name: "Emily",
                 profilePic: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
                 statuses: [
@@ -351,7 +353,7 @@
                 ]
             },
             {
-                id: 'michael',
+                id: '2',
                 name: "Michael",
                 profilePic: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
                 statuses: [
@@ -365,7 +367,7 @@
                 ]
             },
             {
-                id: 'sarah',
+                id: '3',
                 name: "Sarah",
                 profilePic: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
                 statuses: [
@@ -379,7 +381,7 @@
                 ]
             },
             {
-                id: 'david',
+                id: '4',
                 name: "David",
                 profilePic: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
                 statuses: [
@@ -393,7 +395,7 @@
                 ]
             },
             {
-                id: 'jessica',
+                id: '5',
                 name: "Jessica",
                 profilePic: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
                 statuses: [
@@ -407,6 +409,22 @@
                 ]
             }
         ];
+        
+        // This is a new user that corresponds to the 'your-story' ID from index.html
+        const yourStoryUser = {
+            id: "your-story",
+            name: "You",
+            profilePic: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
+            statuses: [
+                {
+                    id: "your-story-status-1",
+                    content: "https://picsum.photos/id/1005/360/640",
+                    time: "Just Now",
+                    reply: "",
+                    isLiked: false
+                }
+            ]
+        };
 
         let currentUserIndex = 0;
         let currentStatusIndex = 0;
@@ -443,7 +461,9 @@
 
         // Load status states from localStorage on page load
         function loadStatusStates() {
-            users.forEach(user => {
+            // Updated to handle both main users and the 'your-story' user
+            const allUsers = [...users, yourStoryUser];
+            allUsers.forEach(user => {
                 user.statuses.forEach(status => {
                     const savedReply = localStorage.getItem(`reply_${status.id}`);
                     const savedLike = localStorage.getItem(`like_${status.id}`);
@@ -582,9 +602,15 @@
             replyInput.value = currentStatus.reply;
             likeButton.classList.toggle('liked', currentStatus.isLiked);
             
-            progressBarFills.forEach(bar => bar.style.width = '0%');
+            progressBarFills.forEach((bar, index) => {
+                if (index < currentStatusIndex) {
+                    bar.style.width = '100%';
+                } else {
+                    bar.style.width = '0%';
+                }
+            });
             
-            if (savedProgress > 0 && currentStatusIndex === 0 && currentUserIndex === 0) {
+            if (savedProgress > 0 && currentStatusIndex === 0) {
                 progressBarFills[currentStatusIndex].style.width = savedProgress + '%';
                 savedProgress = 0;
             }
@@ -633,10 +659,11 @@
                 currentStatusIndex++;
                 updateUI();
             } else {
-                if (currentUserIndex === users.length - 1) {
-                    console.log("End of stories.");
-                } else {
+                if (currentUserIndex < users.length - 1) {
                     nextUserWithCube();
+                } else {
+                    // This is the last user and the last story, close the window.
+                    window.close();
                 }
             }
         }
@@ -653,10 +680,11 @@
                 currentStatusIndex--;
                 updateUI();
             } else {
-                if (currentUserIndex === 0) {
-                    console.log("Beginning of stories.");
-                } else {
+                if (currentUserIndex > 0) {
                     prevUserWithCube();
+                } else {
+                    // This is the first user and the first story, close the window.
+                    window.close();
                 }
             }
         }
@@ -679,7 +707,13 @@
             savedProgress = 0;
             showUIElements();
 
-            const nextUserIndex = (currentUserIndex + 1) % users.length;
+            const nextUserIndex = (currentUserIndex + 1);
+            if (nextUserIndex >= users.length) {
+                isAnimating = false;
+                window.close();
+                return;
+            }
+            
             const nextStatus = users[nextUserIndex].statuses[0];
             
             const nextImg = document.createElement('img');
@@ -722,7 +756,13 @@
             savedProgress = 0;
             showUIElements();
 
-            const prevUserIndex = (currentUserIndex - 1 + users.length) % users.length;
+            const prevUserIndex = (currentUserIndex - 1);
+            if (prevUserIndex < 0) {
+                isAnimating = false;
+                window.close();
+                return;
+            }
+            
             const lastStatusIndex = users[prevUserIndex].statuses.length - 1;
             const prevStatus = users[prevUserIndex].statuses[lastStatusIndex];
             
@@ -802,6 +842,15 @@
             } else {
                 if (isHold) {
                     resumeProgress();
+                } else {
+                    // Click logic
+                    const clickX = e.clientX || e.changedTouches[0].clientX;
+                    const containerWidth = statusContainer.offsetWidth;
+                    if (clickX < containerWidth / 2) {
+                        prevStatus();
+                    } else {
+                        nextStatus();
+                    }
                 }
             }
             startX = 0;
@@ -871,6 +920,21 @@
         });
 
         document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const initialStoryId = params.get('storyId');
+            
+            // Handle the 'your-story' case
+            if (initialStoryId === 'your-story') {
+                users.unshift(yourStoryUser); // Add the 'your story' user to the beginning
+                currentUserIndex = 0;
+            } else if (initialStoryId) {
+                // Find the index of the clicked user
+                const initialUserIndex = users.findIndex(user => user.id === initialStoryId);
+                if (initialUserIndex !== -1) {
+                    currentUserIndex = initialUserIndex;
+                }
+            }
+
             loadStatusStates();
             createProgressBars();
             updateUI();
