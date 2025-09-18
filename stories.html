@@ -336,79 +336,8 @@
     </div>
 
     <script>
-        // Story data with a new `id` field that matches the `index.html` file
-        const users = [
-            {
-                id: '1',
-                name: "Emily",
-                profilePic: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
-                statuses: [
-                    { 
-                        id: 'emily1',
-                        content: 'https://picsum.photos/id/237/360/640', 
-                        time: 'Just Now',
-                        reply: '',
-                        isLiked: false
-                    }
-                ]
-            },
-            {
-                id: '2',
-                name: "Michael",
-                profilePic: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
-                statuses: [
-                    { 
-                        id: 'michael1',
-                        content: 'https://picsum.photos/id/1018/360/640', 
-                        time: '1 hour ago',
-                        reply: '',
-                        isLiked: false
-                    }
-                ]
-            },
-            {
-                id: '3',
-                name: "Sarah",
-                profilePic: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
-                statuses: [
-                    { 
-                        id: 'sarah1',
-                        content: 'https://picsum.photos/id/1015/360/640', 
-                        time: '2 hours ago',
-                        reply: '',
-                        isLiked: false
-                    }
-                ]
-            },
-            {
-                id: '4',
-                name: "David",
-                profilePic: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
-                statuses: [
-                    { 
-                        id: 'david1',
-                        content: 'https://picsum.photos/id/1016/360/640', 
-                        time: '3 hours ago',
-                        reply: '',
-                        isLiked: false
-                    }
-                ]
-            },
-            {
-                id: '5',
-                name: "Jessica",
-                profilePic: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
-                statuses: [
-                    { 
-                        id: 'jessica1',
-                        content: 'https://picsum.photos/id/1019/360/640', 
-                        time: '4 hours ago',
-                        reply: '',
-                        isLiked: false
-                    }
-                ]
-            }
-        ];
+        // Use a mutable array that can be updated with data from the parent window
+        let users = [];
         
         // This is a new user that corresponds to the 'your-story' ID from index.html
         const yourStoryUser = {
@@ -911,6 +840,33 @@
             const params = new URLSearchParams(window.location.search);
             const initialStoryId = params.get('storyId');
             
+            // Try to retrieve dynamic data from sessionStorage
+            const loadedStoryData = sessionStorage.getItem('loadedStoryData');
+            
+            if (loadedStoryData) {
+                // If data exists in sessionStorage, use it to update the users array
+                try {
+                    const dynamicUsers = JSON.parse(loadedStoryData);
+                    users = dynamicUsers; // Replace the empty users array
+                } catch (e) {
+                    console.error("Failed to parse loaded story data from sessionStorage:", e);
+                    // Fallback to static data if parsing fails
+                    users = [
+                        { id: '1', name: "Emily", profilePic: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face", statuses: [{ id: 'emily1', content: 'https://picsum.photos/id/237/360/640', time: 'Just Now', reply: '', isLiked: false }] },
+                        // Add other static users here if needed for a complete fallback
+                    ];
+                }
+            } else {
+                 // Fallback to static data if no data exists in sessionStorage
+                 users = [
+                     { id: '1', name: "Emily", profilePic: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face", statuses: [{ id: 'emily1', content: 'https://picsum.photos/id/237/360/640', time: 'Just Now', reply: '', isLiked: false }] },
+                     { id: '2', name: "Michael", profilePic: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face", statuses: [{ id: 'michael1', content: 'https://picsum.photos/id/1018/360/640', time: '1 hour ago', reply: '', isLiked: false }] },
+                     { id: '3', name: "Sarah", profilePic: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face", statuses: [{ id: 'sarah1', content: 'https://picsum.photos/id/1015/360/640', time: '2 hours ago', reply: '', isLiked: false }] },
+                     { id: '4', name: "David", profilePic: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face", statuses: [{ id: 'david1', content: 'https://picsum.photos/id/1016/360/640', time: '3 hours ago', reply: '', isLiked: false }] },
+                     { id: '5', name: "Jessica", profilePic: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face", statuses: [{ id: 'jessica1', content: 'https://picsum.photos/id/1019/360/640', time: '4 hours ago', reply: '', isLiked: false }] }
+                 ];
+            }
+
             // Handle the 'your-story' case
             if (initialStoryId === 'your-story') {
                 users.unshift(yourStoryUser); // Add the 'your story' user to the beginning
