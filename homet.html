@@ -604,182 +604,69 @@
     </button>
 
     <script>
-        // Stories data
-        const stories = [{
-            id: "your-story",
-            username: "Your story",
-            avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
-            hasNewStory: false,
-            isYourStory: true,
-            storyFileUrl: "https://story-content.com/your-story.json"
-        }, {
-            id: "1",
-            username: "Emily",
-            avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
-            hasNewStory: true,
-            storyFileUrl: "https://story-content.com/emily-story.json"
-        }, {
-            id: "2",
-            username: "Michael",
-            avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
-            hasNewStory: true,
-            storyFileUrl: "https://story-content.com/michael-story.json"
-        }, {
-            id: "3",
-            username: "Sarah",
-            avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
-            hasNewStory: true,
-            storyFileUrl: "https://story-content.com/sarah-story.json"
-        }, {
-            id: "4",
-            username: "David",
-            avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
-            hasNewStory: true,
-            storyFileUrl: "https://story-content.com/david-story.json"
-        }, {
-            id: "5",
-            username: "Jessica",
-            avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
-            hasNewStory: true,
-            storyFileUrl: "https://story-content.com/jessica-story.json"
-        }, ];
+        // Stories data (using a local mock to avoid fetching from the internet for this example)
+        // You would replace this with your real data source
+        const stories = [
+            { id: "your-story", username: "Your story", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face", hasNewStory: false, isYourStory: true },
+            { id: "1", username: "Emily", avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face", hasNewStory: true },
+            { id: "2", username: "Michael", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face", hasNewStory: true },
+            { id: "3", username: "Sarah", avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face", hasNewStory: true },
+            { id: "4", username: "David", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face", hasNewStory: true },
+            { id: "5", username: "Jessica", avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face", hasNewStory: true }
+        ];
+
+        // This is the data that will be "fetched" by the progress bar.
+        // In a real application, you would load this from a server.
+        const storyDataMocks = {
+            "your-story": [{ id: "your-story-status-1", content: "https://picsum.photos/id/1005/360/640", time: "Just Now", reply: "", isLiked: false }],
+            "1": [{ id: 'emily1', content: 'https://picsum.photos/id/237/360/640', time: 'Just Now', reply: '', isLiked: false }],
+            "2": [{ id: 'michael1', content: 'https://picsum.photos/id/1018/360/640', time: '1 hour ago', reply: '', isLiked: false }],
+            "3": [{ id: 'sarah1', content: 'https://picsum.photos/id/1015/360/640', time: '2 hours ago', reply: '', isLiked: false }],
+            "4": [{ id: 'david1', content: 'https://picsum.photos/id/1016/360/640', time: '3 hours ago', reply: '', isLiked: false }],
+            "5": [{ id: 'jessica1', content: 'https://picsum.photos/id/1019/360/640', time: '4 hours ago', reply: '', isLiked: false }]
+        };
 
         // Chat data
         const chats = [{
-            id: "1",
-            name: "Emma Wilson",
-            lastMessage: "Hey! Are we still on for dinner tonight?",
-            timestamp: "2:34 PM",
-            avatar: "EW",
-            unreadCount: 2,
-            isOnline: true,
+            id: "1", name: "Emma Wilson", lastMessage: "Hey! Are we still on for dinner tonight?", timestamp: "2:34 PM", avatar: "EW", unreadCount: 2, isOnline: true,
         }, {
-            id: "2",
-            name: "Family",
-            lastMessage: "Mom: Don't forget about Sunday brunch!",
-            timestamp: "1:15 PM",
-            avatar: "F",
-            unreadCount: 5,
+            id: "2", name: "Family", lastMessage: "Mom: Don't forget about Sunday brunch!", timestamp: "1:15 PM", avatar: "F", unreadCount: 5,
         }, {
-            id: "3",
-            name: "Alex Chen",
-            lastMessage: "Thanks for the help with the project 👍",
-            timestamp: "11:45 AM",
-            avatar: "AC",
-            isOnline: true,
-            isSent: true,
+            id: "3", name: "Alex Chen", lastMessage: "Thanks for the help with the project 👍", timestamp: "11:45 AM", avatar: "AC", isOnline: true, isSent: true,
         }, {
-            id: "4",
-            name: "Sarah Johnson",
-            lastMessage: "The photos from the trip are amazing!",
-            timestamp: "Yesterday",
-            avatar: "SJ",
+            id: "4", name: "Sarah Johnson", lastMessage: "The photos from the trip are amazing!", timestamp: "Yesterday", avatar: "SJ",
         }, {
-            id: "5",
-            name: "Work Team",
-            lastMessage: "You: Sounds good, see you tomorrow",
-            timestamp: "Yesterday",
-            avatar: "WT",
-            isSent: true,
+            id: "5", name: "Work Team", lastMessage: "You: Sounds good, see you tomorrow", timestamp: "Yesterday", avatar: "WT", isSent: true,
         }, {
-            id: "6",
-            name: "David Park",
-            lastMessage: "Let's catch up this weekend",
-            timestamp: "Monday",
-            avatar: "DP",
+            id: "6", name: "David Park", lastMessage: "Let's catch up this weekend", timestamp: "Monday", avatar: "DP",
         }, {
-            id: "7",
-            name: "Coffee Chat",
-            lastMessage: "Lisa: That new café downtown is great!",
-            timestamp: "Sunday",
-            avatar: "CC",
-            unreadCount: 1,
+            id: "7", name: "Coffee Chat", lastMessage: "Lisa: That new café downtown is great!", timestamp: "Sunday", avatar: "CC", unreadCount: 1,
         }, {
-            id: "8",
-            name: "Mom",
-            lastMessage: "Love you sweetie ❤️",
-            timestamp: "Saturday",
-            avatar: "M",
-            isOnline: true,
+            id: "8", name: "Mom", lastMessage: "Love you sweetie ❤️", timestamp: "Saturday", avatar: "M", isOnline: true,
         }, {
-            id: "9",
-            name: "John Miller",
-            lastMessage: "Can you send me the presentation slides?",
-            timestamp: "Friday",
-            avatar: "JM",
-            unreadCount: 3,
+            id: "9", name: "John Miller", lastMessage: "Can you send me the presentation slides?", timestamp: "Friday", avatar: "JM", unreadCount: 3,
         }, {
-            id: "10",
-            name: "Study Group",
-            lastMessage: "Meeting tomorrow at 3 PM in library",
-            timestamp: "Thursday",
-            avatar: "SG",
+            id: "10", name: "Study Group", lastMessage: "Meeting tomorrow at 3 PM in library", timestamp: "Thursday", avatar: "SG",
         }, {
-            id: "11",
-            name: "Lisa Wang",
-            lastMessage: "Happy birthday! Hope you have a great day 🎉",
-            timestamp: "Wednesday",
-            avatar: "LW",
-            isOnline: true,
+            id: "11", name: "Lisa Wang", lastMessage: "Happy birthday! Hope you have a great day 🎉", timestamp: "Wednesday", avatar: "LW", isOnline: true,
         }, {
-            id: "12",
-            name: "Gym Buddy",
-            lastMessage: "Ready for leg day tomorrow?",
-            timestamp: "Tuesday",
-            avatar: "GB",
-            isSent: true,
+            id: "12", name: "Gym Buddy", lastMessage: "Ready for leg day tomorrow?", timestamp: "Tuesday", avatar: "GB", isSent: true,
         }, {
-            id: "13",
-            name: "Rachel Green",
-            lastMessage: "The weather is perfect for hiking today!",
-            timestamp: "Monday",
-            avatar: "RG",
-            unreadCount: 1,
+            id: "13", name: "Rachel Green", lastMessage: "The weather is perfect for hiking today!", timestamp: "Monday", avatar: "RG", unreadCount: 1,
         }, {
-            id: "14",
-            name: "Tech Support",
-            lastMessage: "Your issue has been resolved",
-            timestamp: "Last week",
-            avatar: "TS",
+            id: "14", name: "Tech Support", lastMessage: "Your issue has been resolved", timestamp: "Last week", avatar: "TS",
         }, {
-            id: "15",
-            name: "Book Club",
-            lastMessage: "Next meeting: discussing chapter 5-8",
-            timestamp: "Last week",
-            avatar: "BC",
-            unreadCount: 2,
+            id: "15", name: "Book Club", lastMessage: "Next meeting: discussing chapter 5-8", timestamp: "Last week", avatar: "BC", unreadCount: 2,
         }, {
-            id: "16",
-            name: "Pizza Place",
-            lastMessage: "Your order is ready for pickup!",
-            timestamp: "Last week",
-            avatar: "PP",
+            id: "16", name: "Pizza Place", lastMessage: "Your order is ready for pickup!", timestamp: "Last week", avatar: "PP",
         }, {
-            id: "17",
-            name: "Jane Cooper",
-            lastMessage: "Thanks for the movie recommendation!",
-            timestamp: "2 weeks ago",
-            avatar: "JC",
-            isOnline: true,
+            id: "17", name: "Jane Cooper", lastMessage: "Thanks for the movie recommendation!", timestamp: "2 weeks ago", avatar: "JC", isOnline: true,
         }, {
-            id: "18",
-            name: "Basketball Team",
-            lastMessage: "Practice moved to 7 PM tonight",
-            timestamp: "2 weeks ago",
-            avatar: "BT",
+            id: "18", name: "Basketball Team", lastMessage: "Practice moved to 7 PM tonight", timestamp: "2 weeks ago", avatar: "BT",
         }, {
-            id: "19",
-            name: "Dr. Smith",
-            lastMessage: "Your appointment is confirmed for next week",
-            timestamp: "2 weeks ago",
-            avatar: "DS",
+            id: "19", name: "Dr. Smith", lastMessage: "Your appointment is confirmed for next week", timestamp: "2 weeks ago", avatar: "DS",
         }, {
-            id: "20",
-            name: "Mike Johnson",
-            lastMessage: "Let's grab lunch next time you're in town",
-            timestamp: "3 weeks ago",
-            avatar: "MJ",
-            isSent: true,
+            id: "20", name: "Mike Johnson", lastMessage: "Let's grab lunch next time you're in town", timestamp: "3 weeks ago", avatar: "MJ", isSent: true,
         }, ];
 
         // Function to render stories
@@ -807,7 +694,7 @@
 
                 // Add a click event listener to each story item
                 storyElement.addEventListener('click', () => {
-                    openStoryViewerWithProgress(story.id, story.storyFileUrl);
+                    openStoryViewerWithProgress(story.id);
                 });
 
                 storiesList.appendChild(storyElement);
@@ -820,64 +707,45 @@
         function updateProgressBar(progress) {
             progressBar.style.width = `${progress}%`;
         }
+        
+        // This is the updated function to handle the fetching and data transfer
+        async function openStoryViewerWithProgress(storyId) {
+            // Get the mock data for the selected story
+            const dataToPass = storyDataMocks[storyId];
 
-        async function openStoryViewerWithProgress(storyId, url) {
-            if (!url) {
-                console.error("No story file URL provided.");
-                window.open(`stories.html?storyId=${storyId}`, "_blank");
+            if (!dataToPass) {
+                console.error("Story data not found for ID:", storyId);
+                alert('Failed to find story data.');
                 return;
             }
 
             progressBarContainer.style.display = 'block';
             updateProgressBar(0);
-
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
+            
+            // Simulate a fake fetch with progress
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 10;
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    progress = 100;
                 }
+                updateProgressBar(progress);
+            }, 100);
 
-                const contentLength = response.headers.get('content-length');
-                let receivedLength = 0;
-                let chunks = [];
-
-                const reader = response.body.getReader();
-
-                while (true) {
-                    const {
-                        done,
-                        value
-                    } = await reader.read();
-
-                    if (done) {
-                        break;
-                    }
-
-                    chunks.push(value);
-                    receivedLength += value.length;
-
-                    if (contentLength) {
-                        const progress = Math.round((receivedLength / contentLength) * 100);
-                        updateProgressBar(progress);
-                    } else {
-                        // Fallback for servers not providing Content-Length header
-                        // We can't show accurate progress, so we can show a continuous animation or a simple bar
-                        const fakeProgress = (receivedLength % 1000) / 10;
-                        updateProgressBar(fakeProgress);
-                    }
-                }
-
-                // File has been loaded, close progress bar and open new window
-                updateProgressBar(100);
+            // Simulate the time it takes to "fetch" the data
+            setTimeout(() => {
+                // Store the data in sessionStorage
+                sessionStorage.setItem('storyData', JSON.stringify(dataToPass));
+                
+                // Once data is stored, open the story viewer
+                window.open(`stories.html?storyId=${storyId}`, "_blank");
+                
+                // Hide progress bar after a slight delay
                 setTimeout(() => {
                     progressBarContainer.style.display = 'none';
-                    window.open(`stories.html?storyId=${storyId}`, "_blank");
-                }, 300); // Small delay to show 100%
-            } catch (error) {
-                console.error('There was a problem with the fetch operation:', error);
-                progressBarContainer.style.display = 'none';
-                alert('Failed to load story content.');
-            }
+                }, 300);
+            }, 1000); // Wait 1 second to simulate loading
         }
 
 
