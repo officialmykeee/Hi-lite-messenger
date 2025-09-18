@@ -261,12 +261,6 @@
             transition: opacity 0.2s ease-in-out;
         }
 
-        .show-on-release {
-            opacity: 1;
-            pointer-events: auto;
-            transition: opacity 0.2s ease-in-out;
-        }
-
         @media (max-width: 400px) {
             .status-container, .bottom-bar {
                 width: 100%;
@@ -582,29 +576,42 @@
             }, { once: true });
         }
 
-        // Hold and Release functionality
-        statusContainer.addEventListener("mousedown", handleHoldStart);
-        statusContainer.addEventListener("mouseup", handleHoldEnd);
-        statusContainer.addEventListener("touchstart", handleHoldStart, { passive: false });
-        statusContainer.addEventListener("touchend", handleHoldEnd);
+        // --- NEW AND REVISED LOGIC FOR USER INTERACTION ---
 
-        function handleHoldStart(e) {
+        // Combined hold, swipe, and tap logic
+        statusContainer.addEventListener("mousedown", handleStart);
+        statusContainer.addEventListener("mouseup", handleEnd);
+        statusContainer.addEventListener("touchstart", handleStart, { passive: false });
+        statusContainer.addEventListener("touchend", handleEnd);
+        statusContainer.addEventListener("mousemove", handleMove);
+        statusContainer.addEventListener("touchmove", handleMove, { passive: false });
+
+        function handleStart(e) {
             if (isAnimating) return;
             
             const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
             startX = clientX;
             isDragging = false;
-
-            // Start a timer to check for a hold vs. a swipe
+            
             holdTimeout = setTimeout(() => {
                 isHolding = true;
                 pauseProgress();
                 progressBarContainer.classList.add('hide-on-hold');
                 bottomBar.classList.add('hide-on-hold');
-            }, 200); // 200ms delay to differentiate a hold from a quick tap or swipe
+            }, 200);
         }
 
-        function handleHoldEnd(e) {
+        function handleMove(e) {
+            if (startX === 0) return;
+            const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+            const diff = clientX - startX;
+            if (Math.abs(diff) > 10) {
+                isDragging = true;
+                clearTimeout(holdTimeout); 
+            }
+        }
+
+        function handleEnd(e) {
             clearTimeout(holdTimeout);
             
             if (isHolding) {
@@ -612,37 +619,31 @@
                 progressBarContainer.classList.remove('hide-on-hold');
                 bottomBar.classList.remove('hide-on-hold');
                 startProgress();
-            } else {
-                // If it wasn't a hold, check for a swipe
+            } else if (isDragging) {
                 const clientX = e.type.startsWith('touch') ? e.changedTouches[0].clientX : e.clientX;
                 const diff = clientX - startX;
-
-                if (diff > 50 && !isDragging) {
+                
+                if (diff > 50) {
                     if (currentUserIndex > 0) {
                         prevUserWithCube();
                     }
-                } else if (diff < -50 && !isDragging) {
+                } else if (diff < -50) {
                     if (currentUserIndex < users.length - 1) {
                         nextUserWithCube();
                     }
                 }
+            } else {
+                const clientX = e.type.startsWith('touch') ? e.changedTouches[0].clientX : e.clientX;
+                const containerWidth = statusContainer.offsetWidth;
+                if (clientX < containerWidth / 2) {
+                    prevStatus();
+                } else {
+                    nextStatus();
+                }
             }
+
             startX = 0;
             isDragging = false;
-        }
-
-        // Add drag functionality
-        statusContainer.addEventListener("mousemove", handleMove);
-        statusContainer.addEventListener("touchmove", handleMove, { passive: false });
-
-        function handleMove(e) {
-            if (startX === 0) return;
-            const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
-            const diff = clientX - startX;
-            if (Math.abs(diff) > 10) { // A threshold to determine if it's a drag
-                isDragging = true;
-                clearTimeout(holdTimeout);
-            }
         }
 
         function toggleLike() {
@@ -700,4 +701,5 @@
     </script>
 </body>
 </html>
+
 
