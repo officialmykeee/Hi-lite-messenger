@@ -582,22 +582,22 @@
             }, { once: true });
         }
 
-        // Combined Hold and Release with Drag functionality
-        statusContainer.addEventListener("mousedown", handleStart);
-        statusContainer.addEventListener("mouseup", handleEnd);
-        statusContainer.addEventListener("touchstart", handleStart, { passive: false });
-        statusContainer.addEventListener("touchend", handleEnd);
-        statusContainer.addEventListener("mousemove", handleMove);
-        statusContainer.addEventListener("touchmove", handleMove, { passive: false });
-
-        function handleStart(e) {
+        // --- Event Handling Refactored ---
+        
+        // Use a single set of listeners for both mouse and touch
+        statusContainer.addEventListener("mousedown", handleInteractionStart);
+        statusContainer.addEventListener("mousemove", handleInteractionMove);
+        statusContainer.addEventListener("mouseup", handleInteractionEnd);
+        statusContainer.addEventListener("touchstart", handleInteractionStart, { passive: false });
+        statusContainer.addEventListener("touchmove", handleInteractionMove, { passive: false });
+        statusContainer.addEventListener("touchend", handleInteractionEnd);
+        
+        function handleInteractionStart(e) {
             if (isAnimating) return;
-            
             const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
             startX = clientX;
             isDragging = false;
-
-            // Start a timer to check for a hold
+            
             holdTimeout = setTimeout(() => {
                 isHolding = true;
                 pauseProgress();
@@ -605,41 +605,42 @@
                 bottomBar.classList.add('hide-on-hold');
             }, 200);
         }
-
-        function handleMove(e) {
+        
+        function handleInteractionMove(e) {
             if (startX === 0) return;
             const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
             const diff = clientX - startX;
-            if (Math.abs(diff) > 10) {
+            if (Math.abs(diff) > 10) { // Threshold for drag detection
                 isDragging = true;
-                clearTimeout(holdTimeout); // Cancel the hold if a drag is detected
+                clearTimeout(holdTimeout); // Cancel hold timer
             }
         }
-
-        function handleEnd(e) {
+        
+        function handleInteractionEnd(e) {
             clearTimeout(holdTimeout);
             
             if (isHolding) {
+                // Hold action ended
                 isHolding = false;
                 progressBarContainer.classList.remove('hide-on-hold');
                 bottomBar.classList.remove('hide-on-hold');
                 startProgress();
             } else if (isDragging) {
-                // Handle the swipe logic if it was a drag, not a hold
+                // Drag/swipe action ended
                 const clientX = e.type.startsWith('touch') ? e.changedTouches[0].clientX : e.clientX;
                 const diff = clientX - startX;
                 
-                if (diff > 50) {
+                if (diff > 50) { // Swiped right
                     if (currentUserIndex > 0) {
                         prevUserWithCube();
                     }
-                } else if (diff < -50) {
+                } else if (diff < -50) { // Swiped left
                     if (currentUserIndex < users.length - 1) {
                         nextUserWithCube();
                     }
                 }
             } else {
-                // This is a single, quick tap. Advance to the next photo in the current user's story.
+                // Quick tap action
                 const clientX = e.type.startsWith('touch') ? e.changedTouches[0].clientX : e.clientX;
                 const containerWidth = statusContainer.offsetWidth;
                 if (clientX < containerWidth / 2) {
@@ -648,7 +649,8 @@
                     nextStatus();
                 }
             }
-
+            
+            // Reset state
             startX = 0;
             isDragging = false;
         }
@@ -708,5 +710,4 @@
     </script>
 </body>
 </html>
-
 
