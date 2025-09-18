@@ -564,9 +564,7 @@
         .story-viewer-content {
             width: 100%;
             height: 100%;
-            padding: 20px;
-            box-sizing: border-box;
-            overflow-y: auto;
+            overflow: auto;
         }
     </style>
 </head>
@@ -632,7 +630,7 @@
     <!-- Story Viewer Overlay -->
     <div id="storyViewerOverlay">
         <div class="story-viewer-content" id="storyViewerContent">
-            <!-- Fetched content will be injected here -->
+            <!-- Complete fetched HTML will be injected here -->
         </div>
     </div>
 
@@ -709,7 +707,7 @@
             progressBar.style.width = `${progress}%`;
         }
         
-        // Modified function to fetch and display stories.html in overlay
+        // Modified function to fetch everything from the URL
         async function openStoryViewerWithProgress(storyId) {
             const dataToPass = storyDataMocks[storyId];
 
@@ -737,7 +735,7 @@
                 // Store data for compatibility
                 sessionStorage.setItem('storyData', JSON.stringify(dataToPass));
                 
-                // Fetch stories.html from GitHub
+                // Fetch complete stories.html from GitHub
                 const storyUrl = 'https://raw.githubusercontent.com/officialmykeee/Hi-lite-messenger/89b2d47ced8e95cd73fb7a0939d9417e53dec003/stories.html';
                 const response = await fetch(storyUrl);
                 
@@ -753,24 +751,15 @@
                     setTimeout(() => {
                         progressBarContainer.style.display = 'none';
                         
-                        // Inject fetched content into overlay
+                        // Inject complete fetched HTML content
                         storyViewerContent.innerHTML = htmlContent;
                         storyViewerOverlay.classList.add('show');
                         
-                        // Add close functionality
-                        const closeBtn = storyViewerContent.querySelector('.close-story') || 
-                                       document.createElement('button');
-                        if (!storyViewerContent.querySelector('.close-story')) {
-                            closeBtn.innerHTML = '&times;';
-                            closeBtn.className = 'close-story';
-                            closeBtn.style.cssText = 'position: fixed; top: 20px; right: 20px; background: none; border: none; color: white; font-size: 24px; cursor: pointer; z-index: 10001;';
-                            storyViewerContent.appendChild(closeBtn);
-                        }
-                        closeBtn.onclick = closeStoryViewer;
-                        
-                        // Click outside to close
+                        // Close on overlay click (outside content)
                         storyViewerOverlay.onclick = (e) => {
-                            if (e.target === storyViewerOverlay) closeStoryViewer();
+                            if (e.target === storyViewerOverlay) {
+                                closeStoryViewer();
+                            }
                         };
                     }, 300);
                 }, 1000);
@@ -814,7 +803,6 @@
                     <span class="story-username">${story.username}</span>
                 `;
 
-                // Modified to use the new fetch function
                 storyElement.addEventListener('click', () => {
                     openStoryViewerWithProgress(story.id);
                 });
