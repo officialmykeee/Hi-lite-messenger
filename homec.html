@@ -542,7 +542,7 @@
             text-shadow: 0 0 2px white;
         }
 
-        /* Story Viewer Overlay - Minimal */
+        /* Story Viewer Overlay */
         #storyViewerOverlay {
             position: fixed;
             top: 0;
@@ -554,6 +554,7 @@
             display: none;
             opacity: 0;
             transition: opacity 0.3s ease;
+            overflow: hidden;
         }
 
         #storyViewerOverlay.show {
@@ -561,10 +562,14 @@
             opacity: 1;
         }
 
-        .story-viewer-content {
+        .story-viewer-frame {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            overflow: auto;
+            border: none;
+            background: transparent;
         }
     </style>
 </head>
@@ -627,11 +632,9 @@
         </svg>
     </button>
 
-    <!-- Story Viewer Overlay -->
+    <!-- Story Viewer Overlay with iframe -->
     <div id="storyViewerOverlay">
-        <div class="story-viewer-content" id="storyViewerContent">
-            <!-- Complete fetched HTML will be injected here -->
-        </div>
+        <iframe class="story-viewer-frame" id="storyViewerFrame" src="about:blank"></iframe>
     </div>
 
     <script>
@@ -645,7 +648,7 @@
             { id: "5", username: "Jessica", avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face", hasNewStory: true }
         ];
 
-        // Mock story data
+        // Mock story data for sessionStorage
         const storyDataMocks = {
             "your-story": [{ id: "your-story-status-1", content: "https://picsum.photos/id/1005/360/640", time: "Just Now", reply: "", isLiked: false }],
             "1": [{ id: 'emily1', content: 'https://picsum.photos/id/237/360/640', time: 'Just Now', reply: '', isLiked: false }],
@@ -701,13 +704,13 @@
         const progressBarContainer = document.getElementById('progressBarContainer');
         const progressBar = document.getElementById('progressBar');
         const storyViewerOverlay = document.getElementById('storyViewerOverlay');
-        const storyViewerContent = document.getElementById('storyViewerContent');
+        const storyViewerFrame = document.getElementById('storyViewerFrame');
 
         function updateProgressBar(progress) {
             progressBar.style.width = `${progress}%`;
         }
         
-        // Modified function to fetch everything from the URL
+        // Function to load story viewer in iframe with passed data
         async function openStoryViewerWithProgress(storyId) {
             const dataToPass = storyDataMocks[storyId];
 
@@ -716,6 +719,10 @@
                 alert('Failed to find story data.');
                 return;
             }
+
+            // Store data in sessionStorage for the iframe to access
+            sessionStorage.setItem('storyData', JSON.stringify(dataToPass));
+            sessionStorage.setItem('storyId', storyId);
 
             progressBarContainer.style.display = 'block';
             updateProgressBar(0);
@@ -732,40 +739,55 @@
             }, 100);
 
             try {
-                // Store data for compatibility
-                sessionStorage.setItem('storyData', JSON.stringify(dataToPass));
-                
-                // Fetch complete stories.html from GitHub
-                const storyUrl = 'https://raw.githubusercontent.com/officialmykeee/Hi-lite-messenger/89b2d47ced8e95cd73fb7a0939d9417e53dec003/stories.html';
-                const response = await fetch(storyUrl);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const htmlContent = await response.text();
-
                 // Wait for progress simulation
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                // Create iframe src with the GitHub URL and query params
+                const storyUrl = `https://raw.githubusercontent.com/officialmykeee/Hi-lite-messenger/89b2d47ced8e95cd73fb7a0939d9417e53dec003/stories.html?storyId=${storyId}`;
+                
+                // Load the iframe
+                storyViewerFrame.src = storyUrl;
+                storyViewerOverlay.classList.add('show');
+                
+                // Prevent body scroll
+                document.body.style.overflow = 'hidden';
+
+                // Update progress to complete
+                updateProgressBar(100);
                 setTimeout(() => {
-                    updateProgressBar(100);
-                    setTimeout(() => {
-                        progressBarContainer.style.display = 'none';
-                        
-                        // Inject complete fetched HTML content
-                        storyViewerContent.innerHTML = htmlContent;
-                        storyViewerOverlay.classList.add('show');
-                        
-                        // Close on overlay click (outside content)
-                        storyViewerOverlay.onclick = (e) => {
-                            if (e.target === storyViewerOverlay) {
-                                closeStoryViewer();
-                            }
-                        };
-                    }, 300);
-                }, 1000);
+                    progressBarContainer.style.display = 'none';
+                }, 300);
+
+                // Add close functionality
+                const closeStoryViewer = () => {
+                    storyViewerOverlay.classList.remove('show');
+                    document.body.style.overflow = '';
+                    storyViewerFrame.src = 'about:blank';
+                };
+
+                // Close on overlay click (but not on iframe content)
+                storyViewerOverlay.onclick = (e) => {
+                    if (e.target === storyViewerOverlay) {
+                        closeStoryViewer();
+                    }
+                };
+
+                // Close on Escape key
+                const handleEscape = (e) => {
+                    if (e.key === 'Escape') {
+                        closeEscape();
+                    }
+                };
+                document.addEventListener('keydown', handleEscape);
+
+                // Clean up on close
+                const closeEscape = () => {
+                    closeStoryViewer();
+                    document.removeEventListener('keydown', handleEscape);
+                };
 
             } catch (error) {
-                console.error('Error fetching story:', error);
+                console.error('Error loading story viewer:', error);
                 alert('Failed to load story content.');
                 clearInterval(interval);
                 updateProgressBar(100);
@@ -773,11 +795,6 @@
                     progressBarContainer.style.display = 'none';
                 }, 300);
             }
-        }
-
-        function closeStoryViewer() {
-            storyViewerOverlay.classList.remove('show');
-            storyViewerContent.innerHTML = '';
         }
 
         // Function to render stories
