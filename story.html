@@ -310,9 +310,11 @@
             <div class="status-content left" id="leftContent"></div>
         </div>
 
+        <div class="progress-bar-container" id="progressContainer"></div>
+
         <div class="controls" id="controls">
-            <div class="control-left" onclick="prevStatus()"></div>
-            <div class="control-right" onclick="nextStatus()"></div>
+            <div class="control-left"></div>
+            <div class="control-right"></div>
         </div>
     </div>
 
@@ -387,6 +389,12 @@
         let pauseStartTime = 0;
         let currentProgressWidth = 0;
         let savedProgress = 0;
+        let startX = 0;
+        let isAnimating = false;
+        let currentAngle = 0;
+        let isHold = false;
+        let holdTimer;
+        const holdThreshold = 100; // ms
 
         const statusContainer = document.getElementById('statusContainer');
         const profilePicEl = document.getElementById('profilePic');
@@ -397,15 +405,13 @@
         const statusHeader = document.getElementById('statusHeader');
         const controls = document.getElementById('controls');
         const bottomBar = document.getElementById('bottomBar');
+        const controlLeft = document.querySelector('.control-left');
+        const controlRight = document.querySelector('.control-right');
         
         const statusWrapper = document.getElementById('statusWrapper');
         const frontContent = document.getElementById('frontContent');
         const rightContent = document.getElementById('rightContent');
         const leftContent = document.getElementById('leftContent');
-
-        let currentAngle = 0;
-        let isAnimating = false;
-        let startX = 0;
 
         // Load status states from localStorage on page load
         function loadStatusStates() {
@@ -494,7 +500,6 @@
                 const adjustedRemainingTime = remainingTime - pauseDuration;
                 
                 if (adjustedRemainingTime > 0) {
-                    // Resume from where we left off
                     const activeBar = progressBarFills[currentStatusIndex];
                     activeBar.style.width = savedProgress + '%';
                     
@@ -514,7 +519,6 @@
                         }
                     }, 50);
                 } else {
-                    // Time expired during pause
                     nextStatus();
                 }
                 showUIElements();
@@ -529,7 +533,6 @@
             userNameEl.textContent = currentUser.name;
             statusTimeEl.textContent = currentStatus.time;
             
-            // Create image with anti-context-menu attributes
             const img = document.createElement('img');
             img.src = currentStatus.content;
             img.alt = "Status Image";
@@ -548,15 +551,11 @@
             frontContent.innerHTML = '';
             frontContent.appendChild(img);
             
-            // Update reply input with current status's saved reply
             replyInput.value = currentStatus.reply;
-            
-            // Update like button state with current status's like state
             likeButton.classList.toggle('liked', currentStatus.isLiked);
             
             progressBarFills.forEach(bar => bar.style.width = '0%');
             
-            // If we were paused, restore the progress
             if (savedProgress > 0 && currentStatusIndex === 0 && currentUserIndex === 0) {
                 progressBarFills[currentStatusIndex].style.width = savedProgress + '%';
                 savedProgress = 0;
@@ -566,7 +565,6 @@
         }
 
         function startProgress() {
-            // If paused, don't start new progress
             if (isPaused) return;
             
             const activeBar = progressBarFills[currentStatusIndex];
@@ -656,7 +654,6 @@
             const nextUserIndex = (currentUserIndex + 1) % users.length;
             const nextStatus = users[nextUserIndex].statuses[0];
             
-            // Create next image with anti-context-menu attributes
             const nextImg = document.createElement('img');
             nextImg.src = nextStatus.content;
             nextImg.alt = "Next User Status";
@@ -701,7 +698,6 @@
             const lastStatusIndex = users[prevUserIndex].statuses.length - 1;
             const prevStatus = users[prevUserIndex].statuses[lastStatusIndex];
             
-            // Create previous image with anti-context-menu attributes
             const prevImg = document.createElement('img');
             prevImg.src = prevStatus.content;
             prevImg.alt = "Previous User Status";
@@ -732,53 +728,64 @@
             }, { once: true });
         }
 
-        // Add drag functionality
-        statusContainer.addEventListener("mousedown", handleStart);
-        statusContainer.addEventListener("mouseup", handleEnd);
-        statusContainer.addEventListener("touchstart", handleStart, { passive: false });
-        statusContainer.addEventListener("touchend", handleEnd);
-
         function handleStart(e) {
             if (isAnimating) return;
-            // Pause on touch/mouse start
-            pauseProgress();
+            
+            // Clear any lingering hold timer
+            clearTimeout(holdTimer);
+            isHold = false;
+
             const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
             startX = clientX;
+            
+            // Set a timer to detect a hold
+            holdTimer = setTimeout(() => {
+                isHold = true;
+                pauseProgress();
+            }, holdThreshold);
         }
 
         function handleEnd(e) {
             if (isAnimating || startX === 0) {
-                // Resume progress if no significant drag occurred
-                if (isPaused) {
-                    setTimeout(resumeProgress, 100); // Small delay to allow gesture detection
-                }
+                // If there's an active hold timer but no drag, just clear it.
+                if (holdTimer) clearTimeout(holdTimer);
+                startX = 0;
                 return;
             }
             
+            clearTimeout(holdTimer);
             const clientX = e.type.startsWith('touch') ? e.changedTouches[0].clientX : e.clientX;
             const diff = clientX - startX;
-            
-            if (diff > 50) {
-                // Dragged right
-                if (currentUserIndex > 0) {
-                    saveCurrentStatusState();
-                    prevUserWithCube();
+            const dragThreshold = 50;
+
+            if (Math.abs(diff) > dragThreshold) {
+                // This was a drag gesture
+                if (diff > 0) {
+                    if (currentUserIndex > 0) {
+                        saveCurrentStatusState();
+                        prevUserWithCube();
+                    } else {
+                        resumeProgress();
+                    }
                 } else {
-                    resumeProgress();
-                }
-            } else if (diff < -50) {
-                // Dragged left
-                if (currentUserIndex < users.length - 1) {
-                    saveCurrentStatusState();
-                    nextUserWithCube();
-                } else {
-                    resumeProgress();
+                    if (currentUserIndex < users.length - 1) {
+                        saveCurrentStatusState();
+                        nextUserWithCube();
+                    } else {
+                        resumeProgress();
+                    }
                 }
             } else {
-                // No significant drag, resume progress
-                resumeProgress();
+                // This was a tap or a brief hold. Resume progress immediately.
+                if (isHold) {
+                    resumeProgress();
+                } else {
+                    // It was a quick tap. We handle this via the control-left/right listeners now.
+                    // No need to do anything here since the `onclick` is gone.
+                }
             }
             startX = 0;
+            isHold = false;
         }
 
         function toggleLike() {
@@ -788,8 +795,25 @@
             likeButton.classList.toggle('liked');
             saveStatusState(currentStatus);
         }
+        
+        // Event Listeners
+        statusContainer.addEventListener("mousedown", handleStart);
+        statusContainer.addEventListener("mouseup", handleEnd);
+        statusContainer.addEventListener("touchstart", handleStart, { passive: false });
+        statusContainer.addEventListener("touchend", handleEnd);
+        
+        controlLeft.addEventListener("click", () => {
+            if (!isHold) {
+                prevStatus();
+            }
+        });
+        
+        controlRight.addEventListener("click", () => {
+            if (!isHold) {
+                nextStatus();
+            }
+        });
 
-        // Handle reply input changes
         replyInput.addEventListener('input', function() {
             const currentUser = users[currentUserIndex];
             const currentStatus = currentUser.statuses[currentStatusIndex];
@@ -797,34 +821,29 @@
             saveStatusState(currentStatus);
         });
 
-        // Handle like button click
         likeButton.addEventListener('click', function(e) {
             e.stopPropagation();
             toggleLike();
         });
 
-        // Prevent context menu on right-click/long-press
         document.addEventListener('contextmenu', function(e) {
             if (e.target.tagName === 'IMG' && e.target.closest('.status-content')) {
                 e.preventDefault();
             }
         });
 
-        // Prevent image selection and dragging
         document.addEventListener('selectstart', function(e) {
             if (e.target.tagName === 'IMG' && e.target.closest('.status-content')) {
                 e.preventDefault();
             }
         });
 
-        // Prevent touch-based context menu (for mobile long-press)
         document.addEventListener('touchstart', function(e) {
             if (e.target.tagName === 'IMG' && e.target.closest('.status-content')) {
                 e.preventDefault();
             }
         }, { passive: false });
 
-        // Prevent dragstart for images
         document.addEventListener('dragstart', function(e) {
             if (e.target.tagName === 'IMG' && e.target.closest('.status-content')) {
                 e.preventDefault();
@@ -839,3 +858,4 @@
     </script>
 </body>
 </html>
+
