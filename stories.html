@@ -662,8 +662,7 @@
                 if (currentUserIndex < users.length - 1) {
                     nextUserWithCube();
                 } else {
-                    // This is the last user and the last story, close the window.
-                    window.close();
+                    // Do nothing on the last status of the last user.
                 }
             }
         }
@@ -683,8 +682,7 @@
                 if (currentUserIndex > 0) {
                     prevUserWithCube();
                 } else {
-                    // This is the first user and the first story, close the window.
-                    window.close();
+                    // Do nothing on the first status of the first user.
                 }
             }
         }
@@ -710,7 +708,7 @@
             const nextUserIndex = (currentUserIndex + 1);
             if (nextUserIndex >= users.length) {
                 isAnimating = false;
-                window.close();
+                // Do not close the window, simply stop the animation.
                 return;
             }
             
@@ -759,7 +757,7 @@
             const prevUserIndex = (currentUserIndex - 1);
             if (prevUserIndex < 0) {
                 isAnimating = false;
-                window.close();
+                // Do not close the window, simply stop the animation.
                 return;
             }
             
@@ -825,19 +823,9 @@
 
             if (Math.abs(diff) > dragThreshold) {
                 if (diff > 0) {
-                    if (currentUserIndex > 0) {
-                        saveCurrentStatusState();
-                        prevUserWithCube();
-                    } else {
-                        resumeProgress();
-                    }
+                    prevStatus();
                 } else {
-                    if (currentUserIndex < users.length - 1) {
-                        saveCurrentStatusState();
-                        nextUserWithCube();
-                    } else {
-                        resumeProgress();
-                    }
+                    nextStatus();
                 }
             } else {
                 if (isHold) {
