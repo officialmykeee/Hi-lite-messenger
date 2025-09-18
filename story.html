@@ -97,6 +97,12 @@
             display: flex;
             align-items: center;
             z-index: 10;
+            transition: opacity 0.3s ease;
+        }
+
+        .status-header.hidden {
+            opacity: 0;
+            pointer-events: none;
         }
 
         .profile-pic {
@@ -139,6 +145,12 @@
             display: flex;
             gap: 5px;
             z-index: 10;
+            transition: opacity 0.3s ease;
+        }
+
+        .progress-bar-container.hidden {
+            opacity: 0;
+            pointer-events: none;
         }
 
         .progress-bar {
@@ -187,6 +199,12 @@
             padding: 0 15px;
             box-sizing: border-box;
             z-index: 20;
+            transition: opacity 0.3s ease;
+        }
+
+        .bottom-bar.hidden {
+            opacity: 0;
+            pointer-events: none;
         }
         
         .reply-input-container {
@@ -205,6 +223,7 @@
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
             outline: none;
+            transition: opacity 0.3s ease;
         }
         
         .reply-input::placeholder {
@@ -222,6 +241,7 @@
             justify-content: center;
             -webkit-tap-highlight-color: transparent;
             outline: none;
+            transition: opacity 0.3s ease;
         }
         
         .action-icon-btn svg {
@@ -288,7 +308,7 @@
         </div>
     </div>
 
-    <div class="bottom-bar">
+    <div class="bottom-bar" id="bottomBar">
         <div class="reply-input-container">
             <input type="text" class="reply-input" id="replyInput" placeholder="Reply privately...">
         </div>
@@ -353,8 +373,11 @@
         let currentUserIndex = 0;
         let currentStatusIndex = 0;
         const statusDuration = 5000;
+        const hideDelay = 1500; // 1.5 seconds delay to hide UI
         let progressInterval;
         let progressBarFills;
+        let hideUITimeout;
+        let isUIHidden = false;
 
         const statusContainer = document.getElementById('statusContainer');
         const profilePicEl = document.getElementById('profilePic');
@@ -362,6 +385,9 @@
         const statusTimeEl = document.getElementById('statusTime');
         const replyInput = document.getElementById('replyInput');
         const likeButton = document.getElementById('likeButton');
+        const bottomBar = document.getElementById('bottomBar');
+        const statusHeader = statusContainer.querySelector('.status-header');
+        const progressBarContainer = statusContainer.querySelector('.progress-bar-container');
         
         const statusWrapper = document.getElementById('statusWrapper');
         const frontContent = document.getElementById('frontContent');
@@ -393,6 +419,37 @@
         function saveStatusState(status) {
             localStorage.setItem(`reply_${status.id}`, status.reply);
             localStorage.setItem(`like_${status.id}`, JSON.stringify(status.isLiked));
+        }
+
+        // Show UI elements
+        function showUI() {
+            if (isUIHidden) {
+                statusHeader.classList.remove('hidden');
+                bottomBar.classList.remove('hidden');
+                if (progressBarContainer) {
+                    progressBarContainer.classList.remove('hidden');
+                }
+                isUIHidden = false;
+            }
+            scheduleHideUI();
+        }
+
+        // Hide UI elements
+        function hideUI() {
+            statusHeader.classList.add('hidden');
+            bottomBar.classList.add('hidden');
+            if (progressBarContainer) {
+                progressBarContainer.classList.add('hidden');
+            }
+            isUIHidden = true;
+        }
+
+        // Schedule UI to hide after delay
+        function scheduleHideUI() {
+            clearTimeout(hideUITimeout);
+            hideUITimeout = setTimeout(() => {
+                hideUI();
+            }, hideDelay);
         }
 
         function createProgressBars() {
@@ -453,6 +510,8 @@
             
             progressBarFills.forEach(bar => bar.style.width = '0%');
             
+            // Show UI and schedule hiding
+            showUI();
             startProgress();
         }
 
@@ -602,6 +661,7 @@
 
         function handleStart(e) {
             if (isAnimating) return;
+            clearTimeout(hideUITimeout); // Stop hiding when user starts interacting
             const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
             startX = clientX;
         }
@@ -628,6 +688,7 @@
         }
 
         function toggleLike() {
+            showUI(); // Show UI when interacting with like button
             const currentUser = users[currentUserIndex];
             const currentStatus = currentUser.statuses[currentStatusIndex];
             currentStatus.isLiked = !currentStatus.isLiked;
@@ -637,6 +698,7 @@
 
         // Handle reply input changes
         replyInput.addEventListener('input', function() {
+            showUI(); // Show UI when typing
             const currentUser = users[currentUserIndex];
             const currentStatus = currentUser.statuses[currentStatusIndex];
             currentStatus.reply = this.value;
@@ -646,9 +708,20 @@
         // Handle like button click
         likeButton.addEventListener('click', toggleLike);
 
+        // Handle mouse movement to show UI
+        statusContainer.addEventListener('mousemove', function() {
+            showUI();
+        });
+
+        // Handle touch events to show UI
+        statusContainer.addEventListener('touchmove', function() {
+            showUI();
+        });
+
         // Prevent context menu on right-click/long-press
         document.addEventListener('contextmenu', function(e) {
             if (e.target.tagName === 'IMG' && e.target.closest('.status-content')) {
+                showUI(); // Show UI even on right-click
                 e.preventDefault();
             }
         });
@@ -656,6 +729,7 @@
         // Prevent image selection and dragging
         document.addEventListener('selectstart', function(e) {
             if (e.target.tagName === 'IMG' && e.target.closest('.status-content')) {
+                showUI();
                 e.preventDefault();
             }
         });
@@ -663,6 +737,7 @@
         // Prevent touch-based context menu (for mobile long-press)
         document.addEventListener('touchstart', function(e) {
             if (e.target.tagName === 'IMG' && e.target.closest('.status-content')) {
+                showUI();
                 e.preventDefault();
             }
         }, { passive: false });
@@ -670,6 +745,7 @@
         // Prevent dragstart for images
         document.addEventListener('dragstart', function(e) {
             if (e.target.tagName === 'IMG' && e.target.closest('.status-content')) {
+                showUI();
                 e.preventDefault();
             }
         });
@@ -682,3 +758,4 @@
     </script>
 </body>
 </html>
+
