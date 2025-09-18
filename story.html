@@ -139,12 +139,6 @@
             display: flex;
             gap: 5px;
             z-index: 10;
-            transition: opacity 0.2s ease-in-out;
-        }
-
-        .progress-bar-container.paused {
-            opacity: 0;
-            pointer-events: none;
         }
 
         .progress-bar {
@@ -193,12 +187,6 @@
             padding: 0 15px;
             box-sizing: border-box;
             z-index: 20;
-            transition: opacity 0.2s ease-in-out;
-        }
-
-        .bottom-bar.paused {
-            opacity: 0;
-            pointer-events: none;
         }
         
         .reply-input-container {
@@ -217,7 +205,6 @@
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
             outline: none;
-            transition: opacity 0.2s ease-in-out;
         }
         
         .reply-input::placeholder {
@@ -235,7 +222,6 @@
             justify-content: center;
             -webkit-tap-highlight-color: transparent;
             outline: none;
-            transition: opacity 0.2s ease-in-out;
         }
         
         .action-icon-btn svg {
@@ -268,6 +254,19 @@
             padding: 5px;
         }
 
+        /* New classes for hiding elements */
+        .hide-on-hold {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease-in-out;
+        }
+
+        .show-on-release {
+            opacity: 1;
+            pointer-events: auto;
+            transition: opacity 0.2s ease-in-out;
+        }
+
         @media (max-width: 400px) {
             .status-container, .bottom-bar {
                 width: 100%;
@@ -280,6 +279,8 @@
 
     <div class="status-container" id="statusContainer">
         
+        <div class="progress-bar-container" id="progressBarContainer"></div>
+
         <div class="status-header">
             <div class="profile-pic">
                 <img id="profilePic" src="https://via.placeholder.com/40" alt="Profile Picture">
@@ -369,9 +370,12 @@
         const statusDuration = 5000;
         let progressInterval;
         let progressBarFills;
-        let isPaused = false;
-        let pauseStartTime = 0;
-        let lastProgressTime = 0;
+        let progressStartTime = 0;
+        let pausedProgressWidth = 0;
+        let isHolding = false;
+        let startX = 0;
+        let isDragging = false;
+        let holdTimeout;
 
         const statusContainer = document.getElementById('statusContainer');
         const profilePicEl = document.getElementById('profilePic');
@@ -379,8 +383,8 @@
         const statusTimeEl = document.getElementById('statusTime');
         const replyInput = document.getElementById('replyInput');
         const likeButton = document.getElementById('likeButton');
+        const progressBarContainer = document.getElementById('progressBarContainer');
         const bottomBar = document.getElementById('bottomBar');
-        const progressBarContainer = document.querySelector('.progress-bar-container');
         
         const statusWrapper = document.getElementById('statusWrapper');
         const frontContent = document.getElementById('frontContent');
@@ -389,7 +393,6 @@
 
         let currentAngle = 0;
         let isAnimating = false;
-        let startX = 0;
 
         // Load status states from localStorage on page load
         function loadStatusStates() {
@@ -415,15 +418,9 @@
         }
 
         function createProgressBars() {
-            const oldContainer = statusContainer.querySelector('.progress-bar-container');
-            if (oldContainer) {
-                oldContainer.remove();
-            }
+            progressBarContainer.innerHTML = '';
 
             const currentStatuses = users[currentUserIndex].statuses;
-            const progressBarContainer = document.createElement('div');
-            progressBarContainer.className = 'progress-bar-container';
-
             currentStatuses.forEach(() => {
                 const progressBar = document.createElement('div');
                 progressBar.className = 'progress-bar';
@@ -432,85 +429,7 @@
                 progressBar.appendChild(progressBarFill);
                 progressBarContainer.appendChild(progressBar);
             });
-
-            statusContainer.insertBefore(progressBarContainer, statusContainer.firstChild);
             progressBarFills = document.querySelectorAll('.progress-bar-fill');
-        }
-
-        function pauseUI() {
-            if (!isPaused) {
-                isPaused = true;
-                pauseStartTime = Date.now();
-                
-                // Hide progress bar and bottom bar
-                const progressBarContainer = document.querySelector('.progress-bar-container');
-                if (progressBarContainer) {
-                    progressBarContainer.classList.add('paused');
-                }
-                bottomBar.classList.add('paused');
-                
-                // Stop progress interval
-                if (progressInterval) {
-                    clearInterval(progressInterval);
-                    progressInterval = null;
-                }
-            }
-        }
-
-        function resumeUI() {
-            if (isPaused) {
-                isPaused = false;
-                const pauseDuration = Date.now() - pauseStartTime;
-                
-                // Show progress bar and bottom bar instantly
-                const progressBarContainer = document.querySelector('.progress-bar-container');
-                if (progressBarContainer) {
-                    progressBarContainer.classList.remove('paused');
-                }
-                bottomBar.classList.remove('paused');
-                
-                // Resume progress from where it left off
-                if (lastProgressTime > 0) {
-                    const remainingTime = statusDuration - lastProgressTime;
-                    const adjustedRemainingTime = Math.max(0, remainingTime - pauseDuration);
-                    
-                    if (adjustedRemainingTime > 0) {
-                        // Continue from current progress
-                        startProgressFrom(lastProgressTime + pauseDuration);
-                    } else {
-                        // Time expired during pause
-                        nextStatus();
-                    }
-                }
-            }
-        }
-
-        function startProgressFrom(currentTime) {
-            const activeBar = progressBarFills[currentStatusIndex];
-            const progressWidth = Math.min(100, (currentTime / statusDuration) * 100);
-            activeBar.style.width = progressWidth + '%';
-            
-            if (progressWidth >= 100) {
-                nextStatus();
-                return;
-            }
-            
-            let startTime = Date.now() - currentTime;
-            progressInterval = setInterval(() => {
-                const elapsedTime = Date.now() - startTime;
-                const newProgressWidth = (elapsedTime / statusDuration) * 100;
-                
-                if (newProgressWidth >= 100) {
-                    activeBar.style.width = '100%';
-                    clearInterval(progressInterval);
-                    progressInterval = null;
-                    lastProgressTime = statusDuration;
-                    nextStatus();
-                } else {
-                    activeBar.style.width = newProgressWidth + '%';
-                    lastProgressTime = elapsedTime;
-                }
-            }, 50);
         }
 
         function updateUI() {
@@ -525,17 +444,6 @@
             const img = document.createElement('img');
             img.src = currentStatus.content;
             img.alt = "Status Image";
-            img.style.cssText = `
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                pointer-events: none;
-                -webkit-user-drag: none;
-                -khtml-user-drag: none;
-                -moz-user-drag: none;
-                -o-user-drag: none;
-                user-drag: none;
-            `;
             
             frontContent.innerHTML = '';
             frontContent.appendChild(img);
@@ -546,57 +454,42 @@
             // Update like button state with current status's like state
             likeButton.classList.toggle('liked', currentStatus.isLiked);
             
-            // Reset progress tracking
-            lastProgressTime = 0;
             progressBarFills.forEach(bar => bar.style.width = '0%');
-            
-            // Ensure UI is visible
-            const progressBarContainer = document.querySelector('.progress-bar-container');
-            if (progressBarContainer) {
-                progressBarContainer.classList.remove('paused');
-            }
-            bottomBar.classList.remove('paused');
-            isPaused = false;
-            
+
+            // Reset paused progress
+            pausedProgressWidth = 0;
             startProgress();
         }
 
         function startProgress() {
-            if (isPaused) return;
-            
+            clearInterval(progressInterval);
             const activeBar = progressBarFills[currentStatusIndex];
-            let progressWidth = 0;
-            lastProgressTime = 0;
-            const startTime = Date.now();
             
+            progressStartTime = Date.now() - (pausedProgressWidth / 100) * statusDuration;
+
             progressInterval = setInterval(() => {
-                if (isPaused) {
-                    // Pause logic handled in pauseUI()
-                    return;
-                }
-                
-                const elapsedTime = Date.now() - startTime;
-                progressWidth = (elapsedTime / statusDuration) * 100;
+                const elapsedTime = Date.now() - progressStartTime;
+                let progressWidth = (elapsedTime / statusDuration) * 100;
                 
                 if (progressWidth >= 100) {
                     activeBar.style.width = '100%';
                     clearInterval(progressInterval);
-                    progressInterval = null;
-                    lastProgressTime = statusDuration;
                     nextStatus();
                 } else {
                     activeBar.style.width = progressWidth + '%';
-                    lastProgressTime = elapsedTime;
                 }
             }, 50);
+        }
+
+        function pauseProgress() {
+            clearInterval(progressInterval);
+            const activeBar = progressBarFills[currentStatusIndex];
+            pausedProgressWidth = parseFloat(activeBar.style.width);
         }
 
         function nextStatus() {
             saveCurrentStatusState();
             clearInterval(progressInterval);
-            progressInterval = null;
-            lastProgressTime = 0;
-            
             if (currentStatusIndex < users[currentUserIndex].statuses.length - 1) {
                 currentStatusIndex++;
                 updateUI();
@@ -612,9 +505,6 @@
         function prevStatus() {
             saveCurrentStatusState();
             clearInterval(progressInterval);
-            progressInterval = null;
-            lastProgressTime = 0;
-            
             if (currentStatusIndex > 0) {
                 currentStatusIndex--;
                 updateUI();
@@ -640,27 +530,13 @@
             isAnimating = true;
             saveCurrentStatusState();
             clearInterval(progressInterval);
-            progressInterval = null;
-            lastProgressTime = 0;
 
             const nextUserIndex = (currentUserIndex + 1) % users.length;
             const nextStatus = users[nextUserIndex].statuses[0];
             
-            // Create next image with anti-context-menu attributes
             const nextImg = document.createElement('img');
             nextImg.src = nextStatus.content;
             nextImg.alt = "Next User Status";
-            nextImg.style.cssText = `
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                pointer-events: none;
-                -webkit-user-drag: none;
-                -khtml-user-drag: none;
-                -moz-user-drag: none;
-                -o-user-drag: none;
-                user-drag: none;
-            `;
             
             rightContent.innerHTML = '';
             rightContent.appendChild(nextImg);
@@ -682,28 +558,14 @@
             isAnimating = true;
             saveCurrentStatusState();
             clearInterval(progressInterval);
-            progressInterval = null;
-            lastProgressTime = 0;
 
             const prevUserIndex = (currentUserIndex - 1 + users.length) % users.length;
             const lastStatusIndex = users[prevUserIndex].statuses.length - 1;
             const prevStatus = users[prevUserIndex].statuses[lastStatusIndex];
             
-            // Create previous image with anti-context-menu attributes
             const prevImg = document.createElement('img');
             prevImg.src = prevStatus.content;
             prevImg.alt = "Previous User Status";
-            prevImg.style.cssText = `
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                pointer-events: none;
-                -webkit-user-drag: none;
-                -khtml-user-drag: none;
-                -moz-user-drag: none;
-                -o-user-drag: none;
-                user-drag: none;
-            `;
             
             leftContent.innerHTML = '';
             leftContent.appendChild(prevImg);
@@ -720,62 +582,68 @@
             }, { once: true });
         }
 
-        // Enhanced drag functionality with pause/resume
-        let holdTimeout;
-        let isHolding = false;
+        // Hold and Release functionality
+        statusContainer.addEventListener("mousedown", handleHoldStart);
+        statusContainer.addEventListener("mouseup", handleHoldEnd);
+        statusContainer.addEventListener("touchstart", handleHoldStart, { passive: false });
+        statusContainer.addEventListener("touchend", handleHoldEnd);
 
-        function handleStart(e) {
+        function handleHoldStart(e) {
             if (isAnimating) return;
             
-            // Start hold detection
-            isHolding = true;
-            holdTimeout = setTimeout(() => {
-                if (isHolding) {
-                    pauseUI();
-                }
-            }, 300); // Pause after 300ms hold
-
             const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
             startX = clientX;
+            isDragging = false;
+
+            // Start a timer to check for a hold vs. a swipe
+            holdTimeout = setTimeout(() => {
+                isHolding = true;
+                pauseProgress();
+                progressBarContainer.classList.add('hide-on-hold');
+                bottomBar.classList.add('hide-on-hold');
+            }, 200); // 200ms delay to differentiate a hold from a quick tap or swipe
         }
 
-        function handleEnd(e) {
-            // Cancel hold detection
+        function handleHoldEnd(e) {
             clearTimeout(holdTimeout);
             
             if (isHolding) {
                 isHolding = false;
-                resumeUI();
-            }
-            
-            if (isAnimating || startX === 0) return;
-            const clientX = e.type.startsWith('touch') ? e.changedTouches[0].clientX : e.clientX;
-            const diff = clientX - startX;
-            
-            if (diff > 50) {
-                // Dragged right
-                if (currentUserIndex > 0) {
-                    saveCurrentStatusState();
-                    prevUserWithCube();
-                }
-            } else if (diff < -50) {
-                // Dragged left
-                if (currentUserIndex < users.length - 1) {
-                    saveCurrentStatusState();
-                    nextUserWithCube();
+                progressBarContainer.classList.remove('hide-on-hold');
+                bottomBar.classList.remove('hide-on-hold');
+                startProgress();
+            } else {
+                // If it wasn't a hold, check for a swipe
+                const clientX = e.type.startsWith('touch') ? e.changedTouches[0].clientX : e.clientX;
+                const diff = clientX - startX;
+
+                if (diff > 50 && !isDragging) {
+                    if (currentUserIndex > 0) {
+                        prevUserWithCube();
+                    }
+                } else if (diff < -50 && !isDragging) {
+                    if (currentUserIndex < users.length - 1) {
+                        nextUserWithCube();
+                    }
                 }
             }
             startX = 0;
+            isDragging = false;
         }
 
-        // Add drag functionality with pause/resume
-        statusContainer.addEventListener("mousedown", handleStart);
-        statusContainer.addEventListener("mouseup", handleEnd);
-        statusContainer.addEventListener("touchstart", handleStart, { passive: false });
-        statusContainer.addEventListener("touchend", handleEnd, { passive: false });
-        
-        // Handle touch cancel (when user lifts finger outside bounds)
-        statusContainer.addEventListener("touchcancel", handleEnd, { passive: false });
+        // Add drag functionality
+        statusContainer.addEventListener("mousemove", handleMove);
+        statusContainer.addEventListener("touchmove", handleMove, { passive: false });
+
+        function handleMove(e) {
+            if (startX === 0) return;
+            const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+            const diff = clientX - startX;
+            if (Math.abs(diff) > 10) { // A threshold to determine if it's a drag
+                isDragging = true;
+                clearTimeout(holdTimeout);
+            }
+        }
 
         function toggleLike() {
             const currentUser = users[currentUserIndex];
@@ -832,3 +700,4 @@
     </script>
 </body>
 </html>
+
