@@ -1,742 +1,881 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hi-lite-messenger Stories</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <style>
+        :root {
+            --bg-color: #000;
+            --input-bg: rgba(255, 255, 255, 0.1);
+            --text-color: #fff;
+            --instagram-pink: #ff66b2;
+        }
 
-    body {
-      font-family: Arial, sans-serif;
-      background: #000;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      overflow: hidden;
-      position: relative;
-    }
+        body {
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: sans-serif;
+            color: var(--text-color);
+        }
 
-    .story-container {
-      position: relative;
-      width: 100%;
-      max-width: 420px;
-      height: 100vh;
-      background: #000;
-      overflow: hidden;
-      border-radius: 12px;
-    }
+        .status-container {
+            width: 360px;
+            height: 565px;
+            border-radius: 10px;
+            position: absolute;
+            top: 44%;
+            left: 50%;
+            transform: translate(-50%, -50%) translateY(27px);
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            perspective: 1000px;
+            touch-action: none;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+            user-select: none;
+        }
 
-    /* Progress bar */
-    .progress-bar {
-      display: flex;
-      gap: 4px;
-      position: absolute;
-      top: 6px;
-      left: 6px;
-      right: 6px;
-      z-index: 10;
-    }
+        .status-content-wrapper {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s ease;
+        }
 
-    .progress-segment {
-      flex: 1;
-      height: 3px;
-      background: rgba(255, 255, 255, 0.3);
-      border-radius: 10px;
-      overflow: hidden;
-    }
+        .status-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+            backface-visibility: hidden;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
 
-    .progress-fill {
-      width: 0%;
-      height: 100%;
-      background: #fff;
-    }
+        .status-content.front {
+            transform: rotateY(0deg) translateZ(180px);
+        }
 
-    /* Keyframes for the fill animation */
-    @keyframes fill {
-      from { width: 0%; }
-      to { width: 100%; }
-    }
+        .status-content.right {
+            transform: rotateY(90deg) translateZ(180px);
+        }
 
-    .paused .progress-fill {
-      animation-play-state: paused !important;
-    }
-    
-    /* Header on story */
-    .header {
-      position: absolute;
-      top: 16px;
-      left: 12px;
-      right: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 11;
-      color: #fff;
-    }
+        .status-content.left {
+            transform: rotateY(-90deg) translateZ(180px);
+        }
 
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+        .status-content img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            pointer-events: none;
+            -webkit-user-drag: none;
+            -khtml-user-drag: none;
+            -moz-user-drag: none;
+            -o-user-drag: none;
+            user-drag: none;
+        }
 
-    .profile-pic {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid #fff;
-    }
+        .status-header {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            display: flex;
+            align-items: center;
+            z-index: 10;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
 
-    .user-details {
-      display: flex;
-      flex-direction: column;
-      line-height: 1.2;
-    }
+        .status-header.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
 
-    .username {
-      font-weight: bold;
-      font-size: 15px;
-    }
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #333;
+            margin-right: 10px;
+            overflow: hidden;
+        }
 
-    .timestamp {
-      font-size: 12px;
-      color: #fff;
-    }
+        .profile-pic img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
 
-    .menu {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
+        .user-info {
+            flex-grow: 1;
+        }
 
-    .dot {
-      width: 5px;
-      height: 5px;
-      background-color: #fff;
-      border-radius: 50%;
-    }
+        .user-name {
+            font-size: 1em;
+            font-weight: bold;
+            margin: 0;
+        }
 
-    /* Story segments container */
-    .story-segments {
-      width: 100%;
-      height: 100%;
-      position: relative;
-    }
+        .status-time {
+            font-size: 0.8em;
+            color: #aaa;
+            margin: 0;
+        }
+        
+        .progress-bar-container {
+            position: absolute;
+            top: 5px;
+            left: 15px;
+            right: 15px;
+            height: 3px;
+            display: flex;
+            gap: 5px;
+            z-index: 10;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
 
-    /* Individual story image/video */
-    .story-segment {
-      width: 100%;
-      height: calc(100% - 70px); 
-      object-fit: cover;
-      position: absolute;
-      top: 0;
-      left: 0;
-      display: none; /* Hide all by default */
-    }
+        .progress-bar-container.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
 
-    .story-segment.active {
-      display: block; /* Show the active segment */
-    }
-    
-    .status-card {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-      transition: transform 0.5s ease;
-      transform: translateX(100%); /* Hide all cards by default */
-    }
+        .progress-bar {
+            flex: 1;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            overflow: hidden;
+        }
 
-    .status-card:first-child {
-      transform: translateX(0); /* Show only the first card initially */
-      z-index: 1;
-    }
+        .progress-bar-fill {
+            width: 0;
+            height: 100%;
+            background-color: #fff;
+            border-radius: 5px;
+            transition: width 0.1s linear;
+        }
 
-    .status-card.swipe-left {
-      transform: translateX(-100%);
-    }
+        .controls {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            z-index: 5;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+            user-select: none;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
 
-    .status-card.swipe-right {
-      transform: translateX(100%);
-    }
+        .controls.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
 
-    /* Reply bar CSS */
-    .input-container {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 90%;
-      max-width: 400px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      z-index: 12; /* Ensure it's above the stories */
-    }
+        .control-left, .control-right {
+            flex: 1;
+            cursor: pointer;
+        }
 
-    .input-field {
-      display: flex;
-      align-items: center;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 20px;
-      padding: 0 10px;
-      flex-grow: 1;
-      height: 40px;
-    }
+        /* Bottom Bar Styles */
+        .bottom-bar {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 360px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            box-sizing: border-box;
+            z-index: 20;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
 
-    .message-input {
-      flex-grow: 1;
-      min-height: 40px;
-      line-height: 40px;
-      background: transparent;
-      color: #fff;
-      font-size: 14px;
-      outline: none;
-      padding-right: 10px;
-      z-index: 2;
-    }
+        .bottom-bar.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .reply-input-container {
+            flex-grow: 1;
+            margin-right: 15px;
+        }
+        
+        .reply-input {
+            width: 100%;
+            padding: 10px 15px;
+            border-radius: 25px;
+            border: none;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-size: 1em;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+        
+        .reply-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .action-icon-btn {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+        
+        .action-icon-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: none;
+            stroke: var(--text-color);
+            stroke-width: 2;
+        }
+        
+        .action-icon-btn.like-btn svg {
+            fill: none;
+            stroke: var(--text-color);
+            transition: fill 0.2s ease-in-out, stroke 0.2s ease-in-out;
+        }
+        
+        .action-icon-btn.like-btn.liked svg {
+            fill: var(--instagram-pink);
+            stroke: var(--instagram-pink);
+        }
+        
+        .heart-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 1px solid var(--input-bg);
+            padding: 5px;
+        }
 
-    .message-input:empty:before {
-      content: attr(data-placeholder);
-      color: rgba(255, 255, 255, 0.8);
-      pointer-events: none;
-      z-index: 2;
-    }
-
-    .svg-icon.heart {
-      width: 32px; 
-      height: 32px; 
-      fill: #fff;
-      transition: fill 0.3s ease;
-      cursor: pointer;
-    }
-
-    .svg-icon.heart.liked path {
-      fill: #ff69b4; 
-    }
-
-    /* Fade animation for hiding elements */
-    .hidden {
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.3s ease;
-    }
-  </style>
+        @media (max-width: 400px) {
+            .status-container, .bottom-bar {
+                width: 100%;
+                border-radius: 0;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="story-container">
-    <div class="status-card" data-user="your-story">
-      <div class="progress-bar"></div>
-      <div class="header">
-        <div class="user-info">
-          <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="My story">
-          <div class="user-details">
-            <span class="username">My story</span>
-            <span class="timestamp">Just now</span>
-          </div>
+
+    <div class="status-container" id="statusContainer">
+        
+        <div class="status-header" id="statusHeader">
+            <div class="profile-pic">
+                <img id="profilePic" src="https://via.placeholder.com/40" alt="Profile Picture">
+            </div>
+            <div class="user-info">
+                <h3 class="user-name" id="userName"></h3>
+                <p class="status-time" id="statusTime"></p>
+            </div>
         </div>
-        <div class="menu">
-          <span class="dot"></span>
-          <span class="dot"></span>
-          <span class="dot"></span>
+
+        <div class="status-content-wrapper" id="statusWrapper">
+            <div class="status-content front" id="frontContent"></div>
+            <div class="status-content right" id="rightContent"></div>
+            <div class="status-content left" id="leftContent"></div>
         </div>
-      </div>
-      <div class="story-segments">
-        <img src="https://picsum.photos/id/1000/500/800" alt="My story" class="story-segment active">
-      </div>
-      <div class="input-container">
-        <div class="input-field">
-          <div class="message-input" contenteditable="false" data-placeholder="Reply privately..." id="chat-input-div-your-story"></div>
+
+        <div class="progress-bar-container" id="progressContainer"></div>
+
+        <div class="controls" id="controls">
+            <div class="control-left"></div>
+            <div class="control-right"></div>
         </div>
-        <svg class="svg-icon heart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.03L12 21.35Z"/>
-        </svg>
-      </div>
     </div>
 
-    <div class="status-card" data-user="1">
-      <div class="progress-bar"></div>
-      <div class="header">
-        <div class="user-info">
-          <img class="profile-pic" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face" alt="Emily">
-          <div class="user-details">
-            <span class="username">Emily</span>
-            <span class="timestamp">August 15 at 11:00 PM</span>
-          </div>
+    <div class="bottom-bar" id="bottomBar">
+        <div class="reply-input-container">
+            <input type="text" class="reply-input" id="replyInput" placeholder="Reply privately...">
         </div>
-        <div class="menu">
-          <span class="dot"></span>
-          <span class="dot"></span>
-          <span class="dot"></span>
-        </div>
-      </div>
-      <div class="story-segments">
-        <img src="https://picsum.photos/id/1011/500/800" alt="Emily Story 1" class="story-segment active">
-        <img src="https://picsum.photos/id/1012/500/800" alt="Emily Story 2" class="story-segment">
-        <img src="https://picsum.photos/id/1013/500/800" alt="Emily Story 3" class="story-segment">
-        <img src="https://picsum.photos/id/1014/500/800" alt="Emily Story 4" class="story-segment">
-      </div>
-      <div class="input-container">
-        <div class="input-field">
-          <div class="message-input" contenteditable="false" data-placeholder="Reply privately..." id="chat-input-div-1"></div>
-        </div>
-        <svg class="svg-icon heart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.03L12 21.35Z"/>
-        </svg>
-      </div>
+        <button class="action-icon-btn like-btn" id="likeButton">
+            <div class="heart-container">
+                <svg class="svg-icon heart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 
+                             4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 
+                             14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 
+                             18.6 15.36 13.45 20.03L12 21.35Z"></path>
+                </svg>
+            </div>
+        </button>
     </div>
 
-    <div class="status-card" data-user="2">
-      <div class="progress-bar"></div>
-      <div class="header">
-        <div class="user-info">
-          <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="Michael">
-          <div class="user-details">
-            <span class="username">Michael</span>
-            <span class="timestamp">August 15 at 12:00 PM</span>
-          </div>
-        </div>
-        <div class="menu">
-          <span class="dot"></span>
-          <span class="dot"></span>
-          <span class="dot"></span>
-        </div>
-      </div>
-      <div class="story-segments">
-        <img src="https://picsum.photos/id/1015/500/800" alt="Michael Story" class="story-segment active">
-      </div>
-      <div class="input-container">
-        <div class="input-field">
-          <div class="message-input" contenteditable="false" data-placeholder="Reply privately..." id="chat-input-div-2"></div>
-        </div>
-        <svg class="svg-icon heart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.03L12 21.35Z"/>
-        </svg>
-      </div>
-    </div>
+    <script>
+        const users = [
+            {
+                id: 'emily',
+                name: "Emily",
+                profilePic: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
+                statuses: [
+                    { 
+                        id: 'emily1',
+                        content: 'https://picsum.photos/id/237/360/640', 
+                        time: 'Just Now',
+                        reply: '',
+                        isLiked: false
+                    }
+                ]
+            },
+            {
+                id: 'michael',
+                name: "Michael",
+                profilePic: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
+                statuses: [
+                    { 
+                        id: 'michael1',
+                        content: 'https://picsum.photos/id/1018/360/640', 
+                        time: '1 hour ago',
+                        reply: '',
+                        isLiked: false
+                    }
+                ]
+            },
+            {
+                id: 'sarah',
+                name: "Sarah",
+                profilePic: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
+                statuses: [
+                    { 
+                        id: 'sarah1',
+                        content: 'https://picsum.photos/id/1015/360/640', 
+                        time: '2 hours ago',
+                        reply: '',
+                        isLiked: false
+                    }
+                ]
+            },
+            {
+                id: 'david',
+                name: "David",
+                profilePic: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
+                statuses: [
+                    { 
+                        id: 'david1',
+                        content: 'https://picsum.photos/id/1016/360/640', 
+                        time: '3 hours ago',
+                        reply: '',
+                        isLiked: false
+                    }
+                ]
+            },
+            {
+                id: 'jessica',
+                name: "Jessica",
+                profilePic: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
+                statuses: [
+                    { 
+                        id: 'jessica1',
+                        content: 'https://picsum.photos/id/1019/360/640', 
+                        time: '4 hours ago',
+                        reply: '',
+                        isLiked: false
+                    }
+                ]
+            }
+        ];
 
-    <div class="status-card" data-user="3">
-      <div class="progress-bar"></div>
-      <div class="header">
-        <div class="user-info">
-          <img class="profile-pic" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face" alt="Sarah">
-          <div class="user-details">
-            <span class="username">Sarah</span>
-            <span class="timestamp">Just now</span>
-          </div>
-        </div>
-        <div class="menu">
-          <span class="dot"></span>
-          <span class="dot"></span>
-          <span class="dot"></span>
-        </div>
-      </div>
-      <div class="story-segments">
-        <img src="https://picsum.photos/id/1026/500/800" alt="Sarah Story 1" class="story-segment active">
-        <img src="https://picsum.photos/id/1027/500/800" alt="Sarah Story 2" class="story-segment">
-        <img src="https://picsum.photos/id/1028/500/800" alt="Sarah Story 3" class="story-segment">
-        <img src="https://picsum.photos/id/1029/500/800" alt="Sarah Story 4" class="story-segment">
-        <img src="https://picsum.photos/id/1030/500/800" alt="Sarah Story 5" class="story-segment">
-        <img src="https://picsum.photos/id/1031/500/800" alt="Sarah Story 6" class="story-segment">
-      </div>
-      <div class="input-container">
-        <div class="input-field">
-          <div class="message-input" contenteditable="false" data-placeholder="Reply privately..." id="chat-input-div-3"></div>
-        </div>
-        <svg class="svg-icon heart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.03L12 21.35Z"/>
-        </svg>
-      </div>
-    </div>
+        let currentUserIndex = 0;
+        let currentStatusIndex = 0;
+        const statusDuration = 5000;
+        let progressInterval;
+        let progressBarFills;
+        let isPaused = false;
+        let pauseStartTime = 0;
+        let currentProgressWidth = 0;
+        let savedProgress = 0;
+        let startX = 0;
+        let isAnimating = false;
+        let currentAngle = 0;
+        let isHold = false;
+        let holdTimer;
+        const holdThreshold = 100; // ms
 
-    <div class="status-card" data-user="4">
-      <div class="progress-bar"></div>
-      <div class="header">
-        <div class="user-info">
-          <img class="profile-pic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" alt="David">
-          <div class="user-details">
-            <span class="username">David</span>
-            <span class="timestamp">Just now</span>
-          </div>
-        </div>
-        <div class="menu">
-          <span class="dot"></span>
-          <span class="dot"></span>
-          <span class="dot"></span>
-        </div>
-      </div>
-      <div class="story-segments">
-        <video src="https://cdn.pixabay.com/video/2024/05/29/214696_tiny.mp4" class="story-segment active" autoplay muted loop playsinline></video>
-      </div>
-      <div class="input-container">
-        <div class="input-field">
-          <div class="message-input" contenteditable="false" data-placeholder="Reply privately..." id="chat-input-div-4"></div>
-        </div>
-        <svg class="svg-icon heart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.03L12 21.35Z"/>
-        </svg>
-      </div>
-    </div>
+        const statusContainer = document.getElementById('statusContainer');
+        const profilePicEl = document.getElementById('profilePic');
+        const userNameEl = document.getElementById('userName');
+        const statusTimeEl = document.getElementById('statusTime');
+        const replyInput = document.getElementById('replyInput');
+        const likeButton = document.getElementById('likeButton');
+        const statusHeader = document.getElementById('statusHeader');
+        const controls = document.getElementById('controls');
+        const bottomBar = document.getElementById('bottomBar');
+        const controlLeft = document.querySelector('.control-left');
+        const controlRight = document.querySelector('.control-right');
+        
+        const statusWrapper = document.getElementById('statusWrapper');
+        const frontContent = document.getElementById('frontContent');
+        const rightContent = document.getElementById('rightContent');
+        const leftContent = document.getElementById('leftContent');
 
-    <div class="status-card" data-user="5">
-      <div class="progress-bar"></div>
-      <div class="header">
-        <div class="user-info">
-          <img class="profile-pic" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face" alt="Jessica">
-          <div class="user-details">
-            <span class="username">Jessica</span>
-            <span class="timestamp">Just now</span>
-          </div>
-        </div>
-        <div class="menu">
-          <span class="dot"></span>
-          <span class="dot"></span>
-          <span class="dot"></span>
-        </div>
-      </div>
-      <div class="story-segments">
-        <img src="https://picsum.photos/id/1033/500/800" alt="Jessica Story" class="story-segment active">
-      </div>
-      <div class="input-container">
-        <div class="input-field">
-          <div class="message-input" contenteditable="false" data-placeholder="Reply privately..." id="chat-input-div-5"></div>
-        </div>
-        <svg class="svg-icon heart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.03L12 21.35Z"/>
-        </svg>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const cards = document.querySelectorAll('.status-card');
-      let currentCardIndex = 0;
-      let currentSegmentIndex = 0;
-      let storyTimer;
-      const STORY_DURATION = 5000;
-      let isPaused = false;
-
-      function generateProgressBars(card) {
-        const segmentsContainer = card.querySelector('.story-segments');
-        const progressContainer = card.querySelector('.progress-bar');
-        const segmentCount = segmentsContainer.querySelectorAll('.story-segment').length;
-        progressContainer.innerHTML = '';
-        for (let i = 0; i < segmentCount; i++) {
-          const segment = document.createElement('div');
-          segment.classList.add('progress-segment');
-          const fill = document.createElement('div');
-          fill.classList.add('progress-fill');
-          segment.appendChild(fill);
-          progressContainer.appendChild(segment);
-        }
-      }
-
-      function showStorySegment(card, index) {
-        const segments = card.querySelectorAll('.story-segment');
-        segments.forEach((segment, i) => {
-          segment.classList.remove('active');
-          if (segment.tagName === 'VIDEO' && i !== index) {
-            segment.pause(); // Pause non-active videos
-          }
-        });
-        if (segments[index]) {
-          segments[index].classList.add('active');
-          if (segments[index].tagName === 'VIDEO' && !isPaused) {
-            segments[index].play(); // Play active video
-          }
-        }
-      }
-
-      function updateProgressBar(card, index) {
-        const progressFills = card.querySelectorAll('.progress-fill');
-        progressFills.forEach((fill, i) => {
-          fill.style.animation = 'none';
-          if (i < index) {
-            fill.style.width = '100%';
-          } else {
-            fill.style.width = '0%';
-          }
-        });
-        if (progressFills[index]) {
-          progressFills[index].style.animation = `fill ${STORY_DURATION / 1000}s linear forwards`;
-        }
-      }
-
-      function startStoryTimer(card, index) {
-        clearTimeout(storyTimer);
-        const segments = card.querySelectorAll('.story-segment');
-        if (isPaused || (currentCardIndex === cards.length - 1 && index === segments.length - 1)) {
-          return;
-        }
-        storyTimer = setTimeout(() => {
-          advanceToNextSegment(card, index);
-        }, STORY_DURATION);
-      }
-
-      function pauseStory() {
-        isPaused = true;
-        clearTimeout(storyTimer);
-        const activeCard = cards[currentCardIndex];
-        if (activeCard) {
-          activeCard.classList.add('paused');
-          const activeSegment = activeCard.querySelector('.story-segment.active');
-          if (activeSegment && activeSegment.tagName === 'VIDEO') {
-            activeSegment.pause(); // Pause video during story hold
-          }
-        }
-      }
-
-      function resumeStory() {
-        isPaused = false;
-        const activeCard = cards[currentCardIndex];
-        if (activeCard) {
-          activeCard.classList.remove('paused');
-          const activeSegment = activeCard.querySelector('.story-segment.active');
-          if (activeSegment && activeSegment.tagName === 'VIDEO') {
-            activeSegment.play(); // Resume video
-          }
-        }
-        startStoryTimer(activeCard, currentSegmentIndex);
-      }
-
-      function advanceToNextSegment(card, index) {
-        const segmentCount = card.querySelectorAll('.story-segments .story-segment').length;
-        if (index < segmentCount - 1) {
-          currentSegmentIndex++;
-          updateStory(currentCardIndex, currentSegmentIndex);
-        } else {
-          goToNextUserStory();
-        }
-      }
-
-      function advanceToPreviousSegment(card, index) {
-        if (index > 0) {
-          currentSegmentIndex--;
-          updateStory(currentCardIndex, currentSegmentIndex);
-        } else {
-          goToPreviousUserStory();
-        }
-      }
-
-      function updateStory(cardIndex, segmentIndex) {
-        const card = cards[cardIndex];
-        showStorySegment(card, segmentIndex);
-        updateProgressBar(card, segmentIndex);
-        startStoryTimer(card, segmentIndex);
-      }
-
-      function goToNextUserStory() {
-        if (currentCardIndex < cards.length - 1) {
-          cards[currentCardIndex].classList.add('swipe-left');
-          currentCardIndex++;
-          currentSegmentIndex = 0; 
-          showCard(currentCardIndex);
-          setTimeout(() => {
-            cards[currentCardIndex - 1].classList.remove('swipe-left');
-          }, 500);
-        }
-      }
-
-      function goToPreviousUserStory() {
-        if (currentCardIndex > 0) {
-          cards[currentCardIndex].classList.add('swipe-right');
-          currentCardIndex--;
-          currentSegmentIndex = 0; 
-          showCard(currentCardIndex);
-          setTimeout(() => {
-            cards[currentCardIndex + 1].classList.remove('swipe-right');
-          }, 500);
-        }
-      }
-
-      function showCard(index) {
-        cards.forEach((card, i) => {
-          card.style.transform = i === index ? 'translateX(0)' : 'translateX(100%)';
-          card.style.zIndex = i === index ? 1 : 0;
-          card.querySelectorAll('.progress-fill').forEach(fill => {
-            fill.style.animation = 'none';
-            fill.style.width = '0%';
-          });
-          // Pause all videos in non-active cards
-          if (i !== index) {
-            card.querySelectorAll('.story-segment').forEach(segment => {
-              if (segment.tagName === 'VIDEO') {
-                segment.pause();
-              }
+        // Load status states from localStorage on page load
+        function loadStatusStates() {
+            users.forEach(user => {
+                user.statuses.forEach(status => {
+                    const savedReply = localStorage.getItem(`reply_${status.id}`);
+                    const savedLike = localStorage.getItem(`like_${status.id}`);
+                    
+                    if (savedReply !== null) {
+                        status.reply = savedReply;
+                    }
+                    if (savedLike !== null) {
+                        status.isLiked = JSON.parse(savedLike);
+                    }
+                });
             });
-          }
-        });
-        if (cards[index]) {
-          currentSegmentIndex = 0; 
-          updateStory(index, currentSegmentIndex);
-        }
-      }
-
-      function setupHoldToPause() {
-        let holdTimeout;
-        let isHolding = false;
-        let holdStartTime;
-
-        function fadeOutElements(card) {
-          const progressBar = card.querySelector('.progress-bar');
-          const inputContainer = card.querySelector('.input-container');
-          const heartIcon = card.querySelector('.svg-icon.heart');
-          const menu = card.querySelector('.menu');
-          if (progressBar) progressBar.classList.add('hidden');
-          if (inputContainer) inputContainer.classList.add('hidden');
-          if (heartIcon) heartIcon.classList.add('hidden');
-          if (menu) menu.classList.add('hidden');
         }
 
-        function fadeInElements(card) {
-          const progressBar = card.querySelector('.progress-bar');
-          const inputContainer = card.querySelector('.input-container');
-          const heartIcon = card.querySelector('.svg-icon.heart');
-          const menu = card.querySelector('.menu');
-          if (progressBar) progressBar.classList.remove('hidden');
-          if (inputContainer) inputContainer.classList.remove('hidden');
-          if (heartIcon) heartIcon.classList.remove('hidden');
-          if (menu) menu.classList.remove('hidden');
+        // Save status state to localStorage
+        function saveStatusState(status) {
+            localStorage.setItem(`reply_${status.id}`, status.reply);
+            localStorage.setItem(`like_${status.id}`, JSON.stringify(status.isLiked));
         }
 
-        document.addEventListener('mousedown', (e) => {
-          if (e.target.closest('.story-segments')) {
-            const activeCard = cards[currentCardIndex];
-            if (!activeCard) return;
-            isHolding = true;
-            holdStartTime = Date.now();
-            pauseStory();
-            holdTimeout = setTimeout(() => {
-              if (isHolding) {
-                fadeOutElements(activeCard);
-              }
-            }, 300); // 300ms delay for fade-out
-          }
-        });
-
-        document.addEventListener('mouseup', (e) => {
-          if (e.target.closest('.story-segments')) {
-            const activeCard = cards[currentCardIndex];
-            if (!activeCard) return;
-            const holdDuration = Date.now() - holdStartTime;
-            isHolding = false;
-            clearTimeout(holdTimeout);
-            if (holdDuration < 200) {
-              // Treat as tap, don't fade, let click handler advance segment
-              resumeStory();
-              return;
+        function createProgressBars() {
+            const oldContainer = statusContainer.querySelector('.progress-bar-container');
+            if (oldContainer) {
+                oldContainer.remove();
             }
-            fadeInElements(activeCard);
-            resumeStory();
-          }
-        });
 
-        document.addEventListener('touchstart', (e) => {
-          if (e.target.closest('.story-segments')) {
-            const activeCard = cards[currentCardIndex];
-            if (!activeCard) return;
-            isHolding = true;
-            holdStartTime = Date.now();
-            pauseStory();
-            holdTimeout = setTimeout(() => {
-              if (isHolding) {
-                fadeOutElements(activeCard);
-              }
-            }, 300); // 300ms delay for fade-out
-          }
-        });
+            const currentStatuses = users[currentUserIndex].statuses;
+            const progressBarContainer = document.createElement('div');
+            progressBarContainer.className = 'progress-bar-container';
+            progressBarContainer.id = 'progressContainer';
 
-        document.addEventListener('touchend', (e) => {
-          if (e.target.closest('.story-segments')) {
-            const activeCard = cards[currentCardIndex];
-            if (!activeCard) return;
-            const holdDuration = Date.now() - holdStartTime;
-            isHolding = false;
-            clearTimeout(holdTimeout);
-            if (holdDuration < 200) {
-              // Treat as tap, don't fade, let click handler advance segment
-              resumeStory();
-              return;
+            currentStatuses.forEach((_, index) => {
+                const progressBar = document.createElement('div');
+                progressBar.className = 'progress-bar';
+                const progressBarFill = document.createElement('div');
+                progressBarFill.className = 'progress-bar-fill';
+                progressBar.appendChild(progressBarFill);
+                progressBarContainer.appendChild(progressBar);
+            });
+
+            statusContainer.insertBefore(progressBarContainer, statusContainer.firstChild);
+            progressBarFills = document.querySelectorAll('.progress-bar-fill');
+        }
+
+        function hideUIElements() {
+            statusHeader.classList.add('hidden');
+            const progressContainer = document.getElementById('progressContainer');
+            if (progressContainer) {
+                progressContainer.classList.add('hidden');
             }
-            fadeInElements(activeCard);
-            resumeStory();
-          }
+            controls.classList.add('hidden');
+            bottomBar.classList.add('hidden');
+        }
+
+        function showUIElements() {
+            statusHeader.classList.remove('hidden');
+            const progressContainer = document.getElementById('progressContainer');
+            if (progressContainer) {
+                progressContainer.classList.remove('hidden');
+            }
+            controls.classList.remove('hidden');
+            bottomBar.classList.remove('hidden');
+        }
+
+        function pauseProgress() {
+            if (progressInterval) {
+                clearInterval(progressInterval);
+                progressInterval = null;
+                isPaused = true;
+                pauseStartTime = Date.now();
+                currentProgressWidth = parseFloat(progressBarFills[currentStatusIndex].style.width) || 0;
+                savedProgress = currentProgressWidth;
+                hideUIElements();
+            }
+        }
+
+        function resumeProgress() {
+            if (isPaused) {
+                isPaused = false;
+                const pauseDuration = Date.now() - pauseStartTime;
+                const remainingTime = statusDuration - (savedProgress / 100) * statusDuration;
+                const adjustedRemainingTime = remainingTime - pauseDuration;
+                
+                if (adjustedRemainingTime > 0) {
+                    const activeBar = progressBarFills[currentStatusIndex];
+                    activeBar.style.width = savedProgress + '%';
+                    
+                    const startTime = Date.now();
+                    progressInterval = setInterval(() => {
+                        const elapsedTime = Date.now() - startTime;
+                        const totalElapsed = (savedProgress / 100) * statusDuration + elapsedTime;
+                        currentProgressWidth = (totalElapsed / statusDuration) * 100;
+                        
+                        if (currentProgressWidth >= 100) {
+                            activeBar.style.width = '100%';
+                            clearInterval(progressInterval);
+                            progressInterval = null;
+                            nextStatus();
+                        } else {
+                            activeBar.style.width = currentProgressWidth + '%';
+                        }
+                    }, 50);
+                } else {
+                    nextStatus();
+                }
+                showUIElements();
+            }
+        }
+
+        function updateUI() {
+            const currentUser = users[currentUserIndex];
+            const currentStatus = currentUser.statuses[currentStatusIndex];
+
+            profilePicEl.src = currentUser.profilePic;
+            userNameEl.textContent = currentUser.name;
+            statusTimeEl.textContent = currentStatus.time;
+            
+            const img = document.createElement('img');
+            img.src = currentStatus.content;
+            img.alt = "Status Image";
+            img.style.cssText = `
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                pointer-events: none;
+                -webkit-user-drag: none;
+                -khtml-user-drag: none;
+                -moz-user-drag: none;
+                -o-user-drag: none;
+                user-drag: none;
+            `;
+            
+            frontContent.innerHTML = '';
+            frontContent.appendChild(img);
+            
+            replyInput.value = currentStatus.reply;
+            likeButton.classList.toggle('liked', currentStatus.isLiked);
+            
+            progressBarFills.forEach(bar => bar.style.width = '0%');
+            
+            if (savedProgress > 0 && currentStatusIndex === 0 && currentUserIndex === 0) {
+                progressBarFills[currentStatusIndex].style.width = savedProgress + '%';
+                savedProgress = 0;
+            }
+            
+            startProgress();
+        }
+
+        function startProgress() {
+            if (isPaused) return;
+            
+            const activeBar = progressBarFills[currentStatusIndex];
+            let progressWidth = parseFloat(activeBar.style.width) || 0;
+            const startTime = Date.now();
+            
+            progressInterval = setInterval(() => {
+                if (isPaused) {
+                    clearInterval(progressInterval);
+                    progressInterval = null;
+                    return;
+                }
+                
+                const elapsedTime = Date.now() - startTime;
+                const totalElapsed = (progressWidth / 100) * statusDuration + elapsedTime;
+                currentProgressWidth = (totalElapsed / statusDuration) * 100;
+                
+                if (currentProgressWidth >= 100) {
+                    activeBar.style.width = '100%';
+                    clearInterval(progressInterval);
+                    progressInterval = null;
+                    nextStatus();
+                } else {
+                    activeBar.style.width = currentProgressWidth + '%';
+                }
+            }, 50);
+        }
+
+        function nextStatus() {
+            saveCurrentStatusState();
+            clearInterval(progressInterval);
+            progressInterval = null;
+            isPaused = false;
+            savedProgress = 0;
+            showUIElements();
+            
+            if (currentStatusIndex < users[currentUserIndex].statuses.length - 1) {
+                currentStatusIndex++;
+                updateUI();
+            } else {
+                if (currentUserIndex === users.length - 1) {
+                    console.log("End of stories.");
+                } else {
+                    nextUserWithCube();
+                }
+            }
+        }
+
+        function prevStatus() {
+            saveCurrentStatusState();
+            clearInterval(progressInterval);
+            progressInterval = null;
+            isPaused = false;
+            savedProgress = 0;
+            showUIElements();
+            
+            if (currentStatusIndex > 0) {
+                currentStatusIndex--;
+                updateUI();
+            } else {
+                if (currentUserIndex === 0) {
+                    console.log("Beginning of stories.");
+                } else {
+                    prevUserWithCube();
+                }
+            }
+        }
+
+        function saveCurrentStatusState() {
+            const currentUser = users[currentUserIndex];
+            const currentStatus = currentUser.statuses[currentStatusIndex];
+            currentStatus.reply = replyInput.value;
+            currentStatus.isLiked = likeButton.classList.contains('liked');
+            saveStatusState(currentStatus);
+        }
+
+        function nextUserWithCube() {
+            if (isAnimating) return;
+            isAnimating = true;
+            saveCurrentStatusState();
+            clearInterval(progressInterval);
+            progressInterval = null;
+            isPaused = false;
+            savedProgress = 0;
+            showUIElements();
+
+            const nextUserIndex = (currentUserIndex + 1) % users.length;
+            const nextStatus = users[nextUserIndex].statuses[0];
+            
+            const nextImg = document.createElement('img');
+            nextImg.src = nextStatus.content;
+            nextImg.alt = "Next User Status";
+            nextImg.style.cssText = `
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                pointer-events: none;
+                -webkit-user-drag: none;
+                -khtml-user-drag: none;
+                -moz-user-drag: none;
+                -o-user-drag: none;
+                user-drag: none;
+            `;
+            
+            rightContent.innerHTML = '';
+            rightContent.appendChild(nextImg);
+            
+            currentAngle -= 90;
+            statusWrapper.style.transform = `rotateY(${currentAngle}deg)`;
+
+            statusWrapper.addEventListener('transitionend', () => {
+                currentUserIndex = nextUserIndex;
+                currentStatusIndex = 0;
+                createProgressBars();
+                updateUI();
+                isAnimating = false;
+            }, { once: true });
+        }
+
+        function prevUserWithCube() {
+            if (isAnimating) return;
+            isAnimating = true;
+            saveCurrentStatusState();
+            clearInterval(progressInterval);
+            progressInterval = null;
+            isPaused = false;
+            savedProgress = 0;
+            showUIElements();
+
+            const prevUserIndex = (currentUserIndex - 1 + users.length) % users.length;
+            const lastStatusIndex = users[prevUserIndex].statuses.length - 1;
+            const prevStatus = users[prevUserIndex].statuses[lastStatusIndex];
+            
+            const prevImg = document.createElement('img');
+            prevImg.src = prevStatus.content;
+            prevImg.alt = "Previous User Status";
+            prevImg.style.cssText = `
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                pointer-events: none;
+                -webkit-user-drag: none;
+                -khtml-user-drag: none;
+                -moz-user-drag: none;
+                -o-user-drag: none;
+                user-drag: none;
+            `;
+            
+            leftContent.innerHTML = '';
+            leftContent.appendChild(prevImg);
+            
+            currentAngle += 90;
+            statusWrapper.style.transform = `rotateY(${currentAngle}deg)`;
+
+            statusWrapper.addEventListener('transitionend', () => {
+                currentUserIndex = prevUserIndex;
+                currentStatusIndex = lastStatusIndex;
+                createProgressBars();
+                updateUI();
+                isAnimating = false;
+            }, { once: true });
+        }
+
+        function handleStart(e) {
+            if (isAnimating) return;
+            
+            clearTimeout(holdTimer);
+            isHold = false;
+
+            const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+            startX = clientX;
+            
+            holdTimer = setTimeout(() => {
+                isHold = true;
+                pauseProgress();
+            }, holdThreshold);
+        }
+
+        function handleEnd(e) {
+            if (isAnimating || startX === 0) {
+                if (holdTimer) clearTimeout(holdTimer);
+                startX = 0;
+                return;
+            }
+            
+            clearTimeout(holdTimer);
+            const clientX = e.type.startsWith('touch') ? e.changedTouches[0].clientX : e.clientX;
+            const diff = clientX - startX;
+            const dragThreshold = 50;
+
+            if (Math.abs(diff) > dragThreshold) {
+                if (diff > 0) {
+                    if (currentUserIndex > 0) {
+                        saveCurrentStatusState();
+                        prevUserWithCube();
+                    } else {
+                        resumeProgress();
+                    }
+                } else {
+                    if (currentUserIndex < users.length - 1) {
+                        saveCurrentStatusState();
+                        nextUserWithCube();
+                    } else {
+                        resumeProgress();
+                    }
+                }
+            } else {
+                if (isHold) {
+                    resumeProgress();
+                }
+            }
+            startX = 0;
+            isHold = false;
+        }
+
+        function toggleLike() {
+            const currentUser = users[currentUserIndex];
+            const currentStatus = currentUser.statuses[currentStatusIndex];
+            currentStatus.isLiked = !currentStatus.isLiked;
+            likeButton.classList.toggle('liked');
+            saveStatusState(currentStatus);
+        }
+        
+        // Event Listeners
+        statusContainer.addEventListener("mousedown", handleStart);
+        statusContainer.addEventListener("mouseup", handleEnd);
+        statusContainer.addEventListener("touchstart", handleStart, { passive: false });
+        statusContainer.addEventListener("touchend", handleEnd);
+        
+        controlLeft.addEventListener("click", () => {
+            if (!isHold) {
+                prevStatus();
+            }
         });
-      }
-
-      // Prevent browser context menu on story segments
-      document.querySelectorAll('.story-segment').forEach(segment => {
-        segment.addEventListener('contextmenu', (e) => {
-          e.preventDefault();
+        
+        controlRight.addEventListener("click", () => {
+            if (!isHold) {
+                nextStatus();
+            }
         });
-      });
 
-      // Tap handling (advancing segments)
-      document.addEventListener('click', (e) => {
-        if (e.target.closest('.input-container')) {
-          return;
-        }
-        const activeCard = cards[currentCardIndex];
-        const rect = activeCard.getBoundingClientRect();
-        const tapX = e.clientX - rect.left;
-        if (!isPaused) {
-          if (tapX > rect.width / 2) {
-            advanceToNextSegment(activeCard, currentSegmentIndex);
-          } else {
-            advanceToPreviousSegment(activeCard, currentSegmentIndex);
-          }
-        }
-      });
-
-      // Swipe handling (switching user stories)
-      let touchStartX = 0;
-      let touchEndX = 0;
-      let isSwiping = false;
-
-      document.addEventListener('touchstart', (e) => {
-        if (e.target.closest('.input-container')) {
-          isSwiping = false;
-          return;
-        }
-        isSwiping = true;
-        touchStartX = e.changedTouches[0].screenX;
-      });
-
-      document.addEventListener('touchend', (e) => {
-        if (!isSwiping) return;
-        touchEndX = e.changedTouches[0].screenX;
-        const swipeThreshold = 50;
-        const swipeDistance = touchEndX - touchStartX;
-        if (swipeDistance > swipeThreshold) {
-          goToPreviousUserStory();
-        } else if (swipeDistance < -swipeThreshold) {
-          goToNextUserStory();
-        }
-        isSwiping = false;
-      });
-
-      const heartIcon = document.querySelectorAll(".heart");
-      heartIcon.forEach(icon => {
-        icon.addEventListener("click", (e) => {
-          icon.classList.toggle("liked");
-          e.stopPropagation();
+        replyInput.addEventListener('input', function() {
+            const currentUser = users[currentUserIndex];
+            const currentStatus = currentUser.statuses[currentStatusIndex];
+            currentStatus.reply = this.value;
+            saveStatusState(currentStatus);
         });
-      });
 
-      cards.forEach(generateProgressBars);
-      setupHoldToPause();
-      showCard(currentCardIndex);
-    });
-  </script>
+        likeButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleLike();
+        });
+
+        document.addEventListener('contextmenu', function(e) {
+            if (e.target.tagName === 'IMG' && e.target.closest('.status-content')) {
+                e.preventDefault();
+            }
+        });
+
+        document.addEventListener('selectstart', function(e) {
+            if (e.target.tagName === 'IMG' && e.target.closest('.status-content')) {
+                e.preventDefault();
+            }
+        });
+
+        document.addEventListener('touchstart', function(e) {
+            if (e.target.tagName === 'IMG' && e.target.closest('.status-content')) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        document.addEventListener('dragstart', function(e) {
+            if (e.target.tagName === 'IMG' && e.target.closest('.status-content')) {
+                e.preventDefault();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStatusStates();
+            createProgressBars();
+            updateUI();
+        });
+    </script>
 </body>
 </html>
+
