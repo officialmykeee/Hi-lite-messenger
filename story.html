@@ -376,7 +376,6 @@
         let startX = 0;
         let isDragging = false;
         let holdTimeout;
-        let isPointerDown = false;
 
         const statusContainer = document.getElementById('statusContainer');
         const profilePicEl = document.getElementById('profilePic');
@@ -583,17 +582,16 @@
             }, { once: true });
         }
 
-        // --- Refactored and combined event listeners ---
-        statusContainer.addEventListener("mousedown", handlePointerStart);
-        statusContainer.addEventListener("touchstart", handlePointerStart, { passive: false });
-        statusContainer.addEventListener("mouseup", handlePointerEnd);
-        statusContainer.addEventListener("touchend", handlePointerEnd);
-        statusContainer.addEventListener("mousemove", handlePointerMove);
-        statusContainer.addEventListener("touchmove", handlePointerMove, { passive: false });
+        // Combined Hold and Release with Drag functionality
+        statusContainer.addEventListener("mousedown", handleStart);
+        statusContainer.addEventListener("mouseup", handleEnd);
+        statusContainer.addEventListener("touchstart", handleStart, { passive: false });
+        statusContainer.addEventListener("touchend", handleEnd);
+        statusContainer.addEventListener("mousemove", handleMove);
+        statusContainer.addEventListener("touchmove", handleMove, { passive: false });
 
-        function handlePointerStart(e) {
-            if (isAnimating || isPointerDown) return;
-            isPointerDown = true;
+        function handleStart(e) {
+            if (isAnimating) return;
             
             const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
             startX = clientX;
@@ -605,38 +603,32 @@
                 pauseProgress();
                 progressBarContainer.classList.add('hide-on-hold');
                 bottomBar.classList.add('hide-on-hold');
-            }, 250); // Increased to 250ms for better differentiation
+            }, 200);
         }
 
-        function handlePointerMove(e) {
-            if (!isPointerDown || isAnimating || isDragging) return;
-            
+        function handleMove(e) {
+            if (startX === 0) return;
             const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
             const diff = clientX - startX;
-
-            if (Math.abs(diff) > 10) { // A threshold to determine if it's a drag
+            if (Math.abs(diff) > 10) {
                 isDragging = true;
                 clearTimeout(holdTimeout); // Cancel the hold if a drag is detected
             }
         }
 
-        function handlePointerEnd(e) {
-            if (!isPointerDown) return;
-            isPointerDown = false;
-            
-            const clientX = e.type.startsWith('touch') ? e.changedTouches[0].clientX : e.clientX;
-            const diff = clientX - startX;
-
+        function handleEnd(e) {
             clearTimeout(holdTimeout);
-
+            
             if (isHolding) {
-                // The user was holding, now they released.
                 isHolding = false;
                 progressBarContainer.classList.remove('hide-on-hold');
                 bottomBar.classList.remove('hide-on-hold');
                 startProgress();
             } else if (isDragging) {
-                // This was a deliberate swipe.
+                // Handle the swipe logic if it was a drag, not a hold
+                const clientX = e.type.startsWith('touch') ? e.changedTouches[0].clientX : e.clientX;
+                const diff = clientX - startX;
+                
                 if (diff > 50) {
                     if (currentUserIndex > 0) {
                         prevUserWithCube();
@@ -647,7 +639,8 @@
                     }
                 }
             } else {
-                // This was a quick tap.
+                // This is a single, quick tap. Advance to the next photo in the current user's story.
+                const clientX = e.type.startsWith('touch') ? e.changedTouches[0].clientX : e.clientX;
                 const containerWidth = statusContainer.offsetWidth;
                 if (clientX < containerWidth / 2) {
                     prevStatus();
@@ -655,12 +648,10 @@
                     nextStatus();
                 }
             }
-            
+
             startX = 0;
             isDragging = false;
         }
-        
-        // --- End of refactored event listeners ---
 
         function toggleLike() {
             const currentUser = users[currentUserIndex];
@@ -717,4 +708,5 @@
     </script>
 </body>
 </html>
+
 
