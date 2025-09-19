@@ -152,31 +152,23 @@
             gap: 4px;
             flex-shrink: 0;
             cursor: pointer;
-            padding: 8px;
-            border-radius: 12px;
-            transition: all 0.2s ease;
-            position: relative;
-        }
-
-        .story-item:hover {
-            background-color: rgba(116, 156, 191, 0.1);
-            transform: scale(1.05);
-        }
-
-        .story-item:active {
-            transform: scale(0.98);
         }
 
         .story-avatar-container {
             position: relative;
-            cursor: pointer;
+            width: 64px;
+            height: 64px;
         }
 
         .story-avatar-ring {
-            width: 64px;
-            height: 64px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             border-radius: 50%;
             padding: 2px;
+            transition: transform 0.3s ease;
         }
 
         .story-avatar-ring.your-story {
@@ -187,17 +179,32 @@
             background: linear-gradient(45deg, #fbbf24, #ef4444, #a855f7);
         }
 
+        .story-avatar-ring.rotating {
+            animation: story-ring-rotation 0.8s ease-in-out;
+        }
+
+        @keyframes story-ring-rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         .story-avatar-bg {
-            width: 100%;
-            height: 100%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: calc(100% - 4px);
+            height: calc(100% - 4px);
             background-color: white;
             border-radius: 50%;
-            padding: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
         }
 
         .story-avatar {
-            width: 100%;
-            height: 100%;
+            width: calc(100% - 4px);
+            height: calc(100% - 4px);
             border-radius: 50%;
             object-fit: cover;
         }
@@ -217,6 +224,7 @@
             color: white;
             font-size: 12px;
             font-weight: bold;
+            z-index: 2;
         }
 
         .story-username {
@@ -227,7 +235,116 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+        }
+
+        /* Story Modal Styles */
+        .story-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000000; /* Pure black background */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .story-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .story-modal-content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .story-image-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            height: 100%;
+            max-height: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .story-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+        }
+
+        .story-header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 10;
+        }
+
+        .story-username-modal {
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .story-close {
+            width: 32px;
+            height: 32px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
+            transition: background-color 0.2s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .story-close:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .story-close svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .story-progress-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .story-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #fbbf24, #ef4444, #a855f7);
+            width: 0%;
+            transition: width 0.3s ease;
         }
 
         /* Chat list styles */
@@ -579,6 +696,27 @@
         </div>
     </div>
 
+    <!-- Story Modal -->
+    <div class="story-modal" id="storyModal">
+        <div class="story-modal-content">
+            <div class="story-progress-bar">
+                <div class="story-progress-fill"></div>
+            </div>
+            <div class="story-header">
+                <span class="story-username-modal" id="storyUsername"></span>
+                <button class="story-close" id="storyClose">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="story-image-container">
+                <img id="storyImage" class="story-image" src="" alt="">
+            </div>
+        </div>
+    </div>
+
     <!-- Floating Action Button -->
     <button class="fab" aria-label="Create new chat" title="Create new chat">
         <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -596,42 +734,42 @@
                 avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
                 hasNewStory: false,
                 isYourStory: true,
-                storyUrl: "https://example.com/your-story",
+                storyImage: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
             },
             {
                 id: "1",
                 username: "Emily",
                 avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
                 hasNewStory: true,
-                storyUrl: "https://example.com/emily-story",
+                storyImage: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop",
             },
             {
                 id: "2",
                 username: "Michael",
                 avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
                 hasNewStory: true,
-                storyUrl: "https://example.com/michael-story",
+                storyImage: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
             },
             {
                 id: "3",
                 username: "Sarah",
                 avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
                 hasNewStory: true,
-                storyUrl: "https://example.com/sarah-story",
+                storyImage: "https://images.unsplash.com/photo-1517457373958-b7bdd4587200?w=800&h=600&fit=crop",
             },
             {
                 id: "4",
                 username: "David",
                 avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
                 hasNewStory: true,
-                storyUrl: "https://example.com/david-story",
+                storyImage: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
             },
             {
                 id: "5",
                 username: "Jessica",
                 avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
                 hasNewStory: true,
-                storyUrl: "https://example.com/jessica-story",
+                storyImage: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
             },
         ];
 
@@ -794,134 +932,157 @@
             }
         ];
 
-        // Function to create custom loading overlay (spinner removed)
-        function createLoadingOverlay() {
-            const overlay = document.createElement('div');
-            overlay.id = 'story-loading-overlay';
-            overlay.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100vw;
-                height: 100vh;
-                background-color: rgba(0, 0, 0, 0.9);
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                z-index: 9999;
-                opacity: 0;
-                visibility: hidden;
-                transition: opacity 0.3s ease, visibility 0.3s ease;
-                backdrop-filter: blur(4px);
-            `;
+        // Story Modal Elements
+        const storyModal = document.getElementById('storyModal');
+        const storyImage = document.getElementById('storyImage');
+        const storyUsername = document.getElementById('storyUsername');
+        const storyClose = document.getElementById('storyClose');
+        const storyProgressFill = document.querySelector('.story-progress-fill');
 
-            overlay.innerHTML = `
-                <div style="
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    gap: 24px;
-                ">
-                    <div style="
-                        color: white;
-                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                        font-size: 18px;
-                        font-weight: 500;
-                        text-align: center;
-                    ">
-                        Opening story...
-                    </div>
-                </div>
-            `;
+        let currentStoryIndex = 0;
+        let storyTimeout;
 
-            document.body.appendChild(overlay);
-            return overlay;
+        // Function to open story modal
+        function openStoryModal(storyIndex) {
+            currentStoryIndex = storyIndex;
+            showCurrentStory();
+            storyModal.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            
+            // Start progress bar animation
+            startStoryProgress();
         }
 
-        // Function to show loading overlay
-        function showLoadingOverlay(overlay) {
-            overlay.style.opacity = '1';
-            overlay.style.visibility = 'visible';
-        }
-
-        // Function to hide loading overlay
-        function hideLoadingOverlay(overlay) {
-            overlay.style.opacity = '0';
-            setTimeout(() => {
-                if (overlay.parentNode) {
-                    overlay.parentNode.removeChild(overlay);
-                }
-            }, 300);
-        }
-
-        // Function to open story with custom loading
-        function openStory(storyId, storyUrl) {
-            // Create and show loading overlay
-            const overlay = createLoadingOverlay();
-            showLoadingOverlay(overlay);
-
-            // Simulate brief loading time (adjust as needed)
-            setTimeout(() => {
-                // Open the story in a new window/tab
-                const newWindow = window.open(storyUrl, '_blank', 'noopener,noreferrer');
+        // Function to show current story
+        function showCurrentStory() {
+            if (currentStoryIndex < stories.length) {
+                const story = stories[currentStoryIndex];
+                storyImage.src = story.storyImage;
+                storyUsername.textContent = story.username;
                 
-                if (newWindow) {
-                    // Hide loading overlay after opening
-                    hideLoadingOverlay(overlay);
-                } else {
-                    // Handle popup blocker
-                    hideLoadingOverlay(overlay);
-                    alert('Please allow popups for this site to view stories.');
-                }
-            }, 800); // 800ms loading time
+                // Update progress bar to 0%
+                storyProgressFill.style.width = '0%';
+            }
         }
+
+        // Function to start story progress animation
+        function startStoryProgress() {
+            // Clear existing timeout
+            if (storyTimeout) {
+                clearTimeout(storyTimeout);
+            }
+            
+            // Animate progress bar
+            const progressDuration = 5000; // 5 seconds per story
+            const startTime = Date.now();
+            
+            function animateProgress() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min((elapsed / progressDuration) * 100, 100);
+                storyProgressFill.style.width = progress + '%';
+                
+                if (progress < 100) {
+                    storyTimeout = setTimeout(animateProgress, 16); // ~60fps
+                } else {
+                    // Story complete, move to next
+                    nextStory();
+                }
+            }
+            
+            animateProgress();
+        }
+
+        // Function to go to next story
+        function nextStory() {
+            if (currentStoryIndex < stories.length - 1) {
+                currentStoryIndex++;
+                showCurrentStory();
+                startStoryProgress();
+            } else {
+                // No more stories, close modal
+                closeStoryModal();
+            }
+        }
+
+        // Function to go to previous story
+        function prevStory() {
+            if (currentStoryIndex > 0) {
+                currentStoryIndex--;
+                showCurrentStory();
+                startStoryProgress();
+            }
+        }
+
+        // Function to close story modal
+        function closeStoryModal() {
+            storyModal.classList.remove('active');
+            document.body.style.overflow = ''; // Restore scrolling
+            if (storyTimeout) {
+                clearTimeout(storyTimeout);
+                storyTimeout = null;
+            }
+            storyProgressFill.style.width = '0%';
+        }
+
+        // Event listeners for story modal
+        storyClose.addEventListener('click', closeStoryModal);
+
+        storyModal.addEventListener('click', (e) => {
+            if (e.target === storyModal) {
+                closeStoryModal();
+            }
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (storyModal.classList.contains('active')) {
+                if (e.key === 'Escape') {
+                    closeStoryModal();
+                } else if (e.key === 'ArrowRight') {
+                    nextStory();
+                } else if (e.key === 'ArrowLeft') {
+                    prevStory();
+                }
+            }
+        });
 
         // Function to render stories
         function renderStories() {
             const storiesList = document.getElementById('storiesList');
             storiesList.innerHTML = '';
 
-            stories.forEach(story => {
+            stories.forEach((story, index) => {
                 const storyElement = document.createElement('div');
                 storyElement.className = 'story-item';
-                storyElement.dataset.storyId = story.id; // Add data attribute for story ID
 
                 const avatarRingClass = story.isYourStory ? 'your-story' : (story.hasNewStory ? 'has-story' : 'your-story');
 
                 storyElement.innerHTML = `
                     <div class="story-avatar-container">
-                        <div class="story-avatar-ring ${avatarRingClass}">
-                            <div class="story-avatar-bg">
-                                <img src="${story.avatar}" alt="${story.username}" class="story-avatar">
-                            </div>
+                        <div class="story-avatar-ring ${avatarRingClass}"></div>
+                        <div class="story-avatar-bg">
+                            <img src="${story.avatar}" alt="${story.username}" class="story-avatar">
                         </div>
                         ${story.isYourStory ? '<div class="story-plus">+</div>' : ''}
                     </div>
                     <span class="story-username">${story.username}</span>
                 `;
 
-                // Add click event listener
-                storyElement.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const storyId = storyElement.dataset.storyId;
-                    const storyData = stories.find(s => s.id === storyId);
+                // Add click event listener to open story modal
+                storyElement.addEventListener('click', () => {
+                    const ring = storyElement.querySelector('.story-avatar-ring');
+                    ring.classList.remove('rotating');
+                    // Force reflow to restart animation
+                    ring.offsetHeight;
+                    ring.classList.add('rotating');
                     
-                    if (storyData && storyData.storyUrl) {
-                        openStory(storyId, storyData.storyUrl);
-                    } else {
-                        console.log(`No story URL found for story ID: ${storyId}`);
-                    }
-                });
-
-                // Add hover effect
-                storyElement.addEventListener('mouseenter', () => {
-                    storyElement.style.transform = 'scale(1.05)';
-                    storyElement.style.transition = 'transform 0.2s ease';
-                });
-
-                storyElement.addEventListener('mouseleave', () => {
-                    storyElement.style.transform = 'scale(1)';
+                    // Remove the class after animation completes
+                    setTimeout(() => {
+                        ring.classList.remove('rotating');
+                    }, 800);
+                    
+                    console.log(`Opening ${story.username}'s story`);
+                    openStoryModal(index);
                 });
 
                 storiesList.appendChild(storyElement);
