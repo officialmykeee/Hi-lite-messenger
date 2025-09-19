@@ -160,7 +160,6 @@
             background-color: rgba(255, 255, 255, 0.3);
             border-radius: 5px;
             overflow: hidden;
-            position: relative;
         }
 
         .progress-bar-fill {
@@ -169,20 +168,20 @@
             background-color: #fff;
             border-radius: 5px;
             transition: width 0.1s linear;
-            transform-origin: left center;
         }
-
-        .progress-bar.loading {
-            animation: rotateLoader 1s linear infinite;
+        
+        /* New loader styles */
+        .loader-bar {
+            background: rgba(255, 255, 255, 0.3);
+            width: 30px;
+            height: 3px;
+            border-radius: 5px;
+            animation: rotate 1.5s linear infinite;
         }
-
-        @keyframes rotateLoader {
-            from {
-                transform: rotate(0deg);
-            }
-            to {
-                transform: rotate(360deg);
-            }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .controls {
@@ -648,34 +647,29 @@
             
             startProgress();
         }
+        
+        // This is the new function to show the loader and redirect
+        function showLoaderAndRedirect() {
+            // Hide all current UI elements
+            hideUIElements();
+            controls.style.display = 'none';
 
-        function startProgress() {
-            if (isPaused) return;
-            
-            const activeBar = progressBarFills[currentStatusIndex];
-            let progressWidth = parseFloat(activeBar.style.width) || 0;
-            const startTime = Date.now();
-            
-            progressInterval = setInterval(() => {
-                if (isPaused) {
-                    clearInterval(progressInterval);
-                    progressInterval = null;
-                    return;
-                }
-                
-                const elapsedTime = Date.now() - startTime;
-                const totalElapsed = (progressWidth / 100) * statusDuration + elapsedTime;
-                currentProgressWidth = (totalElapsed / statusDuration) * 100;
-                
-                if (currentProgressWidth >= 100) {
-                    activeBar.style.width = '100%';
-                    clearInterval(progressInterval);
-                    progressInterval = null;
-                    nextStatus();
-                } else {
-                    activeBar.style.width = currentProgressWidth + '%';
-                }
-            }, 50);
+            // Clear the existing progress bar container
+            const progressContainer = document.getElementById('progressContainer');
+            progressContainer.innerHTML = '';
+            progressContainer.style.gap = '0';
+            progressContainer.style.justifyContent = 'center';
+            progressContainer.style.alignItems = 'center';
+
+            // Create and append the rotating loader bar
+            const loaderBar = document.createElement('div');
+            loaderBar.className = 'loader-bar';
+            progressContainer.appendChild(loaderBar);
+
+            // Redirect after a short delay to allow the animation to be seen
+            setTimeout(() => {
+                window.location.href = 'https://raw.githubusercontent.com/officialmykeee/Hi-lite-messenger/main/testst.html';
+            }, 1000); 
         }
 
         function nextStatus() {
@@ -691,30 +685,12 @@
                 updateUI();
             } else {
                 if (currentUserIndex === users.length - 1) {
-                    // Navigate to the specified URL with rotating loader
-                    startLoadingNavigation();
+                    // Trigger the loader and redirect at the end of all stories
+                    showLoaderAndRedirect();
                 } else {
                     nextUserWithCube();
                 }
             }
-        }
-
-        function startLoadingNavigation() {
-            const progressContainer = document.getElementById('progressContainer');
-            const progressBars = progressContainer.querySelectorAll('.progress-bar');
-            
-            // Add rotating loader animation to all progress bars
-            progressBars.forEach(bar => {
-                bar.classList.add('loading');
-            });
-            
-            // Hide other UI elements
-            hideUIElements();
-            
-            // Simulate loading time then navigate
-            setTimeout(() => {
-                window.location.href = 'https://raw.githubusercontent.com/officialmykeee/Hi-lite-messenger/main/testst.html';
-            }, 2000); // 2 second loading animation
         }
 
         function prevStatus() {
@@ -962,3 +938,4 @@
     </script>
 </body>
 </html>
+
