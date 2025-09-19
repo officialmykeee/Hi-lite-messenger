@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -47,7 +47,7 @@
             color: black;
             display: flex;
             align-items: center;
-            max-width: 200px;
+            max-width: 200px; /* Adjusted to prevent overlap with right SVGs */
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
@@ -58,7 +58,7 @@
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            margin-left: 4px;
+            margin-left: 4px; /* Added gap between "Waiting" and "for Network" */
         }
 
         .header-icons {
@@ -151,7 +151,6 @@
             align-items: center;
             gap: 4px;
             flex-shrink: 0;
-            cursor: pointer;
         }
 
         .story-avatar-container {
@@ -171,11 +170,21 @@
 
         .story-avatar-ring.has-story {
             background: linear-gradient(45deg, #fbbf24, #ef4444, #a855f7);
+            animation: storyRotate 2s linear infinite;
         }
-        
-        /* New class for the story loading animation */
-        .story-avatar-ring.is-loading {
-            animation: rotate 1s linear infinite;
+
+        .story-avatar-ring.loading {
+            background: linear-gradient(45deg, #fbbf24, #ef4444, #a855f7);
+            animation: storyRotate 2s linear infinite;
+        }
+
+        @keyframes storyRotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .story-avatar-bg {
@@ -518,6 +527,7 @@
 </head>
 <body>
     <div class="app-container">
+        <!-- Header -->
         <div class="header">
             <div class="header-content">
                 <svg class="icon messages-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #749cbf; fill: #749cbf;">
@@ -539,27 +549,36 @@
             </div>
         </div>
 
+        <!-- Stories -->
         <div class="stories-container" id="storiesContainer">
             <div class="stories-scroll">
                 <div class="stories-list" id="storiesList">
-                    </div>
+                    <!-- Stories will be populated by JavaScript -->
+                </div>
             </div>
         </div>
 
+        <!-- Stories Loading skeleton (hidden by default) -->
         <div class="skeleton-stories-container hidden" id="storiesLoadingSkeleton">
             <div class="stories-scroll">
                 <div class="skeleton-stories-list" id="skeletonStoriesList">
-                    </div>
+                    <!-- Skeleton stories will be populated by JavaScript -->
+                </div>
             </div>
         </div>
 
+        <!-- Chat List -->
         <div class="chat-list" id="chatList">
-            </div>
+            <!-- Chat items will be populated by JavaScript -->
+        </div>
 
+        <!-- Loading skeleton (hidden by default) -->
         <div class="chat-list hidden" id="loadingSkeleton">
-            </div>
+            <!-- Skeleton items will be populated by JavaScript -->
+        </div>
     </div>
 
+    <!-- Floating Action Button -->
     <button class="fab" aria-label="Create new chat" title="Create new chat">
         <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
             <line class="plus-shape" x1="50" y1="25" x2="50" y2="75"/>
@@ -768,6 +787,36 @@
             }
         ];
 
+        // Function to handle story click with loading animation
+        function handleStoryClick(storyId, storyElement) {
+            const storyRing = storyElement.querySelector('.story-avatar-ring');
+            const wasRotating = storyRing.classList.contains('has-story');
+            
+            // Add loading class and ensure rotation
+            storyRing.classList.add('loading');
+            storyRing.classList.remove('your-story');
+            
+            console.log(`Navigating to story: ${storyId}`);
+            
+            // Simulate navigation/loading time
+            setTimeout(() => {
+                // Remove loading class after navigation
+                storyRing.classList.remove('loading');
+                
+                // Restore original state based on story type
+                if (storyId === "your-story") {
+                    storyRing.classList.add('your-story');
+                } else {
+                    // For other stories, keep has-story class for continuous rotation
+                    if (wasRotating) {
+                        storyRing.classList.add('has-story');
+                    }
+                }
+                
+                console.log(`Story ${storyId} loaded successfully`);
+            }, 2000); // 2 second loading simulation
+        }
+
         // Function to render stories
         function renderStories() {
             const storiesList = document.getElementById('storiesList');
@@ -781,7 +830,7 @@
 
                 storyElement.innerHTML = `
                     <div class="story-avatar-container">
-                        <div class="story-avatar-ring ${avatarRingClass}">
+                        <div class="story-avatar-ring ${avatarRingClass}" data-story-id="${story.id}">
                             <div class="story-avatar-bg">
                                 <img src="${story.avatar}" alt="${story.username}" class="story-avatar">
                             </div>
@@ -791,17 +840,11 @@
                     <span class="story-username">${story.username}</span>
                 `;
 
-                // Add click event listener to handle the loading animation
-                storyElement.addEventListener('click', () => {
-                    const avatarRing = storyElement.querySelector('.story-avatar-ring');
-                    avatarRing.classList.add('is-loading');
-
-                    // Simulate a loading delay for 1 second
-                    setTimeout(() => {
-                        avatarRing.classList.remove('is-loading');
-                        // Add your navigation logic here
-                        console.log(`Navigating to status for user: ${story.username}`);
-                    }, 1000);
+                // Add click handler for story navigation
+                const storyRing = storyElement.querySelector('.story-avatar-ring');
+                storyRing.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    handleStoryClick(story.id, storyElement);
                 });
 
                 storiesList.appendChild(storyElement);
@@ -985,4 +1028,3 @@
     </script>
 </body>
 </html>
-
