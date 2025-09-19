@@ -3,939 +3,1008 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
+    <title>Hi-Lite Messenger</title>
     <style>
-        :root {
-            --bg-color: #000;
-            --input-bg: rgba(255, 255, 255, 0.1);
-            --text-color: #fff;
-            --instagram-pink: #ff66b2;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            background-color: var(--bg-color);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f3f4f6;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            max-width: 384px;
+            margin: 0 auto;
+            background-color: white;
+            min-height: 100vh;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            font-family: sans-serif;
-            color: var(--text-color);
+            flex-direction: column;
         }
 
-        .status-container {
-            width: 360px;
-            height: 565px;
-            border-radius: 10px;
-            position: absolute;
-            top: 44%;
-            left: 50%;
-            transform: translate(-50%, -50%) translateY(27px);
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-            perspective: 1000px;
-            touch-action: none;
-            -webkit-tap-highlight-color: transparent;
-            outline: none;
-            user-select: none;
-        }
-
-        .status-content-wrapper {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            transform-style: preserve-3d;
-            transition: transform 0.5s ease;
-        }
-
-        .status-content {
-            position: absolute;
+        /* Header styles */
+        .header {
+            background-color: white;
+            padding: 12px 16px;
+            position: sticky;
             top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 2em;
-            backface-visibility: hidden;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
+            z-index: 20;
         }
 
-        .status-content.front {
-            transform: rotateY(0deg) translateZ(180px);
-        }
-
-        .status-content.right {
-            transform: rotateY(90deg) translateZ(180px);
-        }
-
-        .status-content.left {
-            transform: rotateY(-90deg) translateZ(180px);
-        }
-
-        .status-content img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            pointer-events: none;
-            -webkit-user-drag: none;
-            -khtml-user-drag: none;
-            -moz-user-drag: none;
-            -o-user-drag: none;
-            user-drag: none;
-        }
-
-        .status-header {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            right: 15px;
+        .header-content {
             display: flex;
             align-items: center;
-            z-index: 10;
-            opacity: 1;
-            transition: opacity 0.3s ease;
+            justify-content: space-between;
         }
 
-        .status-header.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .profile-pic {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: #333;
-            margin-right: 10px;
-            overflow: hidden;
-        }
-
-        .profile-pic img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .user-info {
-            flex-grow: 1;
-        }
-
-        .user-name {
-            font-size: 1em;
-            font-weight: bold;
-            margin: 0;
-        }
-
-        .status-time {
-            font-size: 0.8em;
-            color: #aaa;
-            margin: 0;
-        }
-        
-        .progress-bar-container {
-            position: absolute;
-            top: 5px;
-            left: 15px;
-            right: 15px;
-            height: 3px;
+        .header-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: black;
             display: flex;
-            gap: 5px;
-            z-index: 10;
-            opacity: 1;
-            transition: opacity 0.3s ease;
-        }
-
-        .progress-bar-container.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .progress-bar {
-            flex: 1;
-            background-color: rgba(255, 255, 255, 0.3);
-            border-radius: 5px;
+            align-items: center;
+            max-width: 200px; /* Adjusted to prevent overlap with right SVGs */
             overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
         }
 
-        .progress-bar-fill {
-            width: 0;
-            height: 100%;
-            background-color: #fff;
-            border-radius: 5px;
-            transition: width 0.1s linear;
+        .header-title .fade-text {
+            background: linear-gradient(to right, black 0%, transparent 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-left: 4px; /* Added gap between "Waiting" and "for Network" */
         }
-        
-        /* New loader styles */
-        .loader-bar {
-            background: rgba(255, 255, 255, 0.3);
-            width: 30px;
-            height: 3px;
-            border-radius: 5px;
-            animation: rotate 1.5s linear infinite;
+
+        .header-icons {
+            display: flex;
+            align-items: center;
+            gap: 16px;
         }
-        
+
+        .icon {
+            width: 24px;
+            height: 24px;
+            color: #374151;
+        }
+
+        .messages-icon {
+            color: #749cbf;
+            fill: #749cbf;
+        }
+
+        .telegram-ring {
+            width: 24px;
+            height: 24px;
+            animation: rotate 2s linear infinite;
+        }
+
+        .telegram-ring circle {
+            fill: none;
+            stroke: #d1d4db;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-dasharray: 1, 200;
+            stroke-dashoffset: 0;
+            animation: dash 1.5s ease-in-out infinite;
+        }
+
         @keyframes rotate {
-            0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
 
-        .controls {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            right: 0;
+        @keyframes dash {
+            0% {
+                stroke-dasharray: 1, 200;
+                stroke-dashoffset: 0;
+            }
+            50% {
+                stroke-dasharray: 90, 150;
+                stroke-dashoffset: -35;
+            }
+            100% {
+                stroke-dasharray: 90, 150;
+                stroke-dashoffset: -124;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Stories section */
+        .stories-container {
+            background-color: white;
+            padding: 12px 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            position: sticky;
+            top: 48px;
+            z-index: 19;
+            margin-top: -1px;
+        }
+
+        .stories-scroll {
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .stories-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .stories-list {
             display: flex;
-            z-index: 5;
-            -webkit-tap-highlight-color: transparent;
-            outline: none;
-            user-select: none;
-            opacity: 1;
-            transition: opacity 0.3s ease;
+            gap: 16px;
+            padding: 0 16px;
+            width: max-content;
         }
 
-        .controls.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .control-left, .control-right {
-            flex: 1;
+        .story-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
             cursor: pointer;
         }
 
-        /* Bottom Bar Styles */
-        .bottom-bar {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 360px;
-            height: 70px;
-            display: flex;
-            align-items: center;
-            padding: 0 15px;
-            box-sizing: border-box;
-            z-index: 20;
-            opacity: 1;
-            transition: opacity 0.3s ease;
+        .story-avatar-container {
+            position: relative;
         }
 
-        .bottom-bar.hidden {
-            opacity: 0;
-            pointer-events: none;
+        .story-avatar-ring {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            padding: 2px;
         }
-        
-        .reply-input-container {
-            flex-grow: 1;
-            margin-right: 15px;
+
+        .story-avatar-ring.your-story {
+            background-color: #d1d5db;
         }
-        
-        .reply-input {
+
+        .story-avatar-ring.has-story {
+            background: linear-gradient(45deg, #fbbf24, #ef4444, #a855f7);
+        }
+
+        .story-avatar-bg {
             width: 100%;
-            padding: 10px 15px;
-            border-radius: 25px;
-            border: none;
-            background-color: var(--input-bg);
-            color: var(--text-color);
-            font-size: 1em;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            outline: none;
+            height: 100%;
+            background-color: white;
+            border-radius: 50%;
+            padding: 2px;
         }
-        
-        .reply-input::placeholder {
-            color: rgba(255, 255, 255, 0.7);
+
+        .story-avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
         }
-        
-        .action-icon-btn {
-            background: none;
-            border: none;
-            color: var(--text-color);
-            cursor: pointer;
-            padding: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            -webkit-tap-highlight-color: transparent;
-            outline: none;
-        }
-        
-        .action-icon-btn svg {
+
+        .story-plus {
+            position: absolute;
+            bottom: -4px;
+            right: -4px;
             width: 24px;
             height: 24px;
-            fill: none;
-            stroke: var(--text-color);
-            stroke-width: 2;
-        }
-        
-        .action-icon-btn.like-btn svg {
-            fill: none;
-            stroke: var(--text-color);
-            transition: fill 0.2s ease-in-out, stroke 0.2s ease-in-out;
-        }
-        
-        .action-icon-btn.like-btn.liked svg {
-            fill: var(--instagram-pink);
-            stroke: var(--instagram-pink);
-        }
-        
-        .heart-container {
+            background-color: #3b82f6;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            border: 1px solid var(--input-bg);
-            padding: 5px;
+            border: 2px solid white;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
         }
 
-        @media (max-width: 400px) {
-            .status-container, .bottom-bar {
-                width: 100%;
-                border-radius: 0;
+        .story-username {
+            font-size: 12px;
+            color: #374151;
+            text-align: center;
+            max-width: 70px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Chat list styles */
+        .chat-list {
+            background-color: white;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .chat-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background-color 0.1s;
+            background-color: white;
+        }
+
+        .chat-item:first-child {
+            padding-top: 20px;
+        }
+
+        .chat-item:hover {
+            background-color: #f9fafb;
+        }
+
+        .chat-item.pressed {
+            background-color: #e5e7eb;
+        }
+
+        .chat-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chat-avatar-container {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .chat-avatar {
+            width: 48px;
+            height: 48px;
+            background-color: #9ca3af;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .online-indicator {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 14px;
+            height: 14px;
+            background-color: #10b981;
+            border: 2px solid white;
+            border-radius: 50%;
+        }
+
+        .chat-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2px;
+        }
+
+        .chat-name {
+            font-weight: 600;
+            color: black;
+            font-size: 16px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex: 1;
+        }
+
+        .chat-meta {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-left: auto;
+        }
+
+        .chat-timestamp {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .unread-badge {
+            background-color: #3b82f6;
+            color: white;
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 4px;
+        }
+
+        .sent-indicator {
+            width: 16px;
+            height: 16px;
+            margin-left: 4px;
+        }
+
+        .chat-message {
+            font-size: 14px;
+            color: #4b5563;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .chat-message.unread {
+            color: black;
+            font-weight: 500;
+        }
+
+        /* Skeleton loading styles */
+        .skeleton {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+        }
+
+        .skeleton-circle {
+            border-radius: 50%;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
             }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        /* Stories skeleton styles */
+        .skeleton-stories-container {
+            background-color: white;
+            padding: 12px 0;
+        }
+
+        .skeleton-stories-list {
+            display: flex;
+            gap: 16px;
+            padding: 0 16px;
+            width: max-content;
+        }
+
+        .skeleton-story-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .skeleton-story-avatar {
+            width: 64px;
+            height: 64px;
+            background-color: #e5e7eb;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .skeleton-story-name {
+            height: 12px;
+            width: 50px;
+            background-color: #e5e7eb;
+            border-radius: 3px;
+        }
+
+        /* Chat skeleton styles */
+        .skeleton-chat-item {
+            padding: 12px 16px;
+        }
+
+        .skeleton-chat-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .skeleton-avatar {
+            width: 48px;
+            height: 48px;
+            background-color: #e5e7eb;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .skeleton-details {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .skeleton-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        .skeleton-name {
+            height: 14px;
+            background-color: #e5e7eb;
+            border-radius: 3px;
+            width: 120px;
+        }
+
+        .skeleton-time {
+            height: 12px;
+            background-color: #e5e7eb;
+            border-radius: 3px;
+            width: 50px;
+        }
+
+        .skeleton-message {
+            height: 12px;
+            background-color: #e5e7eb;
+            border-radius: 3px;
+            width: 200px;
+        }
+
+        .skeleton-message.short {
+            width: 150px;
+        }
+
+        .skeleton-message.medium {
+            width: 180px;
+        }
+
+        .skeleton-message.long {
+            width: 220px;
+        }
+
+        /* FAB styles */
+        :root {
+            --fab-size: 56px;
+            --fab-color: #749cbf;
+            --fab-shadow: 0 3px 8px rgba(116, 156, 191, 0.35);
+            --icon-size: 28px;
+        }
+
+        .fab {
+            width: var(--fab-size);
+            height: var(--fab-size);
+            border-radius: 50%;
+            background: var(--fab-color);
+            box-shadow: var(--fab-shadow);
+            display: inline-grid;
+            place-items: center;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .fab:active {
+            transform: translateY(1px) scale(0.98);
+        }
+
+        .fab svg {
+            width: var(--icon-size);
+            height: var(--icon-size);
+            display: block;
+        }
+
+        .plus-shape {
+            stroke: #fff;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-width: 8;
+            fill: none;
         }
     </style>
 </head>
 <body>
-
-    <div class="status-container" id="statusContainer">
-        
-        <div class="status-header" id="statusHeader">
-            <div class="profile-pic">
-                <img id="profilePic" src="https://via.placeholder.com/40" alt="Profile Picture">
-            </div>
-            <div class="user-info">
-                <h3 class="user-name" id="userName"></h3>
-                <p class="status-time" id="statusTime"></p>
-            </div>
-        </div>
-
-        <div class="status-content-wrapper" id="statusWrapper">
-            <div class="status-content front" id="frontContent"></div>
-            <div class="status-content right" id="rightContent"></div>
-            <div class="status-content left" id="leftContent"></div>
-        </div>
-
-        <div class="progress-bar-container" id="progressContainer"></div>
-
-        <div class="controls" id="controls">
-            <div class="control-left"></div>
-            <div class="control-right"></div>
-        </div>
-    </div>
-
-    <div class="bottom-bar" id="bottomBar">
-        <div class="reply-input-container">
-            <input type="text" class="reply-input" id="replyInput" placeholder="Reply privately...">
-        </div>
-        <button class="action-icon-btn like-btn" id="likeButton">
-            <div class="heart-container">
-                <svg class="svg-icon heart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 
-                             4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 
-                             14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 
-                             18.6 15.36 13.45 20.03L12 21.35Z"></path>
+    <div class="app-container">
+        <div class="header">
+            <div class="header-content">
+                <svg class="icon messages-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #749cbf; fill: #749cbf;">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                 </svg>
+                <svg class="telegram-ring hidden" viewBox="25 25 50 50">
+                    <circle cx="50" cy="50" r="20"></circle>
+                </svg>
+                <h1 class="header-title">Messages</h1>
+                <div class="header-icons">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                        <path d="M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Zm-1.5 0a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z"></path>
+                        <path d="M12 1c.266 0 .532.009.797.028.763.055 1.345.617 1.512 1.304l.352 1.45c.019.078.09.171.225.221.247.089.49.19.728.302.13.061.246.044.315.002l1.275-.776c.603-.368 1.411-.353 1.99.147.402.349.78.726 1.128 1.129.501.578.515 1.386.147 1.99l-.776 1.274c-.042.069-.058.185.002.315.112.238.213.481.303.728.048.135.142.205.22.225l1.45.352c.687.167 1.249.749 1.303 1.512.038.531.038 1.063 0 1.594-.054.763-.616 1.345-1.303 1.512l-1.45.352c-.078.019-.171.09-.221.225-.089.248-.19.491-.302.728-.061.13-.044.246-.002.315l.776 1.275c.368.603.353 1.411-.147 1.99-.349.402-.726.78-1.129 1.128-.578.501-1.386.515-1.99.147l-1.274-.776c-.069-.042-.185-.058-.314.002a8.606 8.606 0 0 1-.729.303c-.135.048-.205.142-.225.22l-.352 1.45c-.167.687-.749 1.249-1.512 1.303-.531.038-1.063.038-1.594 0-.763-.054-1.345-.616-1.512-1.303l-.352-1.45c-.019-.078-.09-.171-.225-.221a8.138 8.138 0 0 1-.728-.302c-.13-.061-.246-.044-.315-.002l-1.275.776c-.603.368-1.411.353-1.99-.147-.402-.349-.78-.726-1.128-1.129-.501-.578-.515-1.386-.147-1.99l.776-1.274c.042-.069.058-.185-.002-.314a8.606 8.606 0 0 1-.303-.729c-.048-.135-.142-.205-.22-.225l-1.45-.352c-.687-.167-1.249-.749-1.304-1.512a11.158 11.158 0 0 1 0-1.594c.055-.763.617-1.345 1.304-1.512l1.45-.352c.078-.019.171-.09.221-.225.089-.248.19-.491.302-.728.061-.13.044-.246.002-.315l-.776-1.275c-.368-.603-.353-1.411.147-1.99.349-.402.726-.78 1.129-1.128.578-.501 1.386-.515 1.99-.147l1.274.776c.069.042.185.058.315-.002.238-.112.481-.213.728-.303.135-.048.205-.142.225-.20l.352-1.45c.167-.687.749-1.249 1.512-1.304C11.466 1.01 11.732 1 12 1Zm-.69 1.525c-.055.004-.135.05-.161.161l-.353 1.45a1.832 1.832 0 0 1-1.172 1.277 7.147 7.147 0 0 0-.6.249 1.833 1.833 0 0 1-1.734-.074l-1.274-.776c-.098-.60-.186-.036-.228 0a9.774 9.774 0 0 0-.976.976c-.036.042-.06.131 0 .228l.776 1.274c.314.529.342 1.18.074 1.734a7.147 7.147 0 0 0-.249.6 1.831 1.831 0 0 1-1.278 1.173l-1.45.351c-.11.027-.156.107-.16.162a9.63 9.63 0 0 0 0 1.38c.004.055.05.135.161.161l1.45.353a1.832 1.832 0 0 1 1.277 1.172c.074.204.157.404.249.6.268.553.24 1.204-.074 1.733l-.776 1.275c-.06.098-.036.186 0 .228.301.348.628.675.976.976.042.036.131.06.228 0l1.274-.776a1.83 1.83 0 0 1 1.734-.075c.196.093.396.176.6.25a1.831 1.831 0 0 1 1.173 1.278l.351 1.45c.027.11.107.156.162.16a9.63 9.63 0 0 0 1.38 0c.055-.004.135-.05.161-.161l.353-1.45a1.834 1.834 0 0 1 1.172-1.278 6.82 6.82 0 0 0 .6-.248 1.831 1.831 0 0 1 1.733.074l1.275.776c.098.06.186.036.228 0 .348-.301.675-.628.976-.976.036-.042.06-.131 0-.228l-.776-1.275a1.834 1.834 0 0 1-.075-1.733c.093-.196.176-.396.25-.6a1.831 1.831 0 0 1 1.278-1.173l1.45-.351c.11-.027.156-.107.16-.162a9.63 9.63 0 0 0 0-1.38c-.004-.055-.05-.135-.161-.161l-1.45-.353c-.626-.152-1.08-.625-1.278-1.172a6.576 6.576 0 0 0-.248-.6 1.833 1.833 0 0 1 .074-1.734l.776-1.274c.06-.098.036-.186 0-.228a9.774 9.774 0 0 0-.976-.976c-.042-.036-.131-.06-.228 0l-1.275.776a1.831 1.831 0 0 1-1.733.074 6.88 6.88 0 0 0-.6-.249 1.835 1.835 0 0 1-1.173-1.278l-.351-1.45c-.027-.11-.107-.156-.162-.16a9.63 9.63 0 0 0-1.38 0Z"></path>
+                    </svg>
+                </div>
             </div>
-        </button>
+        </div>
+
+        <div class="stories-container" id="storiesContainer">
+            <div class="stories-scroll">
+                <div class="stories-list" id="storiesList">
+                    </div>
+            </div>
+        </div>
+
+        <div class="skeleton-stories-container hidden" id="storiesLoadingSkeleton">
+            <div class="stories-scroll">
+                <div class="skeleton-stories-list" id="skeletonStoriesList">
+                    </div>
+            </div>
+        </div>
+
+        <div class="chat-list" id="chatList">
+            </div>
+
+        <div class="chat-list hidden" id="loadingSkeleton">
+            </div>
     </div>
+
+    <button class="fab" aria-label="Create new chat" title="Create new chat">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <line class="plus-shape" x1="50" y1="25" x2="50" y2="75"/>
+            <line class="plus-shape" x1="25" y1="50" x2="75" y2="50"/>
+        </svg>
+    </button>
 
     <script>
-        const users = [
+        // Stories data
+        const stories = [
             {
                 id: "your-story",
-                name: "Your Story",
-                profilePic: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
-                statuses: [
-                    { 
-                        id: 'yourstory1',
-                        content: 'https://picsum.photos/id/1016/360/640', 
-                        time: 'Just Now',
-                        reply: '',
-                        isLiked: false
-                    },
-                    { 
-                        id: 'yourstory2',
-                        content: 'https://picsum.photos/id/1018/360/640', 
-                        time: '5 minutes ago',
-                        reply: '',
-                        isLiked: false
-                    }
-                ]
+                username: "Your story",
+                avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
+                hasNewStory: false,
+                isYourStory: true,
             },
             {
                 id: "1",
-                name: "Emily",
-                profilePic: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
-                statuses: [
-                    { 
-                        id: 'emily1',
-                        content: 'https://picsum.photos/id/237/360/640', 
-                        time: '2 hours ago',
-                        reply: '',
-                        isLiked: false
-                    }
-                ]
+                username: "Emily",
+                avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
+                hasNewStory: true,
             },
             {
                 id: "2",
-                name: "Michael",
-                profilePic: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
-                statuses: [
-                    { 
-                        id: 'michael1',
-                        content: 'https://picsum.photos/id/1015/360/640', 
-                        time: '1 hour ago',
-                        reply: '',
-                        isLiked: false
-                    },
-                    { 
-                        id: 'michael2',
-                        content: 'https://picsum.photos/id/1020/360/640', 
-                        time: '3 hours ago',
-                        reply: '',
-                        isLiked: false
-                    }
-                ]
+                username: "Michael",
+                avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
+                hasNewStory: true,
             },
             {
                 id: "3",
-                name: "Sarah",
-                profilePic: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
-                statuses: [
-                    { 
-                        id: 'sarah1',
-                        content: 'https://picsum.photos/id/1025/360/640', 
-                        time: '1 day ago',
-                        reply: '',
-                        isLiked: false
-                    },
-                    { 
-                        id: 'sarah2',
-                        content: 'https://picsum.photos/id/1031/360/640', 
-                        time: '1 day ago',
-                        reply: '',
-                        isLiked: false
-                    }
-                ]
+                username: "Sarah",
+                avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
+                hasNewStory: true,
             },
             {
                 id: "4",
-                name: "David",
-                profilePic: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
-                statuses: [
-                    { 
-                        id: 'david1',
-                        content: 'https://picsum.photos/id/1033/360/640', 
-                        time: '4 hours ago',
-                        reply: '',
-                        isLiked: false
-                    }
-                ]
+                username: "David",
+                avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
+                hasNewStory: true,
             },
             {
                 id: "5",
-                name: "Jessica",
-                profilePic: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
-                statuses: [
-                    { 
-                        id: 'jessica1',
-                        content: 'https://picsum.photos/id/1037/360/640', 
-                        time: '5 hours ago',
-                        reply: '',
-                        isLiked: false
-                    },
-                    { 
-                        id: 'jessica2',
-                        content: 'https://picsum.photos/id/1041/360/640', 
-                        time: '8 hours ago',
-                        reply: '',
-                        isLiked: false
-                    }
-                ]
+                username: "Jessica",
+                avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
+                hasNewStory: true,
+            },
+        ];
+
+        // Chat data
+        const chats = [
+            {
+                id: "1",
+                name: "Emma Wilson",
+                lastMessage: "Hey! Are we still on for dinner tonight?",
+                timestamp: "2:34 PM",
+                avatar: "EW",
+                unreadCount: 2,
+                isOnline: true,
+            },
+            {
+                id: "2",
+                name: "Family",
+                lastMessage: "Mom: Don't forget about Sunday brunch!",
+                timestamp: "1:15 PM",
+                avatar: "F",
+                unreadCount: 5,
+            },
+            {
+                id: "3",
+                name: "Alex Chen",
+                lastMessage: "Thanks for the help with the project 👍",
+                timestamp: "11:45 AM",
+                avatar: "AC",
+                isOnline: true,
+                isSent: true,
+            },
+            {
+                id: "4",
+                name: "Sarah Johnson",
+                lastMessage: "The photos from the trip are amazing!",
+                timestamp: "Yesterday",
+                avatar: "SJ",
+            },
+            {
+                id: "5",
+                name: "Work Team",
+                lastMessage: "You: Sounds good, see you tomorrow",
+                timestamp: "Yesterday",
+                avatar: "WT",
+                isSent: true,
+            },
+            {
+                id: "6",
+                name: "David Park",
+                lastMessage: "Let's catch up this weekend",
+                timestamp: "Monday",
+                avatar: "DP",
+            },
+            {
+                id: "7",
+                name: "Coffee Chat",
+                lastMessage: "Lisa: That new café downtown is great!",
+                timestamp: "Sunday",
+                avatar: "CC",
+                unreadCount: 1,
+            },
+            {
+                id: "8",
+                name: "Mom",
+                lastMessage: "Love you sweetie ❤️",
+                timestamp: "Saturday",
+                avatar: "M",
+                isOnline: true,
+            },
+            {
+                id: "9",
+                name: "John Miller",
+                lastMessage: "Can you send me the presentation slides?",
+                timestamp: "Friday",
+                avatar: "JM",
+                unreadCount: 3,
+            },
+            {
+                id: "10",
+                name: "Study Group",
+                lastMessage: "Meeting tomorrow at 3 PM in library",
+                timestamp: "Thursday",
+                avatar: "SG",
+            },
+            {
+                id: "11",
+                name: "Lisa Wang",
+                lastMessage: "Happy birthday! Hope you have a great day 🎉",
+                timestamp: "Wednesday",
+                avatar: "LW",
+                isOnline: true,
+            },
+            {
+                id: "12",
+                name: "Gym Buddy",
+                lastMessage: "Ready for leg day tomorrow?",
+                timestamp: "Tuesday",
+                avatar: "GB",
+                isSent: true,
+            },
+            {
+                id: "13",
+                name: "Rachel Green",
+                lastMessage: "The weather is perfect for hiking today!",
+                timestamp: "Monday",
+                avatar: "RG",
+                unreadCount: 1,
+            },
+            {
+                id: "14",
+                name: "Tech Support",
+                lastMessage: "Your issue has been resolved",
+                timestamp: "Last week",
+                avatar: "TS",
+            },
+            {
+                id: "15",
+                name: "Book Club",
+                lastMessage: "Next meeting: discussing chapter 5-8",
+                timestamp: "Last week",
+                avatar: "BC",
+                unreadCount: 2,
+            },
+            {
+                id: "16",
+                name: "Pizza Place",
+                lastMessage: "Your order is ready for pickup!",
+                timestamp: "Last week",
+                avatar: "PP",
+            },
+            {
+                id: "17",
+                name: "Jane Cooper",
+                lastMessage: "Thanks for the movie recommendation!",
+                timestamp: "2 weeks ago",
+                avatar: "JC",
+                isOnline: true,
+            },
+            {
+                id: "18",
+                name: "Basketball Team",
+                lastMessage: "Practice moved to 7 PM tonight",
+                timestamp: "2 weeks ago",
+                avatar: "BT",
+            },
+            {
+                id: "19",
+                name: "Dr. Smith",
+                lastMessage: "Your appointment is confirmed for next week",
+                timestamp: "2 weeks ago",
+                avatar: "DS",
+            },
+            {
+                id: "20",
+                name: "Mike Johnson",
+                lastMessage: "Let's grab lunch next time you're in town",
+                timestamp: "3 weeks ago",
+                avatar: "MJ",
+                isSent: true,
             }
         ];
 
-        let currentUserIndex = 0;
-        let currentStatusIndex = 0;
-        const statusDuration = 5000;
-        let progressInterval;
-        let progressBarFills;
-        let isPaused = false;
-        let pauseStartTime = 0;
-        let currentProgressWidth = 0;
-        let savedProgress = 0;
-        let startX = 0;
-        let isAnimating = false;
-        let currentAngle = 0;
-        let isHold = false;
-        let holdTimer;
-        const holdThreshold = 100; // ms
+        // Function to render stories
+        function renderStories() {
+            const storiesList = document.getElementById('storiesList');
+            storiesList.innerHTML = '';
 
-        const statusContainer = document.getElementById('statusContainer');
-        const profilePicEl = document.getElementById('profilePic');
-        const userNameEl = document.getElementById('userName');
-        const statusTimeEl = document.getElementById('statusTime');
-        const replyInput = document.getElementById('replyInput');
-        const likeButton = document.getElementById('likeButton');
-        const statusHeader = document.getElementById('statusHeader');
-        const controls = document.getElementById('controls');
-        const bottomBar = document.getElementById('bottomBar');
-        const controlLeft = document.querySelector('.control-left');
-        const controlRight = document.querySelector('.control-right');
-        
-        const statusWrapper = document.getElementById('statusWrapper');
-        const frontContent = document.getElementById('frontContent');
-        const rightContent = document.getElementById('rightContent');
-        const leftContent = document.getElementById('leftContent');
+            stories.forEach(story => {
+                const storyElement = document.createElement('div');
+                storyElement.className = 'story-item';
 
-        // Load status states from localStorage on page load
-        function loadStatusStates() {
-            users.forEach(user => {
-                user.statuses.forEach(status => {
-                    const savedReply = localStorage.getItem(`reply_${status.id}`);
-                    const savedLike = localStorage.getItem(`like_${status.id}`);
-                    
-                    if (savedReply !== null) {
-                        status.reply = savedReply;
-                    }
-                    if (savedLike !== null) {
-                        status.isLiked = JSON.parse(savedLike);
+                const avatarRingClass = story.isYourStory ? 'your-story' : (story.hasNewStory ? 'has-story' : 'your-story');
+
+                storyElement.innerHTML = `
+                    <div class="story-avatar-container">
+                        <div class="story-avatar-ring ${avatarRingClass}">
+                            <div class="story-avatar-bg">
+                                <img src="${story.avatar}" alt="${story.username}" class="story-avatar">
+                            </div>
+                        </div>
+                        ${story.isYourStory ? '<div class="story-plus">+</div>' : ''}
+                    </div>
+                    <span class="story-username">${story.username}</span>
+                `;
+
+                // Add click listener to each story item
+                storyElement.addEventListener('click', () => {
+                    // Start loading animation and hide main content
+                    const messagesIcon = document.querySelector('.messages-icon');
+                    const telegramRing = document.querySelector('.telegram-ring');
+                    const headerTitle = document.querySelector('.header-title');
+                    const storiesContainer = document.getElementById('storiesContainer');
+                    const chatList = document.getElementById('chatList');
+                    const storiesLoadingSkeleton = document.getElementById('storiesLoadingSkeleton');
+                    const loadingSkeleton = document.getElementById('loadingSkeleton');
+
+                    if (navigator.onLine) {
+                        messagesIcon.classList.add('hidden');
+                        telegramRing.classList.remove('hidden');
+                        headerTitle.innerHTML = `Viewing Status`;
+                        storiesContainer.classList.add('hidden');
+                        chatList.classList.add('hidden');
+                        storiesLoadingSkeleton.classList.remove('hidden');
+                        loadingSkeleton.classList.remove('hidden');
+
+                        // Simulate a delay for viewing the status
+                        setTimeout(() => {
+                            // After the delay, revert the UI to the main list
+                            telegramRing.classList.add('hidden');
+                            messagesIcon.classList.remove('hidden');
+                            headerTitle.innerHTML = 'Messages';
+                            storiesLoadingSkeleton.classList.add('hidden');
+                            loadingSkeleton.classList.add('hidden');
+                            storiesContainer.classList.remove('hidden');
+                            chatList.classList.remove('hidden');
+                            renderStories();
+                            renderChats();
+                        }, 2000); // 2-second delay to simulate loading
+                    } else {
+                         // If offline, just show a console message.
+                        console.log('Cannot view status: Device is offline.');
                     }
                 });
+
+                storiesList.appendChild(storyElement);
             });
         }
 
-        // Save status state to localStorage
-        function saveStatusState(status) {
-            localStorage.setItem(`reply_${status.id}`, status.reply);
-            localStorage.setItem(`like_${status.id}`, JSON.stringify(status.isLiked));
-        }
+        // Function to render chat items
+        function renderChats() {
+            const chatList = document.getElementById('chatList');
+            chatList.innerHTML = '';
 
-        function createProgressBars() {
-            const oldContainer = statusContainer.querySelector('.progress-bar-container');
-            if (oldContainer) {
-                oldContainer.remove();
-            }
+            chats.forEach(chat => {
+                const chatElement = document.createElement('div');
+                chatElement.className = 'chat-item';
 
-            const currentStatuses = users[currentUserIndex].statuses;
-            const progressBarContainer = document.createElement('div');
-            progressBarContainer.className = 'progress-bar-container';
-            progressBarContainer.id = 'progressContainer';
+                const onlineIndicator = chat.isOnline ? '<div class="online-indicator"></div>' : '';
+                const unreadBadge = chat.unreadCount ? `<div class="unread-badge">${chat.unreadCount}</div>` : '';
+                const sentIndicator = chat.isSent && !chat.unreadCount ? `
+                    <div class="sent-indicator">
+                        <svg viewBox="0 0 16 16" style="width: 16px; height: 16px; color: #3b82f6; fill: currentColor;">
+                            <path d="M15.854 5.354L6.5 14.707a.5.5 0 0 1-.708 0L2.146 11.06a.5.5 0 1 1 .708-.708L6.5 13.998l8.646-8.646a.5.5 0 0 1 .708.708z"/>
+                        </svg>
+                    </div>
+                ` : '';
 
-            currentStatuses.forEach((_, index) => {
-                const progressBar = document.createElement('div');
-                progressBar.className = 'progress-bar';
-                const progressBarFill = document.createElement('div');
-                progressBarFill.className = 'progress-bar-fill';
-                progressBar.appendChild(progressBarFill);
-                progressBarContainer.appendChild(progressBar);
+                const messageClass = chat.unreadCount ? 'unread' : '';
+
+                chatElement.innerHTML = `
+                    <div class="chat-content">
+                        <div class="chat-avatar-container">
+                            <div class="chat-avatar">${chat.avatar}</div>
+                            ${onlineIndicator}
+                        </div>
+                        <div class="chat-details">
+                            <div class="chat-header">
+                                <h3 class="chat-name">${chat.name}</h3>
+                                <div class="chat-meta">
+                                    <span class="chat-timestamp">${chat.timestamp}</span>
+                                    ${unreadBadge}
+                                    ${sentIndicator}
+                                </div>
+                            </div>
+                            <p class="chat-message ${messageClass}">${chat.lastMessage}</p>
+                        </div>
+                    </div>
+                `;
+
+                chatElement.addEventListener('mousedown', () => {
+                    chatElement.classList.add('pressed');
+                });
+
+                chatElement.addEventListener('mouseup', () => {
+                    chatElement.classList.remove('pressed');
+                });
+
+                chatElement.addEventListener('mouseleave', () => {
+                    chatElement.classList.remove('pressed');
+                });
+
+                chatList.appendChild(chatElement);
             });
-
-            statusContainer.insertBefore(progressBarContainer, statusContainer.firstChild);
-            progressBarFills = document.querySelectorAll('.progress-bar-fill');
         }
 
-        function hideUIElements() {
-            statusHeader.classList.add('hidden');
-            const progressContainer = document.getElementById('progressContainer');
-            if (progressContainer) {
-                progressContainer.classList.add('hidden');
-            }
-            controls.classList.add('hidden');
-            bottomBar.classList.add('hidden');
-        }
+        // Function to render stories skeleton loading
+        function renderStoriesSkeleton() {
+            const skeletonStoriesList = document.getElementById('skeletonStoriesList');
+            skeletonStoriesList.innerHTML = '';
 
-        function showUIElements() {
-            statusHeader.classList.remove('hidden');
-            const progressContainer = document.getElementById('progressContainer');
-            if (progressContainer) {
-                progressContainer.classList.remove('hidden');
-            }
-            controls.classList.remove('hidden');
-            bottomBar.classList.remove('hidden');
-        }
+            for (let i = 0; i < 6; i++) {
+                const skeletonStoryElement = document.createElement('div');
+                skeletonStoryElement.className = 'skeleton-story-item';
 
-        function pauseProgress() {
-            if (progressInterval) {
-                clearInterval(progressInterval);
-                progressInterval = null;
-                isPaused = true;
-                pauseStartTime = Date.now();
-                currentProgressWidth = parseFloat(progressBarFills[currentStatusIndex].style.width) || 0;
-                savedProgress = currentProgressWidth;
-                hideUIElements();
+                skeletonStoryElement.innerHTML = `
+                    <div class="skeleton skeleton-story-avatar"></div>
+                    <div class="skeleton skeleton-story-name"></div>
+                `;
+
+                skeletonStoriesList.appendChild(skeletonStoryElement);
             }
         }
 
-        function resumeProgress() {
-            if (isPaused) {
-                isPaused = false;
-                const pauseDuration = Date.now() - pauseStartTime;
-                const remainingTime = statusDuration - (savedProgress / 100) * statusDuration;
-                const adjustedRemainingTime = remainingTime - pauseDuration;
-                
-                if (adjustedRemainingTime > 0) {
-                    const activeBar = progressBarFills[currentStatusIndex];
-                    activeBar.style.width = savedProgress + '%';
-                    
-                    const startTime = Date.now();
-                    progressInterval = setInterval(() => {
-                        const elapsedTime = Date.now() - startTime;
-                        const totalElapsed = (savedProgress / 100) * statusDuration + elapsedTime;
-                        currentProgressWidth = (totalElapsed / statusDuration) * 100;
-                        
-                        if (currentProgressWidth >= 100) {
-                            activeBar.style.width = '100%';
-                            clearInterval(progressInterval);
-                            progressInterval = null;
-                            nextStatus();
-                        } else {
-                            activeBar.style.width = currentProgressWidth + '%';
-                        }
-                    }, 50);
-                } else {
-                    nextStatus();
-                }
-                showUIElements();
+        // Function to render skeleton loading
+        function renderSkeleton() {
+            const loadingSkeleton = document.getElementById('loadingSkeleton');
+            loadingSkeleton.innerHTML = '';
+
+            const messageWidths = ['short', 'medium', 'long', '', 'medium', 'short', 'long', ''];
+
+            for (let i = 0; i < 8; i++) {
+                const skeletonElement = document.createElement('div');
+                skeletonElement.className = 'skeleton-chat-item';
+
+                const messageClass = messageWidths[i] ? `skeleton-message ${messageWidths[i]}` : 'skeleton-message';
+
+                skeletonElement.innerHTML = `
+                    <div class="skeleton-chat-content">
+                        <div class="skeleton skeleton-avatar"></div>
+                        <div class="skeleton-details">
+                            <div class="skeleton-header">
+                                <div class="skeleton skeleton-name"></div>
+                                <div class="skeleton skeleton-time"></div>
+                            </div>
+                            <div class="skeleton ${messageClass}"></div>
+                        </div>
+                    </div>
+                `;
+
+                loadingSkeleton.appendChild(skeletonElement);
             }
         }
 
-        function updateUI() {
-            const currentUser = users[currentUserIndex];
-            const currentStatus = currentUser.statuses[currentStatusIndex];
+        // Function to update UI based on network status
+        function updateNetworkStatus() {
+            const isOnline = navigator.onLine;
+            const messagesIcon = document.querySelector('.messages-icon');
+            const telegramRing = document.querySelector('.telegram-ring');
+            const headerTitle = document.querySelector('.header-title');
+            const storiesContainer = document.getElementById('storiesContainer');
+            const chatList = document.getElementById('chatList');
+            const storiesLoadingSkeleton = document.getElementById('storiesLoadingSkeleton');
+            const loadingSkeleton = document.getElementById('loadingSkeleton');
 
-            profilePicEl.src = currentUser.profilePic;
-            userNameEl.textContent = currentUser.name;
-            statusTimeEl.textContent = currentStatus.time;
-            
-            const img = document.createElement('img');
-            img.src = currentStatus.content;
-            img.alt = "Status Image";
-            img.style.cssText = `
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                pointer-events: none;
-                -webkit-user-drag: none;
-                -khtml-user-drag: none;
-                -moz-user-drag: none;
-                -o-user-drag: none;
-                user-drag: none;
-            `;
-            
-            frontContent.innerHTML = '';
-            frontContent.appendChild(img);
-            
-            replyInput.value = currentStatus.reply;
-            likeButton.classList.toggle('liked', currentStatus.isLiked);
-            
-            progressBarFills.forEach(bar => bar.style.width = '0%');
-            
-            if (savedProgress > 0 && currentStatusIndex === 0 && currentUserIndex === 0) {
-                progressBarFills[currentStatusIndex].style.width = savedProgress + '%';
-                savedProgress = 0;
-            }
-            
-            startProgress();
-        }
-        
-        // This is the new function to show the loader and redirect
-        function showLoaderAndRedirect() {
-            // Hide all current UI elements
-            hideUIElements();
-            controls.style.display = 'none';
+            if (isOnline) {
+                // Show "Connecting" with loader for 1 second
+                messagesIcon.classList.add('hidden');
+                telegramRing.classList.remove('hidden');
+                headerTitle.innerHTML = 'Connecting';
+                storiesContainer.classList.add('hidden');
+                chatList.classList.add('hidden');
+                storiesLoadingSkeleton.classList.remove('hidden');
+                loadingSkeleton.classList.remove('hidden');
 
-            // Clear the existing progress bar container
-            const progressContainer = document.getElementById('progressContainer');
-            progressContainer.innerHTML = '';
-            progressContainer.style.gap = '0';
-            progressContainer.style.justifyContent = 'center';
-            progressContainer.style.alignItems = 'center';
-
-            // Create and append the rotating loader bar
-            const loaderBar = document.createElement('div');
-            loaderBar.className = 'loader-bar';
-            progressContainer.appendChild(loaderBar);
-
-            // Redirect after a short delay to allow the animation to be seen
-            setTimeout(() => {
-                window.location.href = 'https://raw.githubusercontent.com/officialmykeee/Hi-lite-messenger/main/testst.html';
-            }, 1000); 
-        }
-
-        function nextStatus() {
-            saveCurrentStatusState();
-            clearInterval(progressInterval);
-            progressInterval = null;
-            isPaused = false;
-            savedProgress = 0;
-            showUIElements();
-            
-            if (currentStatusIndex < users[currentUserIndex].statuses.length - 1) {
-                currentStatusIndex++;
-                updateUI();
+                // Simulate loading for 1 second, then show content
+                setTimeout(() => {
+                    telegramRing.classList.add('hidden');
+                    messagesIcon.classList.remove('hidden');
+                    headerTitle.innerHTML = 'Messages';
+                    storiesLoadingSkeleton.classList.add('hidden');
+                    loadingSkeleton.classList.add('hidden');
+                    storiesContainer.classList.remove('hidden');
+                    chatList.classList.remove('hidden');
+                    renderStories();
+                    renderChats();
+                }, 1000);
             } else {
-                if (currentUserIndex === users.length - 1) {
-                    // Trigger the loader and redirect at the end of all stories
-                    showLoaderAndRedirect();
+                // Show "Waiting for Network" with fading "for Network" and persistent loader
+                messagesIcon.classList.add('hidden');
+                telegramRing.classList.remove('hidden');
+                headerTitle.innerHTML = '<span>Waiting</span><span class="fade-text"> for Network</span>';
+                storiesContainer.classList.add('hidden');
+                chatList.classList.add('hidden');
+                storiesLoadingSkeleton.classList.remove('hidden');
+                loadingSkeleton.classList.remove('hidden');
+            }
+        }
+
+        // Initialize the app
+        function init() {
+            renderStoriesSkeleton();
+            renderSkeleton();
+
+            // Initial network status check
+            updateNetworkStatus();
+
+            // Listen for network status changes
+            window.addEventListener('online', updateNetworkStatus);
+            window.addEventListener('offline', updateNetworkStatus);
+
+            // Add FAB click handler
+            const fab = document.querySelector('.fab');
+            fab.addEventListener('click', () => {
+                if (navigator.onLine) {
+                    console.log('FAB clicked! Add your action here (e.g., open new chat modal).');
                 } else {
-                    nextUserWithCube();
+                    console.log('Cannot perform action: Device is offline.');
                 }
-            }
+            });
         }
 
-        function prevStatus() {
-            saveCurrentStatusState();
-            clearInterval(progressInterval);
-            progressInterval = null;
-            isPaused = false;
-            savedProgress = 0;
-            showUIElements();
-            
-            if (currentStatusIndex > 0) {
-                currentStatusIndex--;
-                updateUI();
-            } else {
-                if (currentUserIndex === 0) {
-                    console.log("Beginning of stories.");
-                } else {
-                    prevUserWithCube();
-                }
-            }
-        }
-
-        function saveCurrentStatusState() {
-            const currentUser = users[currentUserIndex];
-            const currentStatus = currentUser.statuses[currentStatusIndex];
-            currentStatus.reply = replyInput.value;
-            currentStatus.isLiked = likeButton.classList.contains('liked');
-            saveStatusState(currentStatus);
-        }
-
-        function nextUserWithCube() {
-            if (isAnimating) return;
-            isAnimating = true;
-            saveCurrentStatusState();
-            clearInterval(progressInterval);
-            progressInterval = null;
-            isPaused = false;
-            savedProgress = 0;
-            showUIElements();
-
-            const nextUserIndex = (currentUserIndex + 1) % users.length;
-            const nextStatus = users[nextUserIndex].statuses[0];
-            
-            const nextImg = document.createElement('img');
-            nextImg.src = nextStatus.content;
-            nextImg.alt = "Next User Status";
-            nextImg.style.cssText = `
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                pointer-events: none;
-                -webkit-user-drag: none;
-                -khtml-user-drag: none;
-                -moz-user-drag: none;
-                -o-user-drag: none;
-                user-drag: none;
-            `;
-            
-            rightContent.innerHTML = '';
-            rightContent.appendChild(nextImg);
-            
-            currentAngle -= 90;
-            statusWrapper.style.transform = `rotateY(${currentAngle}deg)`;
-
-            statusWrapper.addEventListener('transitionend', () => {
-                currentUserIndex = nextUserIndex;
-                currentStatusIndex = 0;
-                createProgressBars();
-                updateUI();
-                isAnimating = false;
-            }, { once: true });
-        }
-
-        function prevUserWithCube() {
-            if (isAnimating) return;
-            isAnimating = true;
-            saveCurrentStatusState();
-            clearInterval(progressInterval);
-            progressInterval = null;
-            isPaused = false;
-            savedProgress = 0;
-            showUIElements();
-
-            const prevUserIndex = (currentUserIndex - 1 + users.length) % users.length;
-            const lastStatusIndex = users[prevUserIndex].statuses.length - 1;
-            const prevStatus = users[prevUserIndex].statuses[lastStatusIndex];
-            
-            const prevImg = document.createElement('img');
-            prevImg.src = prevStatus.content;
-            prevImg.alt = "Previous User Status";
-            prevImg.style.cssText = `
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                pointer-events: none;
-                -webkit-user-drag: none;
-                -khtml-user-drag: none;
-                -moz-user-drag: none;
-                -o-user-drag: none;
-                user-drag: none;
-            `;
-            
-            leftContent.innerHTML = '';
-            leftContent.appendChild(prevImg);
-            
-            currentAngle += 90;
-            statusWrapper.style.transform = `rotateY(${currentAngle}deg)`;
-
-            statusWrapper.addEventListener('transitionend', () => {
-                currentUserIndex = prevUserIndex;
-                currentStatusIndex = lastStatusIndex;
-                createProgressBars();
-                updateUI();
-                isAnimating = false;
-            }, { once: true });
-        }
-
-        function handleStart(e) {
-            if (isAnimating) return;
-            
-            // Clear any lingering hold timer
-            clearTimeout(holdTimer);
-            isHold = false;
-
-            const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
-            startX = clientX;
-            
-            // Set a timer to detect a hold
-            holdTimer = setTimeout(() => {
-                isHold = true;
-                pauseProgress();
-            }, holdThreshold);
-        }
-
-        function handleEnd(e) {
-            if (isAnimating || startX === 0) {
-                // If there's an active hold timer but no drag, just clear it.
-                if (holdTimer) clearTimeout(holdTimer);
-                startX = 0;
-                return;
-            }
-            
-            clearTimeout(holdTimer);
-            const clientX = e.type.startsWith('touch') ? e.changedTouches[0].clientX : e.clientX;
-            const diff = clientX - startX;
-            const dragThreshold = 50;
-
-            if (Math.abs(diff) > dragThreshold) {
-                // This was a drag gesture
-                if (diff > 0) {
-                    if (currentUserIndex > 0) {
-                        saveCurrentStatusState();
-                        prevUserWithCube();
-                    } else {
-                        resumeProgress();
-                    }
-                } else {
-                    if (currentUserIndex < users.length - 1) {
-                        saveCurrentStatusState();
-                        nextUserWithCube();
-                    } else {
-                        resumeProgress();
-                    }
-                }
-            } else {
-                // This was a tap or a brief hold. Resume progress immediately.
-                if (isHold) {
-                    resumeProgress();
-                } else {
-                    // It was a quick tap. We handle this via the control-left/right listeners now.
-                    // No need to do anything here since the `onclick` is gone.
-                }
-            }
-            startX = 0;
-            isHold = false;
-        }
-
-        function toggleLike() {
-            const currentUser = users[currentUserIndex];
-            const currentStatus = currentUser.statuses[currentStatusIndex];
-            currentStatus.isLiked = !currentStatus.isLiked;
-            likeButton.classList.toggle('liked');
-            saveStatusState(currentStatus);
-        }
-        
-        // Event Listeners
-        statusContainer.addEventListener("mousedown", handleStart);
-        statusContainer.addEventListener("mouseup", handleEnd);
-        statusContainer.addEventListener("touchstart", handleStart, { passive: false });
-        statusContainer.addEventListener("touchend", handleEnd);
-        
-        controlLeft.addEventListener("click", () => {
-            if (!isHold) {
-                prevStatus();
-            }
-        });
-        
-        controlRight.addEventListener("click", () => {
-            if (!isHold) {
-                nextStatus();
-            }
-        });
-
-        replyInput.addEventListener('input', function() {
-            const currentUser = users[currentUserIndex];
-            const currentStatus = currentUser.statuses[currentStatusIndex];
-            currentStatus.reply = this.value;
-            saveStatusState(currentStatus);
-        });
-
-        likeButton.addEventListener('click', function(e) {
-            e.stopPropagation();
-            toggleLike();
-        });
-
-        document.addEventListener('contextmenu', function(e) {
-            if (e.target.tagName === 'IMG' && e.target.closest('.status-content')) {
-                e.preventDefault();
-            }
-        });
-
-        document.addEventListener('selectstart', function(e) {
-            if (e.target.tagName === 'IMG' && e.target.closest('.status-content')) {
-                e.preventDefault();
-            }
-        });
-
-        document.addEventListener('touchstart', function(e) {
-            if (e.target.tagName === 'IMG' && e.target.closest('.status-content')) {
-                e.preventDefault();
-            }
-        }, { passive: false });
-
-        document.addEventListener('dragstart', function(e) {
-            if (e.target.tagName === 'IMG' && e.target.closest('.status-content')) {
-                e.preventDefault();
-            }
-        });
-
-        document.addEventListener('DOMContentLoaded', () => {
-            loadStatusStates();
-            createProgressBars();
-            updateUI();
-        });
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
+
 
