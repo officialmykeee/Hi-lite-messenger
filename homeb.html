@@ -162,6 +162,35 @@
             height: 64px;
             border-radius: 50%;
             padding: 2px;
+            position: relative;
+            transition: transform 0.2s ease;
+            cursor: pointer;
+        }
+
+        .story-avatar-ring.rotating {
+            animation: ringRotate 0.8s ease-in-out;
+        }
+
+        @keyframes ringRotate {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(90deg); }
+            50% { transform: rotate(180deg); }
+            75% { transform: rotate(270deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .story-avatar-inner-container {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            right: 2px;
+            bottom: 2px;
+            background-color: white;
+            border-radius: 50%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .story-avatar-ring.your-story {
@@ -170,41 +199,14 @@
 
         .story-avatar-ring.has-story {
             background: linear-gradient(45deg, #fbbf24, #ef4444, #a855f7);
+            background-size: 200% 200%;
+            animation: gradientShift 3s ease infinite;
         }
 
-        /* New CSS for the spinning loader on click */
-        .story-avatar-ring.loading {
-            animation: story-spin 1s linear infinite;
-        }
-        
-        @keyframes story-spin {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        .story-avatar-ring.loading .story-avatar-bg {
-            animation: story-spin-reverse 1s linear infinite;
-        }
-
-        @keyframes story-spin-reverse {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(-360deg);
-            }
-        }
-
-        .story-avatar-bg {
-            width: 100%;
-            height: 100%;
-            background-color: white;
-            border-radius: 50%;
-            padding: 2px;
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         .story-avatar {
@@ -491,6 +493,92 @@
             width: 220px;
         }
 
+        /* Story Viewer Modal */
+        .story-viewer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .story-viewer-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .story-viewer-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 384px;
+            max-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .story-viewer-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .story-viewer-overlay.active .story-viewer-header {
+            opacity: 1;
+        }
+
+        .story-viewer-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            transition: background-color 0.2s ease;
+        }
+
+        .story-viewer-close:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .story-viewer-content {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .story-viewer-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #000;
+        }
+
         /* FAB styles */
         :root {
             --fab-size: 56px;
@@ -539,6 +627,7 @@
 </head>
 <body>
     <div class="app-container">
+        <!-- Header -->
         <div class="header">
             <div class="header-content">
                 <svg class="icon messages-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #749cbf; fill: #749cbf;">
@@ -554,33 +643,54 @@
                     </svg>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
                         <path d="M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Zm-1.5 0a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z"></path>
-                        <path d="M12 1c.266 0 .532.009.797.028.763.055 1.345.617 1.512 1.304l.352 1.45c.019.078.09.171.225.221.247.089.49.19.728.302.13.061.246.044.315.002l1.275-.776c.603-.368 1.411-.353 1.99.147.402.349.78.726 1.128 1.129.501.578.515 1.386.147 1.99l-.776 1.274c-.042.069-.058.185.002.315.112.238.213.481.303.728.048.135.142.205.22.225l1.45.352c.687.167 1.249.749 1.303 1.512.038.531.038 1.063 0 1.594-.054.763-.616 1.345-1.303 1.512l-1.45.352c-.078.019-.171.09-.221.225-.089.248-.19.491-.302.728-.061.13-.044.246-.002.315l.776 1.275c.368.603.353 1.411-.147 1.99-.349.402-.726.78-1.129 1.128-.578.501-1.386.515-1.99.147l-1.274-.776c-.069-.042-.185-.058-.314.002a8.606 8.606 0 0 1-.729.303c-.135.048-.205.142-.225.22l-.352 1.45c-.167.687-.749 1.249-1.512 1.303-.531.038-1.063.038-1.594 0-.763-.054-1.345-.616-1.512-1.303l-.352-1.45c-.019-.078-.09-.171-.225-.221a8.138 8.138 0 0 1-.728-.302c-.13-.061-.246-.044-.315-.002l-1.275.776c-.603.368-1.411.353-1.99-.147-.402-.349-.78-.726-1.128-1.129-.501-.578-.515-1.386-.147-1.99l.776-1.274c.042-.069.058-.185-.002-.314a8.606 8.606 0 0 1-.303-.729c-.048-.135-.142-.205-.22-.225l-1.45-.352c-.687-.167-1.249-.749-1.304-1.512a11.158 11.158 0 0 1 0-1.594c.055-.763.617-1.345 1.304-1.512l1.45-.352c.078-.019.171-.09.221-.225.089-.248.19-.491.302-.728.061-.13.044-.246.002-.315l-.776-1.275c-.368-.603-.353-1.411.147-1.99.349-.402.726-.78 1.129-1.128.578-.501 1.386-.515 1.99-.147l1.274.776c.069.042.185.058.315-.002.238-.112.481-.213.728-.303.135-.048.205-.142.225-.20l.352-1.45c.167-.687.749-1.249 1.512-1.304C11.466 1.01 11.732 1 12 1Zm-.69 1.525c-.055.004-.135.05-.161.161l-.353 1.45a1.832 1.832 0 0 1-1.172 1.277 7.147 7.147 0 0 0-.6.249 1.833 1.833 0 0 1-1.734-.074l-1.274-.776c-.098-.60-.186-.036-.228 0a9.774 9.774 0 0 0-.976.976c-.036.042-.06.131 0 .228l.776 1.274c.314.529.342 1.18.074 1.734a7.147 7.147 0 0 0-.249.6 1.831 1.831 0 0 1-1.278 1.173l-1.45.351c-.11.027-.156.107-.16.162a9.63 9.63 0 0 0 0 1.38c.004.055.05.135.161.161l1.45.353a1.832 1.832 0 0 1 1.277 1.172c.074.204.157.404.249.6.268.553.24 1.204-.074 1.733l-.776 1.275c-.06.098-.036.186 0 .228.301.348.628.675.976.976.042.036.131.06 0 .228l1.274-.776a1.83 1.83 0 0 1 1.734-.075c.196.093.396.176.6.25a1.831 1.831 0 0 1 1.173 1.278l.351 1.45c.027.11.107.156.162.16a9.63 9.63 0 0 0 1.38 0c.055-.004.135-.05.161-.161l.353-1.45a1.834 1.834 0 0 1 1.172-1.278 6.82 6.82 0 0 0 .6-.248 1.831 1.831 0 0 1 1.733.074l1.275.776c.098.06.186.036.228 0 .348-.301.675-.628.976-.976.036-.042.06-.131 0-.228l-.776-1.275a1.834 1.834 0 0 1-.075-1.733c.093-.196.176-.396.25-.6a1.831 1.831 0 0 1 1.278-1.173l1.45-.351c.11-.027.156-.107.16-.162a9.63 9.63 0 0 0 0-1.38c-.004-.055-.05-.135-.161-.161l-1.45-.353c-.626-.152-1.08-.625-1.278-1.172a6.576 6.576 0 0 0-.248-.6 1.833 1.833 0 0 1 .074-1.734l.776-1.274c.06-.098.036-.186 0-.228a9.774 9.774 0 0 0-.976-.976c-.042-.036-.131-.06 0-.228l-1.275.776a1.831 1.831 0 0 1-1.733.074 6.88 6.88 0 0 0-.6-.249 1.835 1.835 0 0 1-1.173-1.278l-.351-1.45c-.027-.11-.107-.156-.162-.16a9.63 0 0 0-1.38 0Z"></path>
+                        <path d="M12 1c.266 0 .532.009.797.028.763.055 1.345.617 1.512 1.304l.352 1.45c.019.078.09.171.225.221.247.089.49.19.728.302.13.061.246.044.315.002l1.275-.776c.603-.368 1.411-.353 1.99.147.402.349.78.726 1.128 1.129.501.578.515 1.386.147 1.99l-.776 1.274c-.042.069-.058.185.002.315.112.238.213.481.303.728.048.135.142.205.22.225l1.45.352c.687.167 1.249.749 1.303 1.512.038.531.038 1.063 0 1.594-.054.763-.616 1.345-1.303 1.512l-1.45.352c-.078.019-.171.09-.221.225-.089.248-.19.491-.302.728-.061.13-.044.246-.002.315l.776 1.275c.368.603.353 1.411-.147 1.99-.349.402-.726.78-1.129 1.128-.578.501-1.386.515-1.99.147l-1.274-.776c-.069-.042-.185-.058-.314.002a8.606 8.606 0 0 1-.729.303c-.135.048-.205.142-.225.22l-.352 1.45c-.167.687-.749 1.249-1.512 1.303-.531.038-1.063.038-1.594 0-.763-.054-1.345-.616-1.512-1.303l-.352-1.45c-.019-.078-.09-.171-.225-.221a8.138 8.138 0 0 1-.728-.302c-.13-.061-.246-.044-.315-.002l-1.275.776c-.603.368-1.411.353-1.99-.147-.402-.349-.78-.726-1.128-1.129-.501-.578-.515-1.386-.147-1.99l.776-1.274c.042-.069.058-.185-.002-.314a8.606 8.606 0 0 1-.303-.729c-.048-.135-.142-.205-.22-.225l-1.45-.352c-.687-.167-1.249-.749-1.304-1.512a11.158 11.158 0 0 1 0-1.594c.055-.763.617-1.345 1.304-1.512l1.45-.352c.078-.019.171-.09.221-.225.089-.248.19-.491.302-.728.061-.13.044-.246.002-.315l-.776-1.275c-.368-.603-.353-1.411.147-1.99.349-.402.726-.78 1.129-1.128.578-.501 1.386-.515 1.99-.147l1.274.776c.069.042.185.058.315-.002.238-.112.481-.213.728-.303.135-.048.205-.142.225-.20l.352-1.45c.167-.687.749-1.249 1.512-1.304C11.466 1.01 11.732 1 12 1Zm-.69 1.525c-.055.004-.135.05-.161.161l-.353 1.45a1.832 1.832 0 0 1-1.172 1.277 7.147 7.147 0 0 0-.6.249 1.833 1.833 0 0 1-1.734-.074l-1.274-.776c-.098-.60-.186-.036-.228 0a9.774 9.774 0 0 0-.976.976c-.036.042-.06.131 0 .228l.776 1.274c.314.529.342 1.18.074 1.734a7.147 7.147 0 0 0-.249.6 1.831 1.831 0 0 1-1.278 1.173l-1.45.351c-.11.027-.156.107-.16.162a9.63 9.63 0 0 0 0 1.38c.004.055.05.135.161.161l1.45.353a1.832 1.832 0 0 1 1.277 1.172c.074.204.157.404.249.6.268.553.24 1.204-.074 1.733l-.776 1.275c-.06.098-.036.186 0 .228.301.348.628.675.976.976.042.036.131.06.228 0l1.274-.776a1.83 1.83 0 0 1 1.734-.075c.196.093.396.176.6.25a1.831 1.831 0 0 1 1.173 1.278l.351 1.45c.027.11.107.156.162.16a9.63 9.63 0 0 0 1.38 0c.055-.004.135-.05.161-.161l.353-1.45a1.834 1.834 0 0 1 1.172-1.278 6.82 6.82 0 0 0 .6-.248 1.831 1.831 0 0 1 1.733.074l1.275.776c.098.06.186.036.228 0 .348-.301.675-.628.976-.976.036-.042.06-.131 0-.228l-.776-1.275a1.834 1.834 0 0 1-.075-1.733c.093-.196.176-.396.25-.6a1.831 1.831 0 0 1 1.278-1.173l1.45-.351c.11-.027.156-.107.16-.162a9.63 9.63 0 0 0 0-1.38c-.004-.055-.05-.135-.161-.161l-1.45-.353c-.626-.152-1.08-.625-1.278-1.172a6.576 6.576 0 0 0-.248-.6 1.833 1.833 0 0 1 .074-1.734l.776-1.274c.06-.098.036-.186 0-.228a9.774 9.774 0 0 0-.976-.976c-.042-.036-.131-.06-.228 0l-1.275.776a1.831 1.831 0 0 1-1.733.074 6.88 6.88 0 0 0-.6-.249 1.835 1.835 0 0 1-1.173-1.278l-.351-1.45c-.027-.11-.107-.156-.162-.16a9.63 9.63 0 0 0-1.38 0Z"></path>
                     </svg>
                 </div>
             </div>
         </div>
 
+        <!-- Stories -->
         <div class="stories-container" id="storiesContainer">
             <div class="stories-scroll">
                 <div class="stories-list" id="storiesList">
-                    </div>
+                    <!-- Stories will be populated by JavaScript -->
+                </div>
             </div>
         </div>
 
+        <!-- Stories Loading skeleton (hidden by default) -->
         <div class="skeleton-stories-container hidden" id="storiesLoadingSkeleton">
             <div class="stories-scroll">
                 <div class="skeleton-stories-list" id="skeletonStoriesList">
-                    </div>
+                    <!-- Skeleton stories will be populated by JavaScript -->
+                </div>
             </div>
         </div>
 
+        <!-- Chat List -->
         <div class="chat-list" id="chatList">
-            </div>
+            <!-- Chat items will be populated by JavaScript -->
+        </div>
 
+        <!-- Loading skeleton (hidden by default) -->
         <div class="chat-list hidden" id="loadingSkeleton">
-            </div>
+            <!-- Skeleton items will be populated by JavaScript -->
+        </div>
     </div>
 
+    <!-- Story Viewer Modal -->
+    <div class="story-viewer-overlay" id="storyViewerOverlay">
+        <div class="story-viewer-container">
+            <div class="story-viewer-header">
+                <button class="story-viewer-close" id="storyViewerClose">&times;</button>
+            </div>
+            <div class="story-viewer-content">
+                <iframe class="story-viewer-iframe" id="storyViewerIframe"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
     <button class="fab" aria-label="Create new chat" title="Create new chat">
         <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
             <line class="plus-shape" x1="50" y1="25" x2="50" y2="75"/>
@@ -789,6 +899,46 @@
             }
         ];
 
+        // Story viewer elements
+        const storyViewerOverlay = document.getElementById('storyViewerOverlay');
+        const storyViewerClose = document.getElementById('storyViewerClose');
+        const storyViewerIframe = document.getElementById('storyViewerIframe');
+
+        // Function to open story viewer
+        function openStoryViewer(storyId) {
+            const storyUrl = 'https://raw.githubusercontent.com/officialmykeee/Hi-lite-messenger/main/testst.html';
+            
+            // Set the iframe source
+            storyViewerIframe.src = storyUrl;
+            
+            // Show the overlay
+            storyViewerOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Function to close story viewer
+        function closeStoryViewer() {
+            storyViewerOverlay.classList.remove('active');
+            storyViewerIframe.src = ''; // Clear iframe
+            document.body.style.overflow = '';
+        }
+
+        // Event listeners for story viewer
+        storyViewerClose.addEventListener('click', closeStoryViewer);
+
+        storyViewerOverlay.addEventListener('click', function(e) {
+            if (e.target === storyViewerOverlay) {
+                closeStoryViewer();
+            }
+        });
+
+        // Handle ESC key to close viewer
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && storyViewerOverlay.classList.contains('active')) {
+                closeStoryViewer();
+            }
+        });
+
         // Function to render stories
         function renderStories() {
             const storiesList = document.getElementById('storiesList');
@@ -797,14 +947,13 @@
             stories.forEach(story => {
                 const storyElement = document.createElement('div');
                 storyElement.className = 'story-item';
-                storyElement.setAttribute('data-id', story.id);
 
                 const avatarRingClass = story.isYourStory ? 'your-story' : (story.hasNewStory ? 'has-story' : 'your-story');
 
                 storyElement.innerHTML = `
                     <div class="story-avatar-container">
-                        <div class="story-avatar-ring ${avatarRingClass}">
-                            <div class="story-avatar-bg">
+                        <div class="story-avatar-ring ${avatarRingClass}" data-story-id="${story.id}">
+                            <div class="story-avatar-inner-container">
                                 <img src="${story.avatar}" alt="${story.username}" class="story-avatar">
                             </div>
                         </div>
@@ -813,42 +962,35 @@
                     <span class="story-username">${story.username}</span>
                 `;
 
-                storiesList.appendChild(storyElement);
-            });
-
-            // Add click listeners to story items
-            document.querySelectorAll('.story-item').forEach(item => {
-                item.addEventListener('click', () => {
-                    const storyId = item.getAttribute('data-id');
-                    const storyRing = item.querySelector('.story-avatar-ring');
-                    const storyUsername = item.querySelector('.story-username');
+                // Add click event listener for ring rotation and story viewing
+                const ringElement = storyElement.querySelector('.story-avatar-ring');
+                ringElement.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
                     
-                    // Start loading animation
-                    storyRing.classList.add('loading');
-                    storyUsername.textContent = 'Loading...';
-
-                    // Simulate navigation and loading
+                    // Remove existing rotation class
+                    this.classList.remove('rotating');
+                    
+                    // Force reflow to restart animation
+                    void this.offsetWidth;
+                    
+                    // Add rotation class
+                    this.classList.add('rotating');
+                    
+                    // Remove rotation class after animation completes
                     setTimeout(() => {
-                        // Stop loading animation
-                        storyRing.classList.remove('loading');
-
-                        // Find the story object to update its state
-                        const clickedStory = stories.find(s => s.id === storyId);
-                        if (clickedStory) {
-                            clickedStory.hasNewStory = false; // Mark story as viewed
-                        }
-
-                        // Update the ring's color to show it's been viewed
-                        storyRing.classList.remove('has-story');
-                        storyRing.classList.add('your-story');
-
-                        // Restore original username text
-                        storyUsername.textContent = clickedStory.username;
-
-                        // Log to simulate navigating
-                        console.log(`Navigating to story for user: ${clickedStory.username} (ID: ${storyId})`);
-                    }, 1500); // Simulate a 1.5 second loading time
+                        this.classList.remove('rotating');
+                    }, 800);
+                    
+                    // Open story viewer (for both your-story and has-story)
+                    if (story.isYourStory || story.hasNewStory) {
+                        openStoryViewer(story.id);
+                    }
+                    
+                    console.log(`Viewing story for ${story.username} (ID: ${story.id})`);
                 });
+
+                storiesList.appendChild(storyElement);
             });
         }
 
