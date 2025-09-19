@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <style>
+        :root {
+            --bg-color: #000;
+            --input-bg: rgba(255, 255, 255, 0.1);
+            --text-color: #fff;
+            --instagram-pink: #ff66b2;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: sans-serif;
+            color: var(--text-color);
+        }
+
+        .status-container {
+            width: 360px;
+            height: 565px;
+            border-radius: 10px;
+            position: absolute;
+            top: 44%;
+            left: 50%;
+            transform: translate(-50%, -50%) translateY(27px);
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            perspective: 1000px;
+            touch-action: none;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+            user-select: none;
+        }
+
+        .status-content-wrapper {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s ease;
+        }
+
+        .status-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+            backface-visibility: hidden;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .status-content.front {
+            transform: rotateY(0deg) translateZ(180px);
+        }
+
+        .status-content.right {
+            transform: rotateY(90deg) translateZ(180px);
+        }
+
+        .status-content.left {
+            transform: rotateY(-90deg) translateZ(180px);
+        }
+
+        .status-content img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            pointer-events: none;
+            -webkit-user-drag: none;
+            -khtml-user-drag: none;
+            -moz-user-drag: none;
+            -o-user-drag: none;
+            user-drag: none;
+        }
+
+        .status-header {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            display: flex;
+            align-items: center;
+            z-index: 10;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .status-header.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #333;
+            margin-right: 10px;
+            overflow: hidden;
+        }
+
+        .profile-pic img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-info {
+            flex-grow: 1;
+        }
+
+        .user-name {
+            font-size: 1em;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .status-time {
+            font-size: 0.8em;
+            color: #aaa;
+            margin: 0;
+        }
+        
+        .progress-bar-container {
+            position: absolute;
+            top: 5px;
+            left: 15px;
+            right: 15px;
+            height: 3px;
+            display: flex;
+            gap: 5px;
+            z-index: 10;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .progress-bar-container.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .progress-bar {
+            flex: 1;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            width: 0;
+            height: 100%;
+            background-color: #fff;
+            border-radius: 5px;
+            transition: width 0.1s linear;
+        }
+
+        .controls {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            z-index: 5;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+            user-select: none;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .controls.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .control-left, .control-right {
+            flex: 1;
+            cursor: pointer;
+        }
+
+        /* Bottom Bar Styles */
+        .bottom-bar {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 360px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            box-sizing: border-box;
+            z-index: 20;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .bottom-bar.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .reply-input-container {
+            flex-grow: 1;
+            margin-right: 15px;
+        }
+        
+        .reply-input {
+            width: 100%;
+            padding: 10px 15px;
+            border-radius: 25px;
+            border: none;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-size: 1em;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+        
+        .reply-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .action-icon-btn {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+        
+        .action-icon-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: none;
+            stroke: var(--text-color);
+            stroke-width: 2;
+        }
+        
+        .action-icon-btn.like-btn svg {
+            fill: none;
+            stroke: var(--text-color);
+            transition: fill 0.2s ease-in-out, stroke 0.2s ease-in-out;
+        }
+        
+        .action-icon-btn.like-btn.liked svg {
+            fill: var(--instagram-pink);
+            stroke: var(--instagram-pink);
+        }
+        
+        .heart-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 1px solid var(--input-bg);
+            padding: 5px;
+        }
+
+        @media (max-width: 400px) {
+            .status-container, .bottom-bar {
+                width: 100%;
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="status-container" id="statusContainer">
+        
+        <div class="status-header" id="statusHeader">
+            <div class="profile-pic">
+                <img id="profilePic" src="https://via.placeholder.com/40" alt="Profile Picture">
+            </div>
+            <div class="user-info">
+                <h3 class="user-name" id="userName"></h3>
+                <p class="status-time" id="statusTime"></p>
+            </div>
+        </div>
+
+        <div class="status-content-wrapper" id="statusWrapper">
+            <div class="status-content front" id="frontContent"></div>
+            <div class="status-content right" id="rightContent"></div>
+            <div class="status-content left" id="leftContent"></div>
+        </div>
+
+        <div class="progress-bar-container" id="progressContainer"></div>
+
+        <div class="controls" id="controls">
+            <div class="control-left"></div>
+            <div class="control-right"></div>
+        </div>
+    </div>
+
+    <div class="bottom-bar" id="bottomBar">
+        <div class="reply-input-container">
+            <input type="text" class="reply-input" id="replyInput" placeholder="Reply privately...">
+        </div>
+        <button class="action-icon-btn like-btn" id="likeButton">
+            <div class="heart-container">
+                <svg class="svg-icon heart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 
+                             4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 
+                             14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 
+                             18.6 15.36 13.45 20.03L12 21.35Z"></path>
+                </svg>
+            </div>
+        </button>
+    </div>
+
+    <script>
+        const users = [
+            {
+                id: "your-story",
+                name: "Your Story",
+                profilePic: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
+                statuses: [
+                    { 
+                        id: 'yourstory1',
+                        content: 'https://picsum.photos/id/1016/360/640', 
+                        time: 'Just Now',
+                        reply: '',
+                        isLiked: false
+                    },
+                    { 
+                        id: 'yourstory2',
+                        content: 'https://picsum.photos/id/1018/360/640', 
+                        time: '5 minutes ago',
+                        reply: '',
+                        isLiked: false
+                    }
+                ]
+            },
+            {
+                id: "1",
+                name: "Emily",
+                profilePic: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
+                statuses: [
+                    { 
+                        id: 'emily1',
+                        content: 'https://picsum.photos/id/237/360/640', 
+                        time: '2 hours ago',
+                        reply: '',
+                        isLiked: false
+                    }
+                ]
+            },
+            {
+                id: "2",
+                name: "Michael",
+                profilePic: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
+                statuses: [
+                    { 
+                        id: 'michael1',
+                        content: 'https://picsum.photos/id/1015/360/640', 
+                        time: '1 hour ago',
+                        reply: '',
+                        isLiked: false
+                    },
+                    { 
+                        id: 'michael2',
+                        content: 'https://picsum.photos/id/1020/360/640', 
+                        time: '3 hours ago',
+                        reply: '',
+                        isLiked: false
+                    }
+                ]
+            },
+            {
+                id: "3",
+                name: "Sarah",
+                profilePic: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
+                statuses: [
+                    { 
+                        id: 'sarah1',
+                        content: 'https://picsum.photos/id/1025/360/640', 
+                        time: '1 day ago',
+                        reply: '',
+                        isLiked: false
+                    },
+                    { 
+                        id: 'sarah2',
+                        content: 'https://picsum.photos/id/1031/360/640', 
+                        time: '1 day ago',
+                        reply: '',
+                        isLiked: false
+                    }
+                ]
+            },
+            {
+                id: "4",
+                name: "David",
+                profilePic: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
+                statuses: [
+                    { 
+                        id: 'david1',
+                        content: 'https://picsum.photos/id/1033/360/640', 
+                        time: '4 hours ago',
+                        reply: '',
+                        isLiked: false
+                    }
+                ]
+            },
+            {
+                id: "5",
+                name: "Jessica",
+                profilePic: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
+                statuses: [
+                    { 
+                        id: 'jessica1',
+                        content: 'https://picsum.photos/id/1037/360/640', 
+                        time: '5 hours ago',
+                        reply: '',
+                        isLiked: false
+                    },
+                    { 
+                        id: 'jessica2',
+                        content: 'https://picsum.photos/id/1041/360/640', 
+                        time: '8 hours ago',
+                        reply: '',
+                        isLiked: false
+                    }
+                ]
+            }
+        ];
+
+        let currentUserIndex = 0;
+        let currentStatusIndex = 0;
+        const statusDuration = 5000;
+        let progressInterval;
+        let progressBarFills;
+        let isPaused = false;
+        let pauseStartTime = 0;
+        let currentProgressWidth = 0;
+        let savedProgress = 0;
+        let startX = 0;
+        let isAnimating = false;
+        let currentAngle = 0;
+        let isHold = false;
+        let holdTimer;
+        const holdThreshold = 100; // ms
+
+        const statusContainer = document.getElementById('statusContainer');
+        const profilePicEl = document.getElementById('profilePic');
+        const userNameEl = document.getElementById('userName');
+        const statusTimeEl = document.getElementById('statusTime');
+        const replyInput = document.getElementById('replyInput');
+        const likeButton = document.getElementById('likeButton');
+        const statusHeader = document.getElementById('statusHeader');
+        const controls = document.getElementById('controls');
+        const bottomBar = document.getElementById('bottomBar');
+        const controlLeft = document.querySelector('.control-left');
+        const controlRight = document.querySelector('.control-right');
+        
+        const statusWrapper = document.getElementById('statusWrapper');
+        const frontContent = document.getElementById('frontContent');
+        const rightContent = document.getElementById('rightContent');
+        const leftContent = document.getElementById('leftContent');
+
+        // Load status states from localStorage on page load
+        function loadStatusStates() {
+            users.forEach(user => {
+                user.statuses.forEach(status => {
+                    const savedReply = localStorage.getItem(`reply_${status.id}`);
+                    const savedLike = localStorage.getItem(`like_${status.id}`);
+                    
+                    if (savedReply !== null) {
+                        status.reply = savedReply;
+                    }
+                    if (savedLike !== null) {
+                        status.isLiked = JSON.parse(savedLike);
+                    }
+                });
+            });
+        }
+
+        // Save status state to localStorage
+        function saveStatusState(status) {
+            localStorage.setItem(`reply_${status.id}`, status.reply);
+            localStorage.setItem(`like_${status.id}`, JSON.stringify(status.isLiked));
+        }
+
+        function createProgressBars() {
+            const oldContainer = statusContainer.querySelector('.progress-bar-container');
+            if (oldContainer) {
+                oldContainer.remove();
+            }
+
+            const currentStatuses = users[currentUserIndex].statuses;
+            const progressBarContainer = document.createElement('div');
+            progressBarContainer.className = 'progress-bar-container';
+            progressBarContainer.id = 'progressContainer';
+
+            currentStatuses.forEach((_, index) => {
+                const progressBar = document.createElement('div');
+                progressBar.className = 'progress-bar';
+                const progressBarFill = document.createElement('div');
+                progressBarFill.className = 'progress-bar-fill';
+                progressBar.appendChild(progressBarFill);
+                progressBarContainer.appendChild(progressBar);
+            });
+
+            statusContainer.insertBefore(progressBarContainer, statusContainer.firstChild);
+            progressBarFills = document.querySelectorAll('.progress-bar-fill');
+        }
+
+        function hideUIElements() {
+            statusHeader.classList.add('hidden');
+            const progressContainer = document.getElementById('progressContainer');
+            if (progressContainer) {
+                progressContainer.classList.add('hidden');
+            }
+            controls.classList.add('hidden');
+            bottomBar.classList.add('hidden');
+        }
+
+        function showUIElements() {
+            statusHeader.classList.remove('hidden');
+            const progressContainer = document.getElementById('progressContainer');
+            if (progressContainer) {
+                progressContainer.classList.remove('hidden');
+            }
+            controls.classList.remove('hidden');
+            bottomBar.classList.remove('hidden');
+        }
+
+        function pauseProgress() {
+            if (progressInterval) {
+                clearInterval(progressInterval);
+                progressInterval = null;
+                isPaused = true;
+                pauseStartTime = Date.now();
+                currentProgressWidth = parseFloat(progressBarFills[currentStatusIndex].style.width) || 0;
+                savedProgress = currentProgressWidth;
+                hideUIElements();
+            }
+        }
+
+        function resumeProgress() {
+            if (isPaused) {
+                isPaused = false;
+                const pauseDuration = Date.now() - pauseStartTime;
+                const remainingTime = statusDuration - (savedProgress / 100) * statusDuration;
+                const adjustedRemainingTime = remainingTime - pauseDuration;
+                
+                if (adjustedRemainingTime > 0) {
+                    const activeBar = progressBarFills[currentStatusIndex];
+                    activeBar.style.width = savedProgress + '%';
+                    
+                    const startTime = Date.now();
+                    progressInterval = setInterval(() => {
+                        const elapsedTime = Date.now() - startTime;
+                        const totalElapsed = (savedProgress / 100) * statusDuration + elapsedTime;
+                        currentProgressWidth = (totalElapsed / statusDuration) * 100;
+                        
+                        if (currentProgressWidth >= 100) {
+                            activeBar.style.width = '100%';
+                            clearInterval(progressInterval);
+                            progressInterval = null;
+                            nextStatus();
+                        } else {
+                            activeBar.style.width = currentProgressWidth + '%';
+                        }
+                    }, 50);
+                } else {
+                    nextStatus();
+                }
+                showUIElements();
+            }
+        }
+
+        function updateUI() {
+            const currentUser = users[currentUserIndex];
+            const currentStatus = currentUser.statuses[currentStatusIndex];
+
+            profilePicEl.src = currentUser.profilePic;
+            userNameEl.textContent = currentUser.name;
+            statusTimeEl.textContent = currentStatus.time;
+            
+            const img = document.createElement('img');
+            img.src = currentStatus.content;
+            img.alt = "Status Image";
+            img.style.cssText = `
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                pointer-events: none;
+                -webkit-user-drag: none;
+                -khtml-user-drag: none;
+                -moz-user-drag: none;
+                -o-user-drag: none;
+                user-drag: none;
+            `;
+            
+            frontContent.innerHTML = '';
+            frontContent.appendChild(img);
+            
+            replyInput.value = currentStatus.reply;
+            likeButton.classList.toggle('liked', currentStatus.isLiked);
+            
+            progressBarFills.forEach(bar => bar.style.width = '0%');
+            
+            if (savedProgress > 0 && currentStatusIndex === 0 && currentUserIndex === 0) {
+                progressBarFills[currentStatusIndex].style.width = savedProgress + '%';
+                savedProgress = 0;
+            }
+            
+            startProgress();
+        }
+
+        function startProgress() {
+            if (isPaused) return;
+            
+            const activeBar = progressBarFills[currentStatusIndex];
+            let progressWidth = parseFloat(activeBar.style.width) || 0;
+            const startTime = Date.now();
+            
+            progressInterval = setInterval(() => {
+                if (isPaused) {
+                    clearInterval(progressInterval);
+                    progressInterval = null;
+                    return;
+                }
+                
+                const elapsedTime = Date.now() - startTime;
+                const totalElapsed = (progressWidth / 100) * statusDuration + elapsedTime;
+                currentProgressWidth = (totalElapsed / statusDuration) * 100;
+                
+                if (currentProgressWidth >= 100) {
+                    activeBar.style.width = '100%';
+                    clearInterval(progressInterval);
+                    progressInterval = null;
+                    nextStatus();
+                } else {
+                    activeBar.style.width = currentProgressWidth + '%';
+                }
+            }, 50);
+        }
+
+        function nextStatus() {
+            saveCurrentStatusState();
+            clearInterval(progressInterval);
+            progressInterval = null;
+            isPaused = false;
+            savedProgress = 0;
+            showUIElements();
+            
+            if (currentStatusIndex < users[currentUserIndex].statuses.length - 1) {
+                currentStatusIndex++;
+                updateUI();
+            } else {
+                if (currentUserIndex === users.length - 1) {
+                    console.log("End of stories.");
+                } else {
+                    nextUserWithCube();
+                }
+            }
+        }
+
+        function prevStatus() {
+            saveCurrentStatusState();
+            clearInterval(progressInterval);
+            progressInterval = null;
+            isPaused = false;
+            savedProgress = 0;
+            showUIElements();
+            
+            if (currentStatusIndex > 0) {
+                currentStatusIndex--;
+                updateUI();
+            } else {
+                if (currentUserIndex === 0) {
+                    console.log("Beginning of stories.");
+                } else {
+                    prevUserWithCube();
+                }
+            }
+        }
+
+        function saveCurrentStatusState() {
+            const currentUser = users[currentUserIndex];
+            const currentStatus = currentUser.statuses[currentStatusIndex];
+            currentStatus.reply = replyInput.value;
+            currentStatus.isLiked = likeButton.classList.contains('liked');
+            saveStatusState(currentStatus);
+        }
+
+        function nextUserWithCube() {
+            if (isAnimating) return;
+            isAnimating = true;
+            saveCurrentStatusState();
+            clearInterval(progressInterval);
+            progressInterval = null;
+            isPaused = false;
+            savedProgress = 0;
+            showUIElements();
+
+            const nextUserIndex = (currentUserIndex + 1) % users.length;
+            const nextStatus = users[nextUserIndex].statuses[0];
+            
+            const nextImg = document.createElement('img');
+            nextImg.src = nextStatus.content;
+            nextImg.alt = "Next User Status";
+            nextImg.style.cssText = `
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                pointer-events: none;
+                -webkit-user-drag: none;
+                -khtml-user-drag: none;
+                -moz-user-drag: none;
+                -o-user-drag: none;
+                user-drag: none;
+            `;
+            
+            rightContent.innerHTML = '';
+            rightContent.appendChild(nextImg);
+            
+            currentAngle -= 90;
+            statusWrapper.style.transform = `rotateY(${currentAngle}deg)`;
+
+            statusWrapper.addEventListener('transitionend', () => {
+                currentUserIndex = nextUserIndex;
+                currentStatusIndex = 0;
+                createProgressBars();
+                updateUI();
+                isAnimating = false;
+            }, { once: true });
+        }
+
+        function prevUserWithCube() {
+            if (isAnimating) return;
+            isAnimating = true;
+            saveCurrentStatusState();
+            clearInterval(progressInterval);
+            progressInterval = null;
+            isPaused = false;
+            savedProgress = 0;
+            showUIElements();
+
+            const prevUserIndex = (currentUserIndex - 1 + users.length) % users.length;
+            const lastStatusIndex = users[prevUserIndex].statuses.length - 1;
+            const prevStatus = users[prevUserIndex].statuses[lastStatusIndex];
+            
+            const prevImg = document.createElement('img');
+            prevImg.src = prevStatus.content;
+            prevImg.alt = "Previous User Status";
+            prevImg.style.cssText = `
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                pointer-events: none;
+                -webkit-user-drag: none;
+                -khtml-user-drag: none;
+                -moz-user-drag: none;
+                -o-user-drag: none;
+                user-drag: none;
+            `;
+            
+            leftContent.innerHTML = '';
+            leftContent.appendChild(prevImg);
+            
+            currentAngle += 90;
+            statusWrapper.style.transform = `rotateY(${currentAngle}deg)`;
+
+            statusWrapper.addEventListener('transitionend', () => {
+                currentUserIndex = prevUserIndex;
+                currentStatusIndex = lastStatusIndex;
+                createProgressBars();
+                updateUI();
+                isAnimating = false;
+            }, { once: true });
+        }
+
+        function handleStart(e) {
+            if (isAnimating) return;
+            
+            // Clear any lingering hold timer
+            clearTimeout(holdTimer);
+            isHold = false;
+
+            const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+            startX = clientX;
+            
+            // Set a timer to detect a hold
+            holdTimer = setTimeout(() => {
+                isHold = true;
+                pauseProgress();
+            }, holdThreshold);
+        }
+
+        function handleEnd(e) {
+            if (isAnimating || startX === 0) {
+                // If there's an active hold timer but no drag, just clear it.
+                if (holdTimer) clearTimeout(holdTimer);
+                startX = 0;
+                return;
+            }
+            
+            clearTimeout(holdTimer);
+            const clientX = e.type.startsWith('touch') ? e.changedTouches[0].clientX : e.clientX;
+            const diff = clientX - startX;
+            const dragThreshold = 50;
+
+            if (Math.abs(diff) > dragThreshold) {
+                // This was a drag gesture
+                if (diff > 0) {
+                    if (currentUserIndex > 0) {
+                        saveCurrentStatusState();
+                        prevUserWithCube();
+                    } else {
+                        resumeProgress();
+                    }
+                } else {
+                    if (currentUserIndex < users.length - 1) {
+                        saveCurrentStatusState();
+                        nextUserWithCube();
+                    } else {
+                        resumeProgress();
+                    }
+                }
+            } else {
+                // This was a tap or a brief hold. Resume progress immediately.
+                if (isHold) {
+                    resumeProgress();
+                } else {
+                    // It was a quick tap. We handle this via the control-left/right listeners now.
+                    // No need to do anything here since the `onclick` is gone.
+                }
+            }
+            startX = 0;
+            isHold = false;
+        }
+
+        function toggleLike() {
+            const currentUser = users[currentUserIndex];
+            const currentStatus = currentUser.statuses[currentStatusIndex];
+            currentStatus.isLiked = !currentStatus.isLiked;
+            likeButton.classList.toggle('liked');
+            saveStatusState(currentStatus);
+        }
+        
+        // Event Listeners
+        statusContainer.addEventListener("mousedown", handleStart);
+        statusContainer.addEventListener("mouseup", handleEnd);
+        statusContainer.addEventListener("touchstart", handleStart, { passive: false });
+        statusContainer.addEventListener("touchend", handleEnd);
+        
+        controlLeft.addEventListener("click", () => {
+            if (!isHold) {
+                prevStatus();
+            }
+        });
+        
+        controlRight.addEventListener("click", () => {
+            if (!isHold) {
+                nextStatus();
+            }
+        });
+
+        replyInput.addEventListener('input', function() {
+            const currentUser = users[currentUserIndex];
+            const currentStatus = currentUser.statuses[currentStatusIndex];
+            currentStatus.reply = this.value;
+            saveStatusState(currentStatus);
+        });
+
+        likeButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleLike();
+        });
+
+        document.addEventListener('contextmenu', function(e) {
+            if (e.target.tagName === 'IMG' && e.target.closest('.status-content')) {
+                e.preventDefault();
+            }
+        });
+
+        document.addEventListener('selectstart', function(e) {
+            if (e.target.tagName === 'IMG' && e.target.closest('.status-content')) {
+                e.preventDefault();
+            }
+        });
+
+        document.addEventListener('touchstart', function(e) {
+            if (e.target.tagName === 'IMG' && e.target.closest('.status-content')) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        document.addEventListener('dragstart', function(e) {
+            if (e.target.tagName === 'IMG' && e.target.closest('.status-content')) {
+                e.preventDefault();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStatusStates();
+            createProgressBars();
+            updateUI();
+        });
+    </script>
+</body>
+</html>
+
