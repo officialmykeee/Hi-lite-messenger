@@ -47,7 +47,7 @@
             color: black;
             display: flex;
             align-items: center;
-            max-width: 200px; /* Adjusted to prevent overlap with right SVGs */
+            max-width: 200px;
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
@@ -58,7 +58,7 @@
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            margin-left: 4px; /* Added gap between "Waiting" and "for Network" */
+            margin-left: 4px;
         }
 
         .header-icons {
@@ -171,6 +171,11 @@
 
         .story-avatar-ring.has-story {
             background: linear-gradient(45deg, #fbbf24, #ef4444, #a855f7);
+        }
+        
+        /* New class for the story loading animation */
+        .story-avatar-ring.is-loading {
+            animation: rotate 1s linear infinite;
         }
 
         .story-avatar-bg {
@@ -786,43 +791,17 @@
                     <span class="story-username">${story.username}</span>
                 `;
 
-                // Add click listener to each story item
+                // Add click event listener to handle the loading animation
                 storyElement.addEventListener('click', () => {
-                    // Start loading animation and hide main content
-                    const messagesIcon = document.querySelector('.messages-icon');
-                    const telegramRing = document.querySelector('.telegram-ring');
-                    const headerTitle = document.querySelector('.header-title');
-                    const storiesContainer = document.getElementById('storiesContainer');
-                    const chatList = document.getElementById('chatList');
-                    const storiesLoadingSkeleton = document.getElementById('storiesLoadingSkeleton');
-                    const loadingSkeleton = document.getElementById('loadingSkeleton');
+                    const avatarRing = storyElement.querySelector('.story-avatar-ring');
+                    avatarRing.classList.add('is-loading');
 
-                    if (navigator.onLine) {
-                        messagesIcon.classList.add('hidden');
-                        telegramRing.classList.remove('hidden');
-                        headerTitle.innerHTML = `Viewing Status`;
-                        storiesContainer.classList.add('hidden');
-                        chatList.classList.add('hidden');
-                        storiesLoadingSkeleton.classList.remove('hidden');
-                        loadingSkeleton.classList.remove('hidden');
-
-                        // Simulate a delay for viewing the status
-                        setTimeout(() => {
-                            // After the delay, revert the UI to the main list
-                            telegramRing.classList.add('hidden');
-                            messagesIcon.classList.remove('hidden');
-                            headerTitle.innerHTML = 'Messages';
-                            storiesLoadingSkeleton.classList.add('hidden');
-                            loadingSkeleton.classList.add('hidden');
-                            storiesContainer.classList.remove('hidden');
-                            chatList.classList.remove('hidden');
-                            renderStories();
-                            renderChats();
-                        }, 2000); // 2-second delay to simulate loading
-                    } else {
-                         // If offline, just show a console message.
-                        console.log('Cannot view status: Device is offline.');
-                    }
+                    // Simulate a loading delay for 1 second
+                    setTimeout(() => {
+                        avatarRing.classList.remove('is-loading');
+                        // Add your navigation logic here
+                        console.log(`Navigating to status for user: ${story.username}`);
+                    }, 1000);
                 });
 
                 storiesList.appendChild(storyElement);
@@ -1006,5 +985,4 @@
     </script>
 </body>
 </html>
-
 
