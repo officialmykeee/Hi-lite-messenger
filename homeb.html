@@ -325,14 +325,23 @@
             pointer-events: none;
         }
 
-        .story-progress-bar {
+        .story-progress-container {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background-color: rgba(255, 255, 255, 0.1);
+            top: 10px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            gap: 4px;
             z-index: 10;
+            pointer-events: none;
+        }
+
+        .story-progress-bar {
+            flex: 1;
+            height: 3px;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 2px;
+            overflow: hidden;
             opacity: 1;
             transition: opacity 0.15s ease;
         }
@@ -343,6 +352,25 @@
             width: 0%;
             transition: width 0.3s ease;
             will-change: width;
+        }
+        
+        /* Invisible navigation controls */
+        .story-nav-left, .story-nav-right {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            width: 40%;
+            cursor: pointer;
+            z-index: 5;
+            background-color: transparent;
+        }
+
+        .story-nav-left {
+            left: 0;
+        }
+
+        .story-nav-right {
+            right: 0;
         }
 
         /* Chat list styles */
@@ -687,15 +715,16 @@
 
     <div class="story-modal" id="storyModal">
         <div class="story-modal-content">
-            <div class="story-progress-bar" id="storyProgressBar">
-                <div class="story-progress-fill"></div>
-            </div>
+            <div class="story-progress-container" id="storyProgressContainer">
+                </div>
             <div class="story-header">
                 <span class="story-username-modal" id="storyUsername"></span>
             </div>
             <div class="story-image-container">
                 <img id="storyImage" class="story-image" src="" alt="">
             </div>
+            <div class="story-nav-left"></div>
+            <div class="story-nav-right"></div>
         </div>
     </div>
 
@@ -715,42 +744,58 @@
                 avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
                 hasNewStory: false,
                 isYourStory: true,
-                storyImage: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                innerStories: [
+                    "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                    "https://images.unsplash.com/photo-1510414902264-77033a8ae37d?w=800&h=600&fit=crop",
+                ]
             },
             {
                 id: "1",
                 username: "Emily",
                 avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
                 hasNewStory: true,
-                storyImage: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop",
+                innerStories: [
+                    "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop",
+                    "https://images.unsplash.com/photo-1517457373958-b7bdd4587200?w=800&h=600&fit=crop",
+                ]
             },
             {
                 id: "2",
                 username: "Michael",
                 avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
                 hasNewStory: true,
-                storyImage: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                innerStories: [
+                    "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                    "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                    "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
+                ]
             },
             {
                 id: "3",
                 username: "Sarah",
                 avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
                 hasNewStory: true,
-                storyImage: "https://images.unsplash.com/photo-1517457373958-b7bdd4587200?w=800&h=600&fit=crop",
+                innerStories: [
+                    "https://images.unsplash.com/photo-1517457373958-b7bdd4587200?w=800&h=600&fit=crop",
+                ]
             },
             {
                 id: "4",
                 username: "David",
                 avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
                 hasNewStory: true,
-                storyImage: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
+                innerStories: [
+                    "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
+                ]
             },
             {
                 id: "5",
                 username: "Jessica",
                 avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
                 hasNewStory: true,
-                storyImage: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
+                innerStories: [
+                    "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
+                ]
             },
         ];
 
@@ -917,144 +962,179 @@
         const storyModal = document.getElementById('storyModal');
         const storyImage = document.getElementById('storyImage');
         const storyUsername = document.getElementById('storyUsername');
-        const storyProgressBar = document.getElementById('storyProgressBar');
-        const storyProgressFill = document.querySelector('.story-progress-fill');
+        const storyProgressContainer = document.getElementById('storyProgressContainer');
+        const storyNavLeft = document.querySelector('.story-nav-left');
+        const storyNavRight = document.querySelector('.story-nav-right');
 
         let currentStoryIndex = 0;
+        let currentInnerStoryIndex = 0;
         let storyTimeout;
         let isDragging = false;
         let isClosing = false;
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchCurrentY = 0;
 
-        // TRULY INSTANT open - ZERO DELAY
+        // Open story modal
         function openStoryModal(storyIndex) {
-            // Complete reset FIRST
             resetModalState();
-            
             currentStoryIndex = storyIndex;
-            
-            // Show content
+            currentInnerStoryIndex = 0;
             showCurrentStory();
-            
-            // Make visible INSTANTLY
             storyModal.classList.add('active');
-            
-            // Prevent background scroll
             document.body.style.overflow = 'hidden';
-            
-            // Start progress
-            startStoryProgress();
         }
 
-        // Show story content
+        // Show current story and inner story
         function showCurrentStory() {
-            if (currentStoryIndex < stories.length) {
+            if (currentStoryIndex >= 0 && currentStoryIndex < stories.length) {
                 const story = stories[currentStoryIndex];
-                storyImage.src = story.storyImage;
-                storyUsername.textContent = story.username;
-                storyProgressFill.style.width = '0%';
-                storyProgressBar.style.opacity = '1';
-                storyProgressFill.style.transition = 'width 0.3s ease';
-            }
-        }
-
-        // Progress animation
-        function startStoryProgress() {
-            if (storyTimeout) {
-                clearTimeout(storyTimeout);
-                storyTimeout = null;
-            }
-            
-            const progressDuration = 5000;
-            const startTime = Date.now();
-            
-            function animateProgress() {
-                if (isClosing || !storyModal.classList.contains('active')) {
-                    return;
-                }
-                
-                const elapsed = Date.now() - startTime;
-                const progress = Math.min((elapsed / progressDuration) * 100, 100);
-                storyProgressFill.style.width = progress + '%';
-                
-                if (progress < 100) {
-                    storyTimeout = setTimeout(animateProgress, 16);
+                if (currentInnerStoryIndex >= 0 && currentInnerStoryIndex < story.innerStories.length) {
+                    storyImage.src = story.innerStories[currentInnerStoryIndex];
+                    storyUsername.textContent = story.username;
+                    
+                    // Update progress bar
+                    updateProgressBar();
+                    
+                    // Start progress
+                    startStoryProgress();
                 } else {
-                    nextStory();
+                    // Reached end of inner stories, move to next user's story
+                    if (currentInnerStoryIndex >= story.innerStories.length) {
+                        nextUserStory();
+                    } else if (currentInnerStoryIndex < 0) {
+                        prevUserStory();
+                    }
                 }
-            }
-            
-            animateProgress();
-        }
-
-        // Next story
-        function nextStory() {
-            if (currentStoryIndex < stories.length - 1) {
-                currentStoryIndex++;
-                showCurrentStory();
-                startStoryProgress();
             } else {
                 closeStoryModal();
             }
         }
 
-        // TRULY INSTANT close - ZERO DELAY, NO REFLECTION
+        // Update progress bar segments
+        function updateProgressBar() {
+            storyProgressContainer.innerHTML = '';
+            const totalStories = stories[currentStoryIndex].innerStories.length;
+            
+            for (let i = 0; i < totalStories; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'story-progress-bar';
+                const fill = document.createElement('div');
+                fill.className = 'story-progress-fill';
+                
+                if (i < currentInnerStoryIndex) {
+                    fill.style.width = '100%';
+                } else if (i === currentInnerStoryIndex) {
+                    fill.style.width = '0%'; // will be animated
+                } else {
+                    fill.style.width = '0%';
+                }
+                
+                bar.appendChild(fill);
+                storyProgressContainer.appendChild(bar);
+            }
+        }
+        
+        // Progress animation
+        function startStoryProgress() {
+            if (storyTimeout) {
+                clearTimeout(storyTimeout);
+            }
+            
+            const totalInnerStories = stories[currentStoryIndex].innerStories.length;
+            const progressDuration = totalInnerStories >= 3 ? 7000 : 5000;
+            const currentFill = storyProgressContainer.children[currentInnerStoryIndex].querySelector('.story-progress-fill');
+            
+            // Immediately reset to 0% before starting the animation
+            currentFill.style.transition = 'none';
+            currentFill.style.width = '0%';
+
+            // Force a reflow/repaint
+            currentFill.offsetHeight;
+
+            // Set transition and start animation
+            currentFill.style.transition = `width ${progressDuration / 1000}s linear`;
+            currentFill.style.width = '100%';
+
+            storyTimeout = setTimeout(() => {
+                nextInnerStory();
+            }, progressDuration);
+        }
+
+        // Move to the next inner story
+        function nextInnerStory() {
+            const story = stories[currentStoryIndex];
+            if (currentInnerStoryIndex < story.innerStories.length - 1) {
+                currentInnerStoryIndex++;
+                showCurrentStory();
+            } else {
+                nextUserStory();
+            }
+        }
+
+        // Move to the previous inner story
+        function prevInnerStory() {
+            if (currentInnerStoryIndex > 0) {
+                currentInnerStoryIndex--;
+                showCurrentStory();
+            } else {
+                prevUserStory();
+            }
+        }
+
+        // Move to the next user's story
+        function nextUserStory() {
+            if (currentStoryIndex < stories.length - 1) {
+                currentStoryIndex++;
+                currentInnerStoryIndex = 0;
+                showCurrentStory();
+            } else {
+                closeStoryModal();
+            }
+        }
+
+        // Move to the previous user's story
+        function prevUserStory() {
+            if (currentStoryIndex > 0) {
+                currentStoryIndex--;
+                currentInnerStoryIndex = stories[currentStoryIndex].innerStories.length - 1;
+                showCurrentStory();
+            } else {
+                currentInnerStoryIndex = 0;
+                showCurrentStory();
+            }
+        }
+
+        // Close story modal
         function closeStoryModal() {
             if (isClosing) return;
             isClosing = true;
-            
-            // STOP EVERYTHING IMMEDIATELY
-            if (storyTimeout) {
-                clearTimeout(storyTimeout);
-                storyTimeout = null;
-            }
-            
+            if (storyTimeout) clearTimeout(storyTimeout);
             storyModal.classList.remove('active');
             storyModal.classList.add('closing');
-
-            // HIDE PROGRESS BAR INSTANTLY
-            storyProgressBar.style.opacity = '0';
-            
-            // CLEANUP AFTER ANIMATION
             setTimeout(() => {
-                // COMPLETE RESET - NO LINGERING STYLES
                 storyModal.classList.remove('closing');
                 storyModal.style.cssText = ''; 
-                storyProgressFill.style.cssText = 'width: 0%; transition: width 0.3s ease;';
-                storyProgressBar.style.cssText = 'opacity: 1; transition: opacity 0.15s ease;';
-                
-                // RESTORE SCROLL
                 document.body.style.overflow = '';
-                
-                // RESET STATE
                 isClosing = false;
             }, 250);
         }
 
-        // Complete reset function
+        // Reset modal state
         function resetModalState() {
-            // STOP ALL ANIMATIONS
-            if (storyTimeout) {
-                clearTimeout(storyTimeout);
-                storyTimeout = null;
-            }
-            
-            // REMOVE ALL CLASSES AND STYLES
+            if (storyTimeout) clearTimeout(storyTimeout);
             storyModal.classList.remove('active', 'closing');
             storyModal.style.cssText = '';
-            storyProgressFill.style.cssText = 'width: 0%; transition: width 0.3s ease;';
-            storyProgressBar.style.cssText = 'opacity: 1; transition: opacity 0.15s ease;';
-            
-            // RESET STATE
             isClosing = false;
             isDragging = false;
         }
 
-        // Touch handlers - ONLY slide down
-        let touchStartY = 0;
-        let touchCurrentY = 0;
+        // Event listeners for navigation
+        storyNavLeft.addEventListener('click', prevInnerStory);
+        storyNavRight.addEventListener('click', nextInnerStory);
 
+        // Touch handlers for slide down gesture
         storyModal.addEventListener('touchstart', (e) => {
-            if (e.target !== storyModal && e.target !== storyImage) return;
             if (isClosing) return;
             touchStartY = e.touches[0].clientY;
             touchCurrentY = touchStartY;
@@ -1067,11 +1147,8 @@
             e.preventDefault();
             touchCurrentY = e.touches[0].clientY;
             const deltaY = touchCurrentY - touchStartY;
-            
             if (deltaY > 0) {
                 storyModal.style.transform = `translateY(${deltaY}px)`;
-                const progress = Math.min(deltaY / 200, 1);
-                storyProgressBar.style.opacity = Math.max(0, 1 - progress);
             }
         }, { passive: false });
 
@@ -1080,19 +1157,13 @@
                 isDragging = false;
                 return;
             }
-            
             isDragging = false;
             const deltaY = touchCurrentY - touchStartY;
-            
-            // SNAP BACK OR CLOSE
             if (deltaY > 100) {
                 closeStoryModal();
             } else {
                 storyModal.style.transition = 'transform 0.15s ease-out';
                 storyModal.style.transform = 'translateY(0)';
-                storyProgressBar.style.opacity = '1';
-                
-                // RESET TRANSITION after animation
                 setTimeout(() => {
                     storyModal.style.transition = 'opacity 0.25s ease, visibility 0.25s ease';
                     storyModal.style.transform = '';
@@ -1100,9 +1171,8 @@
             }
         }, { passive: false });
 
-        // Mouse handlers - ONLY slide down
+        // Mouse handlers for slide down gesture
         storyModal.addEventListener('mousedown', (e) => {
-            if (e.target !== storyModal && e.target !== storyImage) return;
             if (isClosing) return;
             touchStartY = e.clientY;
             touchCurrentY = touchStartY;
@@ -1114,11 +1184,8 @@
             if (!isDragging || isClosing) return;
             touchCurrentY = e.clientY;
             const deltaY = touchCurrentY - touchStartY;
-            
             if (deltaY > 0) {
                 storyModal.style.transform = `translateY(${deltaY}px)`;
-                const progress = Math.min(deltaY / 200, 1);
-                storyProgressBar.style.opacity = Math.max(0, 1 - progress);
             }
         });
 
@@ -1127,21 +1194,36 @@
                 isDragging = false;
                 return;
             }
-            
             isDragging = false;
             const deltaY = touchCurrentY - touchStartY;
-            
             if (deltaY > 100) {
                 closeStoryModal();
             } else {
                 storyModal.style.transition = 'transform 0.15s ease-out';
                 storyModal.style.transform = 'translateY(0)';
-                storyProgressBar.style.opacity = '1';
-                
                 setTimeout(() => {
                     storyModal.style.transition = 'opacity 0.25s ease, visibility 0.25s ease';
                     storyModal.style.transform = '';
                 }, 150);
+            }
+        });
+
+        // Swipe navigation for mobile
+        storyModal.addEventListener('touchstart', (e) => {
+            if (isClosing) return;
+            touchStartX = e.touches[0].clientX;
+        }, { passive: true });
+
+        storyModal.addEventListener('touchend', (e) => {
+            if (isClosing || isDragging) return;
+            const touchEndX = e.changedTouches[0].clientX;
+            const deltaX = touchEndX - touchStartX;
+            if (Math.abs(deltaX) > 50) {
+                if (deltaX < 0) {
+                    nextUserStory();
+                } else {
+                    prevUserStory();
+                }
             }
         });
 
@@ -1160,34 +1242,21 @@
                 closeStoryModal();
             } else if (e.key === 'ArrowRight') {
                 e.preventDefault();
-                if (currentStoryIndex < stories.length - 1) {
-                    currentStoryIndex++;
-                    showCurrentStory();
-                    startStoryProgress();
-                } else {
-                    closeStoryModal();
-                }
+                nextInnerStory();
             } else if (e.key === 'ArrowLeft') {
                 e.preventDefault();
-                if (currentStoryIndex > 0) {
-                    currentStoryIndex--;
-                    showCurrentStory();
-                    startStoryProgress();
-                }
+                prevInnerStory();
             }
         });
 
-        // Function to render stories - CLEAN AND SIMPLE
+        // Function to render stories
         function renderStories() {
             const storiesList = document.getElementById('storiesList');
             storiesList.innerHTML = '';
-
             stories.forEach((story, index) => {
                 const storyElement = document.createElement('div');
                 storyElement.className = 'story-item';
-
                 const avatarRingClass = story.isYourStory ? 'your-story' : (story.hasNewStory ? 'has-story' : 'your-story');
-
                 storyElement.innerHTML = `
                     <div class="story-avatar-container">
                         <div class="story-avatar-ring ${avatarRingClass}"></div>
@@ -1198,23 +1267,17 @@
                     </div>
                     <span class="story-username">${story.username}</span>
                 `;
-
-                // SIMPLE CLICK HANDLER - NO CONFLICTS
                 storyElement.addEventListener('click', (e) => {
                     e.stopPropagation();
                     const ring = storyElement.querySelector('.story-avatar-ring');
                     ring.classList.remove('rotating');
                     ring.offsetHeight;
                     ring.classList.add('rotating');
-                    
                     setTimeout(() => {
                         ring.classList.remove('rotating');
                     }, 800);
-                    
-                    console.log(`Opening ${story.username}'s story`);
                     openStoryModal(index);
                 });
-
                 storiesList.appendChild(storyElement);
             });
         }
@@ -1223,11 +1286,9 @@
         function renderChats() {
             const chatList = document.getElementById('chatList');
             chatList.innerHTML = '';
-
             chats.forEach(chat => {
                 const chatElement = document.createElement('div');
                 chatElement.className = 'chat-item';
-
                 const onlineIndicator = chat.isOnline ? '<div class="online-indicator"></div>' : '';
                 const unreadBadge = chat.unreadCount ? `<div class="unread-badge">${chat.unreadCount}</div>` : '';
                 const sentIndicator = chat.isSent && !chat.unreadCount ? `
@@ -1237,9 +1298,7 @@
                         </svg>
                     </div>
                 ` : '';
-
                 const messageClass = chat.unreadCount ? 'unread' : '';
-
                 chatElement.innerHTML = `
                     <div class="chat-content">
                         <div class="chat-avatar-container">
@@ -1259,19 +1318,15 @@
                         </div>
                     </div>
                 `;
-
                 chatElement.addEventListener('mousedown', () => {
                     chatElement.classList.add('pressed');
                 });
-
                 chatElement.addEventListener('mouseup', () => {
                     chatElement.classList.remove('pressed');
                 });
-
                 chatElement.addEventListener('mouseleave', () => {
                     chatElement.classList.remove('pressed');
                 });
-
                 chatList.appendChild(chatElement);
             });
         }
@@ -1280,16 +1335,13 @@
         function renderStoriesSkeleton() {
             const skeletonStoriesList = document.getElementById('skeletonStoriesList');
             skeletonStoriesList.innerHTML = '';
-
             for (let i = 0; i < 6; i++) {
                 const skeletonStoryElement = document.createElement('div');
                 skeletonStoryElement.className = 'skeleton-story-item';
-
                 skeletonStoryElement.innerHTML = `
                     <div class="skeleton skeleton-story-avatar"></div>
                     <div class="skeleton skeleton-story-name"></div>
                 `;
-
                 skeletonStoriesList.appendChild(skeletonStoryElement);
             }
         }
@@ -1298,15 +1350,11 @@
         function renderSkeleton() {
             const loadingSkeleton = document.getElementById('loadingSkeleton');
             loadingSkeleton.innerHTML = '';
-
             const messageWidths = ['short', 'medium', 'long', '', 'medium', 'short', 'long', ''];
-
             for (let i = 0; i < 8; i++) {
                 const skeletonElement = document.createElement('div');
                 skeletonElement.className = 'skeleton-chat-item';
-
                 const messageClass = messageWidths[i] ? `skeleton-message ${messageWidths[i]}` : 'skeleton-message';
-
                 skeletonElement.innerHTML = `
                     <div class="skeleton-chat-content">
                         <div class="skeleton skeleton-avatar"></div>
@@ -1319,7 +1367,6 @@
                         </div>
                     </div>
                 `;
-
                 loadingSkeleton.appendChild(skeletonElement);
             }
         }
@@ -1334,7 +1381,6 @@
             const chatList = document.getElementById('chatList');
             const storiesLoadingSkeleton = document.getElementById('storiesLoadingSkeleton');
             const loadingSkeleton = document.getElementById('loadingSkeleton');
-
             if (isOnline) {
                 messagesIcon.classList.add('hidden');
                 telegramRing.classList.remove('hidden');
@@ -1343,7 +1389,6 @@
                 chatList.classList.add('hidden');
                 storiesLoadingSkeleton.classList.remove('hidden');
                 loadingSkeleton.classList.remove('hidden');
-
                 setTimeout(() => {
                     telegramRing.classList.add('hidden');
                     messagesIcon.classList.remove('hidden');
@@ -1371,10 +1416,8 @@
             renderStoriesSkeleton();
             renderSkeleton();
             updateNetworkStatus();
-
             window.addEventListener('online', updateNetworkStatus);
             window.addEventListener('offline', updateNetworkStatus);
-
             const fab = document.querySelector('.fab');
             fab.addEventListener('click', () => {
                 if (navigator.onLine) {
@@ -1384,7 +1427,6 @@
                 }
             });
         }
-
         document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
