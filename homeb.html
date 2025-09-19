@@ -5,6 +5,65 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hi-Lite Messenger</title>
     <style>
+        /* Stories Cube Styles */
+        .story-modal-content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .cube-container {
+            perspective: 1000px; /* Provides the 3D depth effect */
+            width: 100%;
+            height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+        }
+
+        /* Cube */
+        .cube {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            transform-style: preserve-3d;
+            transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        /* Cube Face */
+        .cube-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden; /* Hides the back of the element to prevent reflection/bounce */
+            background-size: cover;
+            background-position: center;
+            border-radius: 8px; /* Optional: adds rounded corners to the stories */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        
+        /* Face positioning */
+        #facePrev {
+            transform: rotateY(90deg) translateZ(calc(50vw - 20px));
+        }
+
+        #faceCurrent {
+            transform: translateZ(calc(50vw - 20px));
+        }
+
+        #faceNext {
+            transform: rotateY(-90deg) translateZ(calc(50vw - 20px));
+        }
+    </style>
+
+    <style>
+        /* ... (The rest of your CSS styles) ... */
         * {
             margin: 0;
             padding: 0;
@@ -265,42 +324,6 @@
             transform: translateY(100%) scale(0.95);
             opacity: 0;
             transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-
-        .story-modal-content {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .story-image-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            max-height: 600px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0;
-        }
-
-        .story-image {
-            width: 100vw;
-            height: 100%;
-            max-height: 600px;
-            object-fit: cover;
-            box-shadow: none;
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            cursor: pointer;
-            user-select: none;
-            -webkit-user-drag: none;
         }
 
         .story-header {
@@ -686,7 +709,7 @@
                     </svg>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
                         <path d="M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Zm-1.5 0a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z"></path>
-                        <path d="M12 1c.266 0 .532.009.797.028.763.055 1.345.617 1.512 1.304l.352 1.45c.019.078.09.171.225.221.247.089.49.19.728.302.13.061.246.044.315.002l1.275-.776c.603-.368 1.411-.353 1.99.147.402.349.78.726 1.128 1.129.501.578.515 1.386.147 1.99l-.776 1.274c-.042.069-.058.185.002.315.112.238.213.481.303.728.048.135.142.205.22.225l1.45.352c.687.167 1.249.749 1.303 1.512.038.531.038 1.063 0 1.594-.054.763-.616 1.345-1.303 1.512l-1.45.352c-.078.019-.171.09-.221.225-.089.248-.19.491-.302.728-.061.13-.044.246-.002.315l.776 1.275c.368.603.353 1.411-.147 1.99-.349.402-.726.78-1.129 1.128-.578.501-1.386.515-1.99.147l-1.274-.776c-.069-.042-.185-.058-.314.002a8.606 8.606 0 0 1-.729.303c-.135.048-.205.142-.225.22l-.352 1.45c-.167.687-.749 1.249-1.512 1.303-.531.038-1.063.038-1.594 0-.763-.054-1.345-.616-1.512-1.303l-.352-1.45c-.019-.078-.09-.171-.225-.221a8.138 8.138 0 0 1-.728-.302c-.13-.061-.246-.044-.315-.002l-1.275.776c-.603.368-1.411.353-1.99-.147-.402-.349-.78-.726-1.128-1.129-.501-.578-.515-1.386-.147-1.99l.776-1.274c.042-.069.058-.185-.002-.314a8.606 8.606 0 0 1-.303-.729c-.048-.135-.142-.205-.22-.225l-1.45-.352c-.687-.167-1.249-.749-1.304-1.512a11.158 11.158 0 0 1 0-1.594c.055-.763.617-1.345 1.304-1.512l1.45-.352c.078-.019.171-.09.221-.225.089-.248.19-.491.302-.728.061-.13-.044.246-.002.315l-.776-1.275c-.368-.603-.353-1.411.147-1.99.349-.402.726-.78 1.129-1.128.578-.501 1.386-.515 1.99-.147l1.274.776c.069.042.185.058.315-.002.238-.112.481-.213.728-.303.135-.048.205-.142.225-.20l.352-1.45c.167-.687.749-1.249 1.512-1.304C11.466 1.01 11.732 1 12 1Zm-.69 1.525c-.055.004-.135.05-.161.161l-.353 1.45a1.832 1.832 0 0 1-1.172 1.277 7.147 7.147 0 0 0-.6.249 1.833 1.833 0 0 1-1.734-.074l-1.274-.776c-.098-.60-.186-.036-.228 0a9.774 9.774 0 0 0-.976.976c-.036.042-.06.131 0 .228l.776 1.274c.314.529.342 1.18.074 1.734a7.147 7.147 0 0 0-.249.6 1.831 1.831 0 0 1-1.278 1.173l-1.45.351c-.11.027-.156.107-.16.162a9.63 9.63 0 0 0 0 1.38c.004.055.05.135.161.161l1.45.353a1.832 1.832 0 0 1 1.277 1.172c.074.204.157.404.249.6.268.553.24 1.204-.074 1.733l-.776 1.275c-.06.098-.036.186 0 .228.301.348.628.675.976.976.042.036.131.06.228 0l1.274-.776a1.83 1.83 0 0 1 1.734-.075c.196.093.396.176.6.25a1.831 1.831 0 0 1 1.173 1.278l.351 1.45c.027.11.107.156.162.16a9.63 9.63 0 0 0 1.38 0c.055-.004.135-.05.161-.161l.353-1.45a1.834 1.834 0 0 1 1.172-1.278 6.82 6.82 0 0 0 .6-.248 1.831 1.831 0 0 1 1.733.074l1.275.776c.098.06.186.036.228 0 .348-.301.675-.628.976-.976.036-.042.06-.131 0-.228l-.776-1.275a1.834 1.834 0 0 1-.075-1.733c.093-.196.176-.396.25-.6a1.831 1.831 0 0 1 1.278-1.173l1.45-.351c.11-.027.156-.107.16-.162a9.63 9.63 0 0 0 0-1.38c-.004-.055-.05-.135-.161-.161l-1.45-.353c-.626-.152-1.08-.625-1.278-1.172a6.576 6.576 0 0 0-.248-.6 1.833 1.833 0 0 1 .074-1.734l.776-1.274c.06-.098.036-.186 0-.228a9.774 9.774 0 0 0-.976-.976c-.042-.036-.131-.06-.228 0l-1.275.776a1.831 1.831 0 0 1-1.733.074 6.88 6.88 0 0 0-.6-.249 1.835 1.835 0 0 1-1.173-1.278l-.351-1.45c-.027-.11-.107-.156-.162-.16a9.63 9.63 0 0 0-1.38 0Z"></path>
+                        <path d="M12 1c.266 0 .532.009.797.028.763.055 1.345.617 1.512 1.304l.352 1.45c.019.078.09.171.225.221.247.089.49.19.728.302.13.061.246.044.315.002l1.275-.776c.603-.368 1.411-.353 1.99.147.402.349.78.726 1.128 1.129.501.578.515 1.386.147 1.99l-.776 1.274c-.042.069-.058.185.002.315.112.238.213.481.303.728.048.135.142.205.22.225l1.45.352c.687.167 1.249.749 1.303 1.512.038.531.038 1.063 0 1.594-.054.763-.616 1.345-1.303 1.512l-1.45.352c-.078.019-.171.09-.221.225-.089.248-.19.491-.302.728-.061.13-.044.246-.002.315l.776 1.275c.368.603.353 1.411-.147 1.99-.349.402-.726.78-1.129 1.128-.578.501-1.386.515-1.99.147l-1.274-.776c-.069-.042-.185-.058-.314.002a8.606 8.606 0 0 1-.729.303c-.135.048-.205.142-.225.22l-.352 1.45c-.167.687-.749 1.249-1.512 1.303-.531.038-1.063.038-1.594 0-.763-.054-1.345-.616-1.512-1.303l-.352-1.45c-.019-.078-.09-.171-.225-.221a8.138 8.138 0 0 1-.728-.302c-.13-.061-.246-.044-.315-.002l-1.275.776c-.603.368-1.411.353-1.99-.147-.402-.349-.78-.726-1.128-1.129-.501-.578-.515-1.386-.147-1.99l.776-1.274c.042-.069.058-.185-.002-.314a8.606 8.606 0 0 1-.303-.729c-.048-.135-.142-.205-.22-.225l-1.45-.352c-.687-.167-1.249-.749-1.304-1.512a11.158 11.158 0 0 1 0-1.594c.055-.763.617-1.345 1.304-1.512l1.45-.352c.078-.019.171-.09.221-.225.089-.248.19-.491.302-.728.061-.13-.044.246-.002.315l-.776.776c-.368-.603-.353-1.411.147-1.99.349-.402.726-.78 1.129-1.128.578-.501 1.386-.515 1.99-.147l1.274-.776c.069.042.185.058.315-.002.238-.112.481-.213.728-.303.135-.048.205-.142.225-.20l.352-1.45c.167-.687.749-1.249 1.512-1.304C11.466 1.01 11.732 1 12 1Zm-.69 1.525c-.055.004-.135.05-.161.161l-.353 1.45a1.832 1.832 0 0 1-1.172 1.277 7.147 7.147 0 0 0-.6.249 1.833 1.833 0 0 1-1.734-.074l-1.274-.776c-.098-.60-.186-.036-.228 0a9.774 9.774 0 0 0-.976.976c-.036.042-.06.131 0 .228l.776 1.274c.314.529.342 1.18.074 1.734a7.147 7.147 0 0 0-.249.6 1.831 1.831 0 0 1-1.278 1.173l-1.45.351c-.11.027-.156.107-.16.162a9.63 9.63 0 0 0 0 1.38c.004.055.05.135.161.161l1.45.353a1.832 1.832 0 0 1 1.277 1.172c.074.204.157.404.249.6.268.553.24 1.204-.074 1.733l-.776 1.275c-.06.098-.036.186 0 .228.301.348.628.675.976.976.042.036.131.06.228 0l1.274-.776a1.83 1.83 0 0 1 1.734-.075c.196.093.396.176.6.25a1.831 1.831 0 0 1 1.173 1.278l.351 1.45c.027.11.107.156.162.16a9.63 9.63 0 0 0 1.38 0c.055-.004.135-.05.161-.161l.353-1.45a1.834 1.834 0 0 1 1.172-1.278 6.82 6.82 0 0 0 .6-.248 1.831 1.831 0 0 1 1.733.074l1.275.776c.098.06.186.036.228 0 .348-.301.675-.628.976-.976.036-.042.06-.131 0-.228l-.776-1.275a1.834 1.834 0 0 1-.075-1.733c.093-.196.176-.396.25-.6a1.831 1.831 0 0 1 1.278-1.173l1.45-.351c.11-.027.156-.107.162-.162a9.63 9.63 0 0 0 0-1.38c-.004-.055-.05-.135-.161-.161l-1.45-.353c-.626-.152-1.08-.625-1.278-1.172a6.576 6.576 0 0 0-.248-.6 1.833 1.833 0 0 1 .074-1.734l.776-1.274c.06-.098.036-.186 0-.228a9.774 9.774 0 0 0-.976-.976c-.042-.036-.131-.06-.228 0l-1.275.776a1.831 1.831 0 0 1-1.733.074 6.88 6.88 0 0 0-.6-.249 1.835 1.835 0 0 1-1.173-1.278l-.351-1.45c-.027-.11-.107-.156-.162-.16a9.63 9.63 0 0 0-1.38 0Z"></path>
                     </svg>
                 </div>
             </div>
@@ -720,9 +743,15 @@
             <div class="story-header">
                 <span class="story-username-modal" id="storyUsername"></span>
             </div>
-            <div class="story-image-container">
-                <img id="storyImage" class="story-image" src="" alt="">
+            
+            <div class="cube-container">
+                <div class="cube" id="storyCube">
+                    <div class="cube-face" id="facePrev"></div>
+                    <div class="cube-face" id="faceCurrent"></div>
+                    <div class="cube-face" id="faceNext"></div>
+                </div>
             </div>
+
             <div class="story-nav-left"></div>
             <div class="story-nav-right"></div>
         </div>
@@ -734,7 +763,6 @@
             <line class="plus-shape" x1="25" y1="50" x2="75" y2="50"/>
         </svg>
     </button>
-
     <script>
         // Stories data
         const stories = [
@@ -960,13 +988,18 @@
 
         // Story Modal Elements
         const storyModal = document.getElementById('storyModal');
-        const storyImage = document.getElementById('storyImage');
         const storyUsername = document.getElementById('storyUsername');
         const storyProgressContainer = document.getElementById('storyProgressContainer');
         const storyNavLeft = document.querySelector('.story-nav-left');
         const storyNavRight = document.querySelector('.story-nav-right');
 
-        let currentStoryIndex = 0;
+        // New cube-related elements
+        const storyCube = document.getElementById('storyCube');
+        const facePrev = document.getElementById('facePrev');
+        const faceCurrent = document.getElementById('faceCurrent');
+        const faceNext = document.getElementById('faceNext');
+
+        let currentIndex = 0;
         let currentInnerStoryIndex = 0;
         let storyTimeout;
         let isDragging = false;
@@ -975,10 +1008,15 @@
         let touchStartY = 0;
         let touchCurrentY = 0;
 
+        // New cube state variables
+        let isDraggingCube = false;
+        let cubeStartX = 0;
+        const CUBE_FLIP_THRESHOLD = 50; // px
+
         // Open story modal
         function openStoryModal(storyIndex) {
             resetModalState();
-            currentStoryIndex = storyIndex;
+            currentIndex = storyIndex;
             currentInnerStoryIndex = 0;
             showCurrentStory();
             storyModal.classList.add('active');
@@ -987,25 +1025,33 @@
 
         // Show current story and inner story
         function showCurrentStory() {
-            if (currentStoryIndex >= 0 && currentStoryIndex < stories.length) {
-                const story = stories[currentStoryIndex];
-                if (currentInnerStoryIndex >= 0 && currentInnerStoryIndex < story.innerStories.length) {
-                    storyImage.src = story.innerStories[currentInnerStoryIndex];
-                    storyUsername.textContent = story.username;
-                    
-                    // Update progress bar
-                    updateProgressBar();
-                    
-                    // Start progress
-                    startStoryProgress();
-                } else {
-                    // Reached end of inner stories, move to next user's story
-                    if (currentInnerStoryIndex >= story.innerStories.length) {
-                        nextUserStory();
-                    } else if (currentInnerStoryIndex < 0) {
-                        prevUserStory();
-                    }
-                }
+            if (currentIndex >= 0 && currentIndex < stories.length) {
+                const story = stories[currentIndex];
+                
+                // Update cube faces
+                const prevStory = stories[currentIndex - 1];
+                const nextStory = stories[currentIndex + 1];
+
+                faceCurrent.style.backgroundImage = `url(${story.innerStories[currentInnerStoryIndex]})`;
+                facePrev.style.backgroundImage = `url(${prevStory ? prevStory.innerStories[0] : ''})`;
+                faceNext.style.backgroundImage = `url(${nextStory ? nextStory.innerStories[0] : ''})`;
+                
+                // Reset cube to its starting position without a transition
+                storyCube.style.transition = 'none';
+                storyCube.style.transform = `rotateY(0deg)`;
+                // Force a reflow to apply the change immediately
+                storyCube.offsetHeight;
+                // Re-enable the transition for future animations
+                storyCube.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                
+                storyUsername.textContent = story.username;
+                
+                // Update progress bar
+                updateProgressBar();
+                
+                // Start progress
+                startStoryProgress();
+
             } else {
                 closeStoryModal();
             }
@@ -1014,7 +1060,7 @@
         // Update progress bar segments
         function updateProgressBar() {
             storyProgressContainer.innerHTML = '';
-            const totalStories = stories[currentStoryIndex].innerStories.length;
+            const totalStories = stories[currentIndex].innerStories.length;
             
             for (let i = 0; i < totalStories; i++) {
                 const bar = document.createElement('div');
@@ -1041,7 +1087,7 @@
                 clearTimeout(storyTimeout);
             }
             
-            const totalInnerStories = stories[currentStoryIndex].innerStories.length;
+            const totalInnerStories = stories[currentIndex].innerStories.length;
             const progressDuration = totalInnerStories >= 3 ? 7000 : 5000;
             const currentFill = storyProgressContainer.children[currentInnerStoryIndex].querySelector('.story-progress-fill');
             
@@ -1063,7 +1109,7 @@
 
         // Move to the next inner story
         function nextInnerStory() {
-            const story = stories[currentStoryIndex];
+            const story = stories[currentIndex];
             if (currentInnerStoryIndex < story.innerStories.length - 1) {
                 currentInnerStoryIndex++;
                 showCurrentStory();
@@ -1084,10 +1130,13 @@
 
         // Move to the next user's story
         function nextUserStory() {
-            if (currentStoryIndex < stories.length - 1) {
-                currentStoryIndex++;
-                currentInnerStoryIndex = 0;
-                showCurrentStory();
+            if (currentIndex < stories.length - 1) {
+                storyCube.style.transform = 'rotateY(-180deg)';
+                setTimeout(() => {
+                    currentIndex++;
+                    currentInnerStoryIndex = 0;
+                    showCurrentStory();
+                }, 500);
             } else {
                 closeStoryModal();
             }
@@ -1095,10 +1144,13 @@
 
         // Move to the previous user's story
         function prevUserStory() {
-            if (currentStoryIndex > 0) {
-                currentStoryIndex--;
-                currentInnerStoryIndex = stories[currentStoryIndex].innerStories.length - 1;
-                showCurrentStory();
+            if (currentIndex > 0) {
+                storyCube.style.transform = 'rotateY(180deg)';
+                setTimeout(() => {
+                    currentIndex--;
+                    currentInnerStoryIndex = stories[currentIndex].innerStories.length - 1;
+                    showCurrentStory();
+                }, 500);
             } else {
                 currentInnerStoryIndex = 0;
                 showCurrentStory();
@@ -1127,128 +1179,81 @@
             storyModal.style.cssText = '';
             isClosing = false;
             isDragging = false;
+            isDraggingCube = false;
+            storyNavLeft.style.display = '';
+            storyNavRight.style.display = '';
+            storyProgressContainer.style.display = '';
         }
-
-        // Event listeners for navigation
-        storyNavLeft.addEventListener('click', prevInnerStory);
-        storyNavRight.addEventListener('click', nextInnerStory);
-
-        // Touch handlers for slide down gesture
+        
+        // Touch handlers for slide down gesture (closing modal)
         storyModal.addEventListener('touchstart', (e) => {
             if (isClosing) return;
             touchStartY = e.touches[0].clientY;
             touchCurrentY = touchStartY;
-            isDragging = true;
+            touchStartX = e.touches[0].clientX; // Capture initial X for cube
+            isDragging = false; // Reset vertical drag flag
+            isDraggingCube = false; // Reset horizontal drag flag
             storyModal.style.transition = 'none';
         }, { passive: true });
 
         storyModal.addEventListener('touchmove', (e) => {
-            if (!isDragging || isClosing) return;
-            e.preventDefault();
-            touchCurrentY = e.touches[0].clientY;
-            const deltaY = touchCurrentY - touchStartY;
-            if (deltaY > 0) {
-                storyModal.style.transform = `translateY(${deltaY}px)`;
+            if (isClosing) return;
+            
+            const deltaX = e.touches[0].clientX - touchStartX;
+            const deltaY = e.touches[0].clientY - touchStartY;
+            
+            // Determine if it's a vertical or horizontal drag
+            if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 20) {
+                isDragging = true;
+                e.preventDefault();
+                touchCurrentY = e.touches[0].clientY;
+                if (touchCurrentY - touchStartY > 0) {
+                    storyModal.style.transform = `translateY(${touchCurrentY - touchStartY}px)`;
+                }
+            } else if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 20) {
+                isDraggingCube = true;
+                e.preventDefault();
             }
         }, { passive: false });
 
         storyModal.addEventListener('touchend', (e) => {
-            if (!isDragging || isClosing) {
-                isDragging = false;
-                return;
-            }
-            isDragging = false;
-            const deltaY = touchCurrentY - touchStartY;
-            if (deltaY > 100) {
-                closeStoryModal();
-            } else {
-                storyModal.style.transition = 'transform 0.15s ease-out';
-                storyModal.style.transform = 'translateY(0)';
-                setTimeout(() => {
-                    storyModal.style.transition = 'opacity 0.25s ease, visibility 0.25s ease';
-                    storyModal.style.transform = '';
-                }, 150);
-            }
-        }, { passive: false });
-
-        // Mouse handlers for slide down gesture
-        storyModal.addEventListener('mousedown', (e) => {
             if (isClosing) return;
-            touchStartY = e.clientY;
-            touchCurrentY = touchStartY;
-            isDragging = true;
-            storyModal.style.transition = 'none';
-        });
 
-        storyModal.addEventListener('mousemove', (e) => {
-            if (!isDragging || isClosing) return;
-            touchCurrentY = e.clientY;
-            const deltaY = touchCurrentY - touchStartY;
-            if (deltaY > 0) {
-                storyModal.style.transform = `translateY(${deltaY}px)`;
-            }
-        });
-
-        storyModal.addEventListener('mouseup', (e) => {
-            if (!isDragging || isClosing) {
-                isDragging = false;
-                return;
-            }
-            isDragging = false;
-            const deltaY = touchCurrentY - touchStartY;
-            if (deltaY > 100) {
-                closeStoryModal();
-            } else {
-                storyModal.style.transition = 'transform 0.15s ease-out';
-                storyModal.style.transform = 'translateY(0)';
-                setTimeout(() => {
-                    storyModal.style.transition = 'opacity 0.25s ease, visibility 0.25s ease';
-                    storyModal.style.transform = '';
-                }, 150);
-            }
-        });
-
-        // Swipe navigation for mobile
-        storyModal.addEventListener('touchstart', (e) => {
-            if (isClosing) return;
-            touchStartX = e.touches[0].clientX;
-        }, { passive: true });
-
-        storyModal.addEventListener('touchend', (e) => {
-            if (isClosing || isDragging) return;
-            const touchEndX = e.changedTouches[0].clientX;
-            const deltaX = touchEndX - touchStartX;
-            if (Math.abs(deltaX) > 50) {
-                if (deltaX < 0) {
-                    nextUserStory();
+            if (isDragging) {
+                const deltaY = touchCurrentY - touchStartY;
+                if (deltaY > 100) {
+                    closeStoryModal();
                 } else {
+                    storyModal.style.transition = 'transform 0.15s ease-out';
+                    storyModal.style.transform = 'translateY(0)';
+                    setTimeout(() => {
+                        storyModal.style.transition = 'opacity 0.25s ease, visibility 0.25s ease';
+                        storyModal.style.transform = '';
+                    }, 150);
+                }
+            } else if (isDraggingCube) {
+                const touchEndX = e.changedTouches[0].clientX;
+                const deltaX = touchEndX - touchStartX;
+
+                if (deltaX > CUBE_FLIP_THRESHOLD && currentIndex > 0) {
                     prevUserStory();
+                } else if (deltaX < -CUBE_FLIP_THRESHOLD && currentIndex < stories.length - 1) {
+                    nextUserStory();
                 }
             }
-        });
-
-        // Click outside to close
-        storyModal.addEventListener('click', (e) => {
-            if (e.target === storyModal && !isDragging) {
-                closeStoryModal();
-            }
-        });
-
-        // Keyboard navigation
-        document.addEventListener('keydown', (e) => {
-            if (!storyModal.classList.contains('active') || isClosing || isDragging) return;
             
-            if (e.key === 'Escape') {
-                closeStoryModal();
-            } else if (e.key === 'ArrowRight') {
-                e.preventDefault();
-                nextInnerStory();
-            } else if (e.key === 'ArrowLeft') {
-                e.preventDefault();
-                prevInnerStory();
-            }
-        });
+            isDragging = false;
+            isDraggingCube = false;
+        }, { passive: false });
 
+        // Click handlers for inner story navigation
+        storyNavLeft.addEventListener('click', () => {
+            if (!isDraggingCube) prevInnerStory();
+        });
+        storyNavRight.addEventListener('click', () => {
+            if (!isDraggingCube) nextInnerStory();
+        });
+        
         // Function to render stories
         function renderStories() {
             const storiesList = document.getElementById('storiesList');
@@ -1431,5 +1436,6 @@
     </script>
 </body>
 </html>
+
 
 
