@@ -47,7 +47,7 @@
             color: black;
             display: flex;
             align-items: center;
-            max-width: 200px;
+            max-width: 200px; /* Adjusted to prevent overlap with right SVGs */
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
@@ -58,7 +58,7 @@
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            margin-left: 4px;
+            margin-left: 4px; /* Added gap between "Waiting" and "for Network" */
         }
 
         .header-icons {
@@ -151,10 +151,25 @@
             align-items: center;
             gap: 4px;
             flex-shrink: 0;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .story-item:hover {
+            background-color: rgba(116, 156, 191, 0.1);
+            transform: scale(1.05);
+        }
+
+        .story-item:active {
+            transform: scale(0.98);
         }
 
         .story-avatar-container {
             position: relative;
+            cursor: pointer;
         }
 
         .story-avatar-ring {
@@ -162,35 +177,6 @@
             height: 64px;
             border-radius: 50%;
             padding: 2px;
-            position: relative;
-            transition: transform 0.2s ease;
-            cursor: pointer;
-        }
-
-        .story-avatar-ring.rotating {
-            animation: ringRotate 0.8s ease-in-out;
-        }
-
-        @keyframes ringRotate {
-            0% { transform: rotate(0deg); }
-            25% { transform: rotate(90deg); }
-            50% { transform: rotate(180deg); }
-            75% { transform: rotate(270deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .story-avatar-inner-container {
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            right: 2px;
-            bottom: 2px;
-            background-color: white;
-            border-radius: 50%;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         .story-avatar-ring.your-story {
@@ -199,14 +185,14 @@
 
         .story-avatar-ring.has-story {
             background: linear-gradient(45deg, #fbbf24, #ef4444, #a855f7);
-            background-size: 200% 200%;
-            animation: gradientShift 3s ease infinite;
         }
 
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        .story-avatar-bg {
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            border-radius: 50%;
+            padding: 2px;
         }
 
         .story-avatar {
@@ -241,6 +227,7 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            cursor: pointer;
         }
 
         /* Chat list styles */
@@ -378,6 +365,10 @@
             border-radius: 4px;
         }
 
+        .skeleton-circle {
+            border-radius: 50%;
+        }
+
         @keyframes pulse {
             0%, 100% {
                 opacity: 1;
@@ -489,93 +480,6 @@
             width: 220px;
         }
 
-        /* Story Viewer - Data URL Window Simulation */
-        .story-viewer-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            z-index: 2000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-
-        .story-viewer-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .story-viewer-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            max-width: 384px;
-            max-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .story-viewer-header {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 60px;
-            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 16px;
-            z-index: 10;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .story-viewer-overlay.active .story-viewer-header {
-            opacity: 1;
-        }
-
-        .story-viewer-close {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            transition: background-color 0.2s ease;
-        }
-
-        .story-viewer-close:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .story-viewer-content {
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-            background: #000;
-        }
-
-        .story-window-frame {
-            width: 100%;
-            height: 100%;
-            border: none;
-            background: #000;
-            display: block;
-        }
-
         /* FAB styles */
         :root {
             --fab-size: 56px;
@@ -675,18 +579,6 @@
         </div>
     </div>
 
-    <!-- Story Viewer Modal -->
-    <div class="story-viewer-overlay" id="storyViewerOverlay">
-        <div class="story-viewer-container">
-            <div class="story-viewer-header">
-                <button class="story-viewer-close" id="storyViewerClose">&times;</button>
-            </div>
-            <div class="story-viewer-content">
-                <iframe class="story-window-frame" id="storyWindowFrame"></iframe>
-            </div>
-        </div>
-    </div>
-
     <!-- Floating Action Button -->
     <button class="fab" aria-label="Create new chat" title="Create new chat">
         <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -704,36 +596,42 @@
                 avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
                 hasNewStory: false,
                 isYourStory: true,
+                storyUrl: "https://example.com/your-story",
             },
             {
                 id: "1",
                 username: "Emily",
                 avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
                 hasNewStory: true,
+                storyUrl: "https://example.com/emily-story",
             },
             {
                 id: "2",
                 username: "Michael",
                 avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
                 hasNewStory: true,
+                storyUrl: "https://example.com/michael-story",
             },
             {
                 id: "3",
                 username: "Sarah",
                 avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
                 hasNewStory: true,
+                storyUrl: "https://example.com/sarah-story",
             },
             {
                 id: "4",
                 username: "David",
                 avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
                 hasNewStory: true,
+                storyUrl: "https://example.com/david-story",
             },
             {
                 id: "5",
                 username: "Jessica",
                 avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
                 hasNewStory: true,
+                storyUrl: "https://example.com/jessica-story",
             },
         ];
 
@@ -896,254 +794,88 @@
             }
         ];
 
-        // Story viewer elements
-        const storyViewerOverlay = document.getElementById('storyViewerOverlay');
-        const storyViewerClose = document.getElementById('storyViewerClose');
-        const storyWindowFrame = document.getElementById('storyWindowFrame');
-
-        // Function to create data URL for the story content
-        function createStoryDataURL() {
-            // The actual HTML content from your GitHub file
-            const htmlContent = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Story Content</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            overflow: hidden;
-        }
-        
-        .story-container {
-            text-align: center;
-            padding: 20px;
-            max-width: 300px;
-        }
-        
-        .story-image {
-            width: 100%;
-            height: 400px;
-            object-fit: cover;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-        
-        .story-title {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 10px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        }
-        
-        .story-text {
-            font-size: 16px;
-            line-height: 1.5;
-            opacity: 0.9;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-        }
-        
-        .story-actions {
-            margin-top: 30px;
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-        }
-        
-        .story-btn {
-            padding: 12px 24px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 25px;
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-        
-        .story-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        .progress-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.3);
-            width: 100%;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #ff6b6b, #4ecdc4);
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .story-container {
-            animation: fadeIn 0.6s ease-out;
-        }
-    </style>
-</head>
-<body>
-    <div class="progress-bar">
-        <div class="progress-fill" id="progressFill"></div>
-    </div>
-    
-    <div class="story-container">
-        <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=400&fit=crop" alt="Story Image" class="story-image">
-        <h1 class="story-title">Amazing Sunset</h1>
-        <p class="story-text">Just witnessed the most beautiful sunset over the ocean. The colors were absolutely breathtaking! 🌅✨</p>
-        <div class="story-actions">
-            <a href="#" class="story-btn" onclick="reactToStory('love')">❤️ Love</a>
-            <a href="#" class="story-btn" onclick="reactToStory('wow')">😮 Wow</a>
-        </div>
-    </div>
-    
-    <script>
-        // Story progress simulation
-        let progress = 0;
-        const progressFill = document.getElementById('progressFill');
-        const duration = 8000; // 8 seconds
-        const increment = 100 / (duration / 16); // ~60fps
-        
-        function updateProgress() {
-            progress += increment;
-            progressFill.style.width = progress + '%';
-            
-            if (progress >= 100) {
-                // Auto-close or go to next story
-                setTimeout(() => {
-                    alert('Story ended! You can implement auto-advance here.');
-                }, 500);
-            } else {
-                requestAnimationFrame(updateProgress);
-            }
-        }
-        
-        // Start progress
-        updateProgress();
-        
-        // Story reactions
-        function reactToStory(reaction) {
-            // Create floating reaction animation
-            const reactionEl = document.createElement('div');
-            reactionEl.textContent = reaction === 'love' ? '❤️' : '😮';
-            reactionEl.style.cssText = \`
+        // Function to create custom loading overlay (spinner removed)
+        function createLoadingOverlay() {
+            const overlay = document.createElement('div');
+            overlay.id = 'story-loading-overlay';
+            overlay.style.cssText = `
                 position: fixed;
-                font-size: 48px;
-                pointer-events: none;
-                z-index: 1000;
-                left: 50%;
-                top: 50%;
-                transform: translate(-50%, -50%);
-                animation: floatUp 1s ease-out forwards;
-            \`;
-            
-            const style = document.createElement('style');
-            style.textContent = \`
-                @keyframes floatUp {
-                    0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
-                    100% { transform: translate(-50%, -200px) scale(1); opacity: 0; }
-                }
-            \`;
-            document.head.appendChild(style);
-            
-            document.body.appendChild(reactionEl);
-            
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background-color: rgba(0, 0, 0, 0.9);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                z-index: 9999;
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.3s ease, visibility 0.3s ease;
+                backdrop-filter: blur(4px);
+            `;
+
+            overlay.innerHTML = `
+                <div style="
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 24px;
+                ">
+                    <div style="
+                        color: white;
+                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                        font-size: 18px;
+                        font-weight: 500;
+                        text-align: center;
+                    ">
+                        Opening story...
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(overlay);
+            return overlay;
+        }
+
+        // Function to show loading overlay
+        function showLoadingOverlay(overlay) {
+            overlay.style.opacity = '1';
+            overlay.style.visibility = 'visible';
+        }
+
+        // Function to hide loading overlay
+        function hideLoadingOverlay(overlay) {
+            overlay.style.opacity = '0';
             setTimeout(() => {
-                reactionEl.remove();
-                style.remove();
-            }, 1000);
-            
-            // Reset progress on interaction
-            progress = 0;
-        }
-        
-        // Prevent context menu
-        document.addEventListener('contextmenu', e => e.preventDefault());
-        
-        // Tap to pause/resume progress
-        let isPaused = false;
-        document.addEventListener('click', () => {
-            isPaused = !isPaused;
-            if (isPaused) {
-                progressFill.style.transition = 'none';
-            } else {
-                progressFill.style.transition = 'width 0.3s ease';
-            }
-        });
-        
-        console.log('Story loaded successfully!');
-    </script>
-</body>
-</html>`;
-
-            // Create data URL
-            const dataUrl = 'data:text/html;charset=utf-8,' + encodeURIComponent(htmlContent);
-            return dataUrl;
+                if (overlay.parentNode) {
+                    overlay.parentNode.removeChild(overlay);
+                }
+            }, 300);
         }
 
-        // Function to open story viewer with data URL
-        function openStoryViewer(storyId) {
-            // Create the isolated window environment
-            const storyDataUrl = createStoryDataURL();
-            
-            // Load the data URL in the iframe
-            storyWindowFrame.src = storyDataUrl;
-            
-            // Show the overlay
-            storyViewerOverlay.classList.add('active');
-            document.body.style.overflow = 'hidden';
-            
-            console.log(`Opening story viewer for ${storyId} using data URL`);
+        // Function to open story with custom loading
+        function openStory(storyId, storyUrl) {
+            // Create and show loading overlay
+            const overlay = createLoadingOverlay();
+            showLoadingOverlay(overlay);
+
+            // Simulate brief loading time (adjust as needed)
+            setTimeout(() => {
+                // Open the story in a new window/tab
+                const newWindow = window.open(storyUrl, '_blank', 'noopener,noreferrer');
+                
+                if (newWindow) {
+                    // Hide loading overlay after opening
+                    hideLoadingOverlay(overlay);
+                } else {
+                    // Handle popup blocker
+                    hideLoadingOverlay(overlay);
+                    alert('Please allow popups for this site to view stories.');
+                }
+            }, 800); // 800ms loading time
         }
-
-        // Function to close story viewer
-        function closeStoryViewer() {
-            storyViewerOverlay.classList.remove('active');
-            storyWindowFrame.src = 'about:blank'; // Clear the iframe
-            document.body.style.overflow = '';
-        }
-
-        // Event listeners for story viewer
-        storyViewerClose.addEventListener('click', closeStoryViewer);
-
-        storyViewerOverlay.addEventListener('click', function(e) {
-            if (e.target === storyViewerOverlay) {
-                closeStoryViewer();
-            }
-        });
-
-        // Handle ESC key to close viewer
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && storyViewerOverlay.classList.contains('active')) {
-                closeStoryViewer();
-            }
-        });
 
         // Function to render stories
         function renderStories() {
@@ -1153,13 +885,14 @@
             stories.forEach(story => {
                 const storyElement = document.createElement('div');
                 storyElement.className = 'story-item';
+                storyElement.dataset.storyId = story.id; // Add data attribute for story ID
 
                 const avatarRingClass = story.isYourStory ? 'your-story' : (story.hasNewStory ? 'has-story' : 'your-story');
 
                 storyElement.innerHTML = `
                     <div class="story-avatar-container">
-                        <div class="story-avatar-ring ${avatarRingClass}" data-story-id="${story.id}">
-                            <div class="story-avatar-inner-container">
+                        <div class="story-avatar-ring ${avatarRingClass}">
+                            <div class="story-avatar-bg">
                                 <img src="${story.avatar}" alt="${story.username}" class="story-avatar">
                             </div>
                         </div>
@@ -1168,32 +901,27 @@
                     <span class="story-username">${story.username}</span>
                 `;
 
-                // Add click event listener for ring rotation and story viewing
-                const ringElement = storyElement.querySelector('.story-avatar-ring');
-                ringElement.addEventListener('click', function(e) {
+                // Add click event listener
+                storyElement.addEventListener('click', (e) => {
                     e.preventDefault();
-                    e.stopPropagation();
+                    const storyId = storyElement.dataset.storyId;
+                    const storyData = stories.find(s => s.id === storyId);
                     
-                    // Remove existing rotation class
-                    this.classList.remove('rotating');
-                    
-                    // Force reflow to restart animation
-                    void this.offsetWidth;
-                    
-                    // Add rotation class
-                    this.classList.add('rotating');
-                    
-                    // Remove rotation class after animation completes
-                    setTimeout(() => {
-                        this.classList.remove('rotating');
-                    }, 800);
-                    
-                    // Open story viewer (for both your-story and has-story)
-                    if (story.isYourStory || story.hasNewStory) {
-                        openStoryViewer(story.id);
+                    if (storyData && storyData.storyUrl) {
+                        openStory(storyId, storyData.storyUrl);
+                    } else {
+                        console.log(`No story URL found for story ID: ${storyId}`);
                     }
-                    
-                    console.log(`Viewing story for ${story.username} (ID: ${story.id})`);
+                });
+
+                // Add hover effect
+                storyElement.addEventListener('mouseenter', () => {
+                    storyElement.style.transform = 'scale(1.05)';
+                    storyElement.style.transition = 'transform 0.2s ease';
+                });
+
+                storyElement.addEventListener('mouseleave', () => {
+                    storyElement.style.transform = 'scale(1)';
                 });
 
                 storiesList.appendChild(storyElement);
