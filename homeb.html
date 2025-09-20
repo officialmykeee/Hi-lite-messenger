@@ -12,19 +12,22 @@
             height: 100%;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: space-between; /* New: To push cube and bottom bar to opposite ends */
             align-items: center;
-            padding: 20px;
+            padding: 0; /* New: Removed padding */
         }
 
         .cube-container {
-            perspective: 1000px; /* Provides the 3D depth effect */
+            perspective: 1000px;
             width: 100%;
-            height: 100vh;
-            position: absolute;
+            height: 50vh; /* Changed: Takes up 50% of the viewport height */
+            position: relative; /* Changed: From absolute to relative */
             top: 0;
             left: 0;
             overflow: hidden;
+            border-radius: 8px; /* Optional: adds rounded corners to the stories */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            margin: 20px;
         }
 
         /* Cube */
@@ -41,11 +44,10 @@
             position: absolute;
             width: 100%;
             height: 100%;
-            backface-visibility: hidden; /* Hides the back of the element to prevent reflection/bounce */
+            backface-visibility: hidden;
             background-size: cover;
             background-position: center;
-            border-radius: 8px; /* Optional: adds rounded corners to the stories */
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            border-radius: 8px;
         }
         
         /* Face positioning */
@@ -652,6 +654,10 @@
             --fab-color: #749cbf;
             --fab-shadow: 0 3px 8px rgba(116, 156, 191, 0.35);
             --icon-size: 28px;
+            --bg-color: #000;
+            --text-color: #fff;
+            --input-bg: rgba(255, 255, 255, 0.2);
+            --instagram-pink: #e1306c;
         }
 
         .fab {
@@ -690,6 +696,87 @@
             stroke-width: 8;
             fill: none;
         }
+
+        /* New styles for the reply bar */
+        .bottom-bar {
+            position: relative;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            box-sizing: border-box;
+            z-index: 20;
+            background-color: transparent;
+        }
+
+        .reply-input-container {
+            flex-grow: 1;
+            margin-right: 15px;
+        }
+
+        .reply-input {
+            width: 100%;
+            padding: 10px 15px;
+            border-radius: 25px;
+            border: none;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-size: 1em;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        .reply-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .action-icon-btn {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        .action-icon-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: none;
+            stroke: var(--text-color);
+            stroke-width: 2;
+        }
+
+        .action-icon-btn.like-btn svg {
+            fill: none;
+            stroke: var(--text-color);
+            transition: fill 0.2s ease-in-out, stroke 0.2s ease-in-out;
+        }
+
+        .action-icon-btn.like-btn.liked svg {
+            fill: var(--instagram-pink);
+            stroke: var(--instagram-pink);
+        }
+
+        .heart-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 1px solid var(--input-bg);
+            padding: 5px;
+        }
+
     </style>
 </head>
 <body>
@@ -754,6 +841,22 @@
 
             <div class="story-nav-left"></div>
             <div class="story-nav-right"></div>
+            
+            <div class="bottom-bar" id="storyBottomBar">
+                <div class="reply-input-container">
+                    <input type="text" class="reply-input" placeholder="Reply privately...">
+                </div>
+                <button class="action-icon-btn like-btn" onclick="toggleLike(this)">
+                    <div class="heart-container">
+                        <svg class="svg-icon heart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 
+                                     4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 
+                                     14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 
+                                     18.6 15.36 13.45 20.03L12 21.35Z"></path>
+                        </svg>
+                    </div>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -992,6 +1095,8 @@
         const storyProgressContainer = document.getElementById('storyProgressContainer');
         const storyNavLeft = document.querySelector('.story-nav-left');
         const storyNavRight = document.querySelector('.story-nav-right');
+        const storyBottomBar = document.getElementById('storyBottomBar'); // New element
+        const replyInput = document.querySelector('.reply-input');
 
         // New cube-related elements
         const storyCube = document.getElementById('storyCube');
@@ -1021,6 +1126,7 @@
             showCurrentStory();
             storyModal.classList.add('active');
             document.body.style.overflow = 'hidden';
+            replyInput.focus();
         }
 
         // Show current story and inner story
@@ -1253,7 +1359,12 @@
         storyNavRight.addEventListener('click', () => {
             if (!isDraggingCube) nextInnerStory();
         });
-        
+
+        // Toggle like function
+        function toggleLike(button) {
+            button.classList.toggle('liked');
+        }
+
         // Function to render stories
         function renderStories() {
             const storiesList = document.getElementById('storiesList');
@@ -1436,6 +1547,7 @@
     </script>
 </body>
 </html>
+
 
 
 
