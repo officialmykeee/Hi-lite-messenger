@@ -840,9 +840,9 @@
             
             <div class="bottom-bar" id="storyBottomBar">
                 <div class="reply-input-container">
-                    <input type="text" class="reply-input" placeholder="Reply privately...">
+                    <input type="text" class="reply-input" id="replyInput" placeholder="Reply privately...">
                 </div>
-                <button class="action-icon-btn like-btn" onclick="toggleLike(this)">
+                <button class="action-icon-btn like-btn" id="likeBtn">
                     <div class="heart-container">
                         <svg class="svg-icon heart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 
@@ -874,7 +874,8 @@
                 innerStories: [
                     "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
                     "https://images.unsplash.com/photo-1510414902264-77033a8ae37d?w=800&h=600&fit=crop",
-                ]
+                ],
+                replies: {} // Store replies for each inner story
             },
             {
                 id: "1",
@@ -884,7 +885,8 @@
                 innerStories: [
                     "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop",
                     "https://images.unsplash.com/photo-1517457373958-b7bdd4587200?w=800&h=600&fit=crop",
-                ]
+                ],
+                replies: {}
             },
             {
                 id: "2",
@@ -895,7 +897,8 @@
                     "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
                     "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
                     "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
-                ]
+                ],
+                replies: {}
             },
             {
                 id: "3",
@@ -904,7 +907,8 @@
                 hasNewStory: true,
                 innerStories: [
                     "https://images.unsplash.com/photo-1517457373958-b7bdd4587200?w=800&h=600&fit=crop",
-                ]
+                ],
+                replies: {}
             },
             {
                 id: "4",
@@ -913,7 +917,8 @@
                 hasNewStory: true,
                 innerStories: [
                     "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
-                ]
+                ],
+                replies: {}
             },
             {
                 id: "5",
@@ -922,7 +927,8 @@
                 hasNewStory: true,
                 innerStories: [
                     "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
-                ]
+                ],
+                replies: {}
             },
         ];
 
@@ -1091,8 +1097,9 @@
         const storyProgressContainer = document.getElementById('storyProgressContainer');
         const storyNavLeft = document.querySelector('.story-nav-left');
         const storyNavRight = document.querySelector('.story-nav-right');
-        const storyBottomBar = document.getElementById('storyBottomBar'); // New element
-        const replyInput = document.querySelector('.reply-input');
+        const storyBottomBar = document.getElementById('storyBottomBar');
+        const replyInput = document.getElementById('replyInput');
+        const likeBtn = document.getElementById('likeBtn');
 
         // New cube-related elements
         const storyCube = document.getElementById('storyCube');
@@ -1113,6 +1120,19 @@
         let isDraggingCube = false;
         let cubeStartX = 0;
         const CUBE_FLIP_THRESHOLD = 50; // px
+        
+        // --- Added: Event listener for reply input
+        replyInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                sendReply();
+            }
+        });
+        
+        // --- Added: Event listener for like button
+        likeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleLike();
+        });
 
         // Open story modal
         function openStoryModal(storyIndex) {
@@ -1153,10 +1173,64 @@
                 
                 // Start progress
                 startStoryProgress();
+                
+                // --- Updated: Update reply and like button state
+                updateReplyUI();
 
             } else {
                 closeStoryModal();
             }
+        }
+        
+        // --- New Function: Update reply input and like button
+        function updateReplyUI() {
+            const story = stories[currentIndex];
+            const innerStoryId = currentInnerStoryIndex;
+            const hasLiked = story.replies[innerStoryId]?.liked || false;
+            const replyText = story.replies[innerStoryId]?.text || '';
+            
+            // Set input value
+            replyInput.value = replyText;
+            
+            // Set like button state
+            if (hasLiked) {
+                likeBtn.classList.add('liked');
+            } else {
+                likeBtn.classList.remove('liked');
+            }
+        }
+        
+        // --- New Function: Send a reply
+        function sendReply() {
+            const story = stories[currentIndex];
+            const innerStoryId = currentInnerStoryIndex;
+            const replyText = replyInput.value.trim();
+            
+            if (replyText !== '') {
+                // Store the reply in the stories object
+                story.replies[innerStoryId] = {
+                    ...story.replies[innerStoryId],
+                    text: replyText,
+                    timestamp: new Date().toISOString()
+                };
+                console.log(`Reply sent for ${story.username}'s story ${innerStoryId}: "${replyText}"`);
+                replyInput.value = ''; // Clear input field
+            }
+        }
+        
+        // --- New Function: Toggle like status
+        function toggleLike() {
+            const story = stories[currentIndex];
+            const innerStoryId = currentInnerStoryIndex;
+            const isLiked = likeBtn.classList.toggle('liked');
+            
+            // Store the like status
+            story.replies[innerStoryId] = {
+                ...story.replies[innerStoryId],
+                liked: isLiked,
+                timestamp: new Date().toISOString()
+            };
+            console.log(`Story ${innerStoryId} for ${story.username} was ${isLiked ? 'liked' : 'unliked'}.`);
         }
 
         // Update progress bar segments
@@ -1355,11 +1429,13 @@
         storyNavRight.addEventListener('click', () => {
             if (!isDraggingCube) nextInnerStory();
         });
-
-        // Toggle like function
+        
+        // --- Removed old toggleLike function
+        /*
         function toggleLike(button) {
             button.classList.toggle('liked');
         }
+        */
 
         // Function to render stories
         function renderStories() {
@@ -1543,6 +1619,7 @@
     </script>
 </body>
 </html>
+
 
 
 
