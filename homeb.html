@@ -6,6 +6,17 @@
     <title>Hi-Lite Messenger</title>
     <style>
         /* Stories Cube Styles */
+        :root {
+            --bg-color: #000;
+            --text-color: #fff;
+            --input-bg: rgba(255, 255, 255, 0.2);
+            --instagram-pink: #e1306c;
+            --fab-size: 56px;
+            --fab-color: #749cbf;
+            --fab-shadow: 0 3px 8px rgba(116, 156, 191, 0.35);
+            --icon-size: 28px;
+        }
+        
         .story-modal-content {
             position: relative;
             width: 100%;
@@ -62,10 +73,8 @@
         #faceNext {
             transform: rotateY(-90deg) translateZ(calc(50vw - 20px));
         }
-    </style>
-
-    <style>
-        /* ... (The rest of your CSS styles) ... */
+        
+        /* General styles */
         * {
             margin: 0;
             padding: 0;
@@ -305,7 +314,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: #000000;
+            background-color: var(--bg-color);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -649,17 +658,6 @@
         }
 
         /* FAB styles */
-        :root {
-            --fab-size: 56px;
-            --fab-color: #749cbf;
-            --fab-shadow: 0 3px 8px rgba(116, 156, 191, 0.35);
-            --icon-size: 28px;
-            --bg-color: #000;
-            --text-color: #fff;
-            --input-bg: rgba(255, 255, 255, 0.2);
-            --instagram-pink: #e1306c;
-        }
-
         .fab {
             width: var(--fab-size);
             height: var(--fab-size);
@@ -697,7 +695,7 @@
             fill: none;
         }
 
-        /* New styles for the reply bar */
+        /* Styles for the reply bar */
         .bottom-bar {
             position: relative;
             bottom: 0;
@@ -739,7 +737,7 @@
             border: none;
             color: var(--text-color);
             cursor: pointer;
-            padding: 5px;
+            padding: 8px; /* Updated padding */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -748,8 +746,8 @@
         }
 
         .action-icon-btn svg {
-            width: 24px;
-            height: 24px;
+            width: 28px; /* Updated width */
+            height: 28px; /* Updated height */
             fill: none;
             stroke: var(--text-color);
             stroke-width: 2;
@@ -770,13 +768,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 34px;
-            height: 34px;
+            width: 41px; /* Updated width */
+            height: 41px; /* Updated height */
             border-radius: 50%;
             border: 1px solid var(--input-bg);
             padding: 5px;
         }
-
     </style>
 </head>
 <body>
@@ -1547,7 +1544,4 @@
     </script>
 </body>
 </html>
-
-
-
 
