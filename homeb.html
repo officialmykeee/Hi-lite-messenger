@@ -23,16 +23,16 @@
             height: 100%;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            justify-content: space-between; /* New: To push cube and bottom bar to opposite ends */
             align-items: center;
-            padding: 0;
+            padding: 0; /* New: Removed padding */
         }
 
         .cube-container {
             perspective: 1000px;
             width: 100%;
-            height: 150vh;
-            position: relative;
+            height: 150vh; /* Changed: Takes up 50% of the viewport height */
+            position: relative; /* Changed: From absolute to relative */
             top: 0px;
             left: 0;
             overflow: hidden;
@@ -347,41 +347,15 @@
             z-index: 10;
             width: 100%;
             max-width: 384px;
-        }
-
-        /* New story header user info */
-        .story-user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
             pointer-events: none;
-        }
-        
-        .story-header-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid white;
-            box-shadow: 0 0 5px rgba(0,0,0,0.3);
-        }
-        
-        .story-username-and-timestamp {
-            display: flex;
-            flex-direction: column;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
         }
 
         .story-username-modal {
             color: white;
             font-size: 16px;
             font-weight: 600;
-        }
-        
-        .story-timestamp-modal {
-            color: rgba(255,255,255,0.8);
-            font-size: 12px;
-            font-weight: 400;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+            pointer-events: none;
         }
 
         .story-progress-container {
@@ -474,7 +448,12 @@
             height: 48px;
             background-color: #9ca3af;
             border-radius: 50%;
-            object-fit: cover; /* Added for image avatars */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
         }
 
         .online-indicator {
@@ -488,23 +467,16 @@
             border-radius: 50%;
         }
 
-        /* Updated chat details structure */
         .chat-details {
             flex: 1;
             min-width: 0;
-            display: flex;
-            flex-direction: column; /* Stacks name/timestamp on top of message */
         }
 
         .chat-header {
             display: flex;
-            align-items: flex-start; /* Align name/timestamp and badge to the top */
+            align-items: center;
             justify-content: space-between;
-        }
-
-        .chat-name-and-time {
-            display: flex;
-            flex-direction: column; /* Stacks name and timestamp vertically */
+            margin-bottom: 2px;
         }
 
         .chat-name {
@@ -517,17 +489,16 @@
             flex: 1;
         }
 
-        .chat-timestamp-under-name {
-            font-size: 12px;
-            color: #6b7280;
-            margin-top: 2px;
-        }
-
         .chat-meta {
             display: flex;
             align-items: center;
             gap: 4px;
             margin-left: auto;
+        }
+
+        .chat-timestamp {
+            font-size: 14px;
+            color: #6b7280;
         }
 
         .unread-badge {
@@ -765,7 +736,7 @@
             border: none;
             color: var(--text-color);
             cursor: pointer;
-            padding: 8px;
+            padding: 8px; /* Updated padding */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -774,8 +745,8 @@
         }
 
         .action-icon-btn svg {
-            width: 28px;
-            height: 28px;
+            width: 28px; /* Updated width */
+            height: 28px; /* Updated height */
             fill: none;
             stroke: var(--text-color);
             stroke-width: 2;
@@ -796,8 +767,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 41px;
-            height: 41px;
+            width: 41px; /* Updated width */
+            height: 41px; /* Updated height */
             border-radius: 50%;
             border: 1px solid var(--input-bg);
             padding: 5px;
@@ -830,36 +801,30 @@
         <div class="stories-container" id="storiesContainer">
             <div class="stories-scroll">
                 <div class="stories-list" id="storiesList">
-                </div>
+                    </div>
             </div>
         </div>
 
         <div class="skeleton-stories-container hidden" id="storiesLoadingSkeleton">
             <div class="stories-scroll">
                 <div class="skeleton-stories-list" id="skeletonStoriesList">
-                </div>
+                    </div>
             </div>
         </div>
 
         <div class="chat-list" id="chatList">
-        </div>
+            </div>
 
         <div class="chat-list hidden" id="loadingSkeleton">
-        </div>
+            </div>
     </div>
 
     <div class="story-modal" id="storyModal">
         <div class="story-modal-content">
             <div class="story-progress-container" id="storyProgressContainer">
-            </div>
-            <div class="story-header">
-                <div class="story-user-info">
-                    <img id="storyHeaderAvatar" class="story-header-avatar" src="" alt="">
-                    <div class="story-username-and-timestamp">
-                        <span class="story-username-modal" id="storyUsername"></span>
-                        <span class="story-timestamp-modal" id="storyTimestamp"></span>
-                    </div>
                 </div>
+            <div class="story-header">
+                <span class="story-username-modal" id="storyUsername"></span>
             </div>
             
             <div class="cube-container">
@@ -903,22 +868,20 @@
             {
                 id: "your-story",
                 username: "Your story",
-                profilePicture: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
+                avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
                 hasNewStory: false,
                 isYourStory: true,
-                timestamp: "Just Now",
                 innerStories: [
                     "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
                     "https://images.unsplash.com/photo-1510414902264-77033a8ae37d?w=800&h=600&fit=crop",
                 ],
-                replies: {}
+                replies: {} // Store replies for each inner story
             },
             {
                 id: "1",
                 username: "Emily",
-                profilePicture: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
+                avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
                 hasNewStory: true,
-                timestamp: "Jun 30 at 3:20 PM",
                 innerStories: [
                     "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop",
                     "https://images.unsplash.com/photo-1517457373958-b7bdd4587200?w=800&h=600&fit=crop",
@@ -928,9 +891,8 @@
             {
                 id: "2",
                 username: "Michael",
-                profilePicture: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
+                avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
                 hasNewStory: true,
-                timestamp: "5:15 PM",
                 innerStories: [
                     "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
                     "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
@@ -941,9 +903,8 @@
             {
                 id: "3",
                 username: "Sarah",
-                profilePicture: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
+                avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
                 hasNewStory: true,
-                timestamp: "12:01 PM",
                 innerStories: [
                     "https://images.unsplash.com/photo-1517457373958-b7bdd4587200?w=800&h=600&fit=crop",
                 ],
@@ -952,9 +913,8 @@
             {
                 id: "4",
                 username: "David",
-                profilePicture: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
+                avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
                 hasNewStory: true,
-                timestamp: "10:30 AM",
                 innerStories: [
                     "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
                 ],
@@ -963,9 +923,8 @@
             {
                 id: "5",
                 username: "Jessica",
-                profilePicture: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
+                avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
                 hasNewStory: true,
-                timestamp: "Yesterday",
                 innerStories: [
                     "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
                 ],
@@ -979,8 +938,8 @@
                 id: "1",
                 name: "Emma Wilson",
                 lastMessage: "Hey! Are we still on for dinner tonight?",
-                timestampUnderName: "Just Now",
-                profilePicture: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
+                timestamp: "2:34 PM",
+                avatar: "EW",
                 unreadCount: 2,
                 isOnline: true,
             },
@@ -988,16 +947,16 @@
                 id: "2",
                 name: "Family",
                 lastMessage: "Mom: Don't forget about Sunday brunch!",
-                timestampUnderName: "Jul 30 at 3:18 PM",
-                profilePicture: "https://images.unsplash.com/photo-1555060411-f15599026315?w=400&h=400&fit=crop&crop=face",
+                timestamp: "1:15 PM",
+                avatar: "F",
                 unreadCount: 5,
             },
             {
                 id: "3",
                 name: "Alex Chen",
                 lastMessage: "Thanks for the help with the project 👍",
-                timestampUnderName: "11:45 AM",
-                profilePicture: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop&crop=face",
+                timestamp: "11:45 AM",
+                avatar: "AC",
                 isOnline: true,
                 isSent: true,
             },
@@ -1005,129 +964,129 @@
                 id: "4",
                 name: "Sarah Johnson",
                 lastMessage: "The photos from the trip are amazing!",
-                timestampUnderName: "Yesterday",
-                profilePicture: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
+                timestamp: "Yesterday",
+                avatar: "SJ",
             },
             {
                 id: "5",
                 name: "Work Team",
                 lastMessage: "You: Sounds good, see you tomorrow",
-                timestampUnderName: "Yesterday",
-                profilePicture: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
+                timestamp: "Yesterday",
+                avatar: "WT",
                 isSent: true,
             },
             {
                 id: "6",
                 name: "David Park",
                 lastMessage: "Let's catch up this weekend",
-                timestampUnderName: "Monday",
-                profilePicture: "https://images.unsplash.com/photo-1521111623910-449e75529f79?w=400&h=400&fit=crop&crop=face",
+                timestamp: "Monday",
+                avatar: "DP",
             },
             {
                 id: "7",
                 name: "Coffee Chat",
                 lastMessage: "Lisa: That new café downtown is great!",
-                timestampUnderName: "Sunday",
-                profilePicture: "https://images.unsplash.com/photo-1531746020795-81432f489677?w=400&h=400&fit=crop&crop=face",
+                timestamp: "Sunday",
+                avatar: "CC",
                 unreadCount: 1,
             },
             {
                 id: "8",
                 name: "Mom",
                 lastMessage: "Love you sweetie ❤️",
-                timestampUnderName: "Saturday",
-                profilePicture: "https://images.unsplash.com/photo-1519702213794-0618037b567b?w=400&h=400&fit=crop&crop=face",
+                timestamp: "Saturday",
+                avatar: "M",
                 isOnline: true,
             },
             {
                 id: "9",
                 name: "John Miller",
                 lastMessage: "Can you send me the presentation slides?",
-                timestampUnderName: "Friday",
-                profilePicture: "https://images.unsplash.com/photo-1519085360753-af0f195d464e?w=400&h=400&fit=crop&crop=face",
+                timestamp: "Friday",
+                avatar: "JM",
                 unreadCount: 3,
             },
             {
                 id: "10",
                 name: "Study Group",
                 lastMessage: "Meeting tomorrow at 3 PM in library",
-                timestampUnderName: "Thursday",
-                profilePicture: "https://images.unsplash.com/photo-1520330663784-fe118f62390a?w=400&h=400&fit=crop&crop=face",
+                timestamp: "Thursday",
+                avatar: "SG",
             },
             {
                 id: "11",
                 name: "Lisa Wang",
                 lastMessage: "Happy birthday! Hope you have a great day 🎉",
-                timestampUnderName: "Wednesday",
-                profilePicture: "https://images.unsplash.com/photo-1521111623910-449e75529f79?w=400&h=400&fit=crop&crop=face",
+                timestamp: "Wednesday",
+                avatar: "LW",
                 isOnline: true,
             },
             {
                 id: "12",
                 name: "Gym Buddy",
                 lastMessage: "Ready for leg day tomorrow?",
-                timestampUnderName: "Tuesday",
-                profilePicture: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
+                timestamp: "Tuesday",
+                avatar: "GB",
                 isSent: true,
             },
             {
                 id: "13",
                 name: "Rachel Green",
                 lastMessage: "The weather is perfect for hiking today!",
-                timestampUnderName: "Monday",
-                profilePicture: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
+                timestamp: "Monday",
+                avatar: "RG",
                 unreadCount: 1,
             },
             {
                 id: "14",
                 name: "Tech Support",
                 lastMessage: "Your issue has been resolved",
-                timestampUnderName: "Last week",
-                profilePicture: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
+                timestamp: "Last week",
+                avatar: "TS",
             },
             {
                 id: "15",
                 name: "Book Club",
                 lastMessage: "Next meeting: discussing chapter 5-8",
-                timestampUnderName: "Last week",
-                profilePicture: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop&crop=face",
+                timestamp: "Last week",
+                avatar: "BC",
                 unreadCount: 2,
             },
             {
                 id: "16",
                 name: "Pizza Place",
                 lastMessage: "Your order is ready for pickup!",
-                timestampUnderName: "Last week",
-                profilePicture: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
+                timestamp: "Last week",
+                avatar: "PP",
             },
             {
                 id: "17",
                 name: "Jane Cooper",
                 lastMessage: "Thanks for the movie recommendation!",
-                timestampUnderName: "2 weeks ago",
-                profilePicture: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
+                timestamp: "2 weeks ago",
+                avatar: "JC",
                 isOnline: true,
             },
             {
                 id: "18",
                 name: "Basketball Team",
                 lastMessage: "Practice moved to 7 PM tonight",
-                timestampUnderName: "2 weeks ago",
-                profilePicture: "https://images.unsplash.com/photo-1555060411-f15599026315?w=400&h=400&fit=crop&crop=face",
+                timestamp: "2 weeks ago",
+                avatar: "BT",
             },
             {
                 id: "19",
                 name: "Dr. Smith",
                 lastMessage: "Your appointment is confirmed for next week",
-                timestampUnderName: "2 weeks ago",
-                profilePicture: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
+                timestamp: "2 weeks ago",
+                avatar: "DS",
             },
             {
                 id: "20",
                 name: "Mike Johnson",
                 lastMessage: "Let's grab lunch next time you're in town",
-                timestampUnderName: "3 weeks ago",
-                profilePicture: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
+                timestamp: "3 weeks ago",
+                avatar: "MJ",
                 isSent: true,
             }
         ];
@@ -1135,8 +1094,6 @@
         // Story Modal Elements
         const storyModal = document.getElementById('storyModal');
         const storyUsername = document.getElementById('storyUsername');
-        const storyHeaderAvatar = document.getElementById('storyHeaderAvatar');
-        const storyTimestamp = document.getElementById('storyTimestamp');
         const storyProgressContainer = document.getElementById('storyProgressContainer');
         const storyNavLeft = document.querySelector('.story-nav-left');
         const storyNavRight = document.querySelector('.story-nav-right');
@@ -1164,12 +1121,14 @@
         let cubeStartX = 0;
         const CUBE_FLIP_THRESHOLD = 50; // px
         
+        // --- Added: Event listener for reply input
         replyInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 sendReply();
             }
         });
         
+        // --- Added: Event listener for like button
         likeBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             toggleLike();
@@ -1202,16 +1161,20 @@
                 // Reset cube to its starting position without a transition
                 storyCube.style.transition = 'none';
                 storyCube.style.transform = `rotateY(0deg)`;
+                // Force a reflow to apply the change immediately
                 storyCube.offsetHeight;
+                // Re-enable the transition for future animations
                 storyCube.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
                 
-                // Update header info
                 storyUsername.textContent = story.username;
-                storyHeaderAvatar.src = story.profilePicture;
-                storyTimestamp.textContent = story.timestamp;
                 
+                // Update progress bar
                 updateProgressBar();
+                
+                // Start progress
                 startStoryProgress();
+                
+                // --- Updated: Update reply and like button state
                 updateReplyUI();
 
             } else {
@@ -1219,15 +1182,17 @@
             }
         }
         
-        // Update reply input and like button
+        // --- New Function: Update reply input and like button
         function updateReplyUI() {
             const story = stories[currentIndex];
             const innerStoryId = currentInnerStoryIndex;
             const hasLiked = story.replies[innerStoryId]?.liked || false;
             const replyText = story.replies[innerStoryId]?.text || '';
             
+            // Set input value
             replyInput.value = replyText;
             
+            // Set like button state
             if (hasLiked) {
                 likeBtn.classList.add('liked');
             } else {
@@ -1235,29 +1200,31 @@
             }
         }
         
-        // Send a reply
+        // --- New Function: Send a reply
         function sendReply() {
             const story = stories[currentIndex];
             const innerStoryId = currentInnerStoryIndex;
             const replyText = replyInput.value.trim();
             
             if (replyText !== '') {
+                // Store the reply in the stories object
                 story.replies[innerStoryId] = {
                     ...story.replies[innerStoryId],
                     text: replyText,
                     timestamp: new Date().toISOString()
                 };
                 console.log(`Reply sent for ${story.username}'s story ${innerStoryId}: "${replyText}"`);
-                replyInput.value = '';
+                replyInput.value = ''; // Clear input field
             }
         }
         
-        // Toggle like status
+        // --- New Function: Toggle like status
         function toggleLike() {
             const story = stories[currentIndex];
             const innerStoryId = currentInnerStoryIndex;
             const isLiked = likeBtn.classList.toggle('liked');
             
+            // Store the like status
             story.replies[innerStoryId] = {
                 ...story.replies[innerStoryId],
                 liked: isLiked,
@@ -1280,7 +1247,7 @@
                 if (i < currentInnerStoryIndex) {
                     fill.style.width = '100%';
                 } else if (i === currentInnerStoryIndex) {
-                    fill.style.width = '0%';
+                    fill.style.width = '0%'; // will be animated
                 } else {
                     fill.style.width = '0%';
                 }
@@ -1300,9 +1267,14 @@
             const progressDuration = totalInnerStories >= 3 ? 7000 : 5000;
             const currentFill = storyProgressContainer.children[currentInnerStoryIndex].querySelector('.story-progress-fill');
             
+            // Immediately reset to 0% before starting the animation
             currentFill.style.transition = 'none';
             currentFill.style.width = '0%';
+
+            // Force a reflow/repaint
             currentFill.offsetHeight;
+
+            // Set transition and start animation
             currentFill.style.transition = `width ${progressDuration / 1000}s linear`;
             currentFill.style.width = '100%';
 
@@ -1394,9 +1366,9 @@
             if (isClosing) return;
             touchStartY = e.touches[0].clientY;
             touchCurrentY = touchStartY;
-            touchStartX = e.touches[0].clientX;
-            isDragging = false;
-            isDraggingCube = false;
+            touchStartX = e.touches[0].clientX; // Capture initial X for cube
+            isDragging = false; // Reset vertical drag flag
+            isDraggingCube = false; // Reset horizontal drag flag
             storyModal.style.transition = 'none';
         }, { passive: true });
 
@@ -1406,6 +1378,7 @@
             const deltaX = e.touches[0].clientX - touchStartX;
             const deltaY = e.touches[0].clientY - touchStartY;
             
+            // Determine if it's a vertical or horizontal drag
             if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 20) {
                 isDragging = true;
                 e.preventDefault();
@@ -1449,12 +1422,20 @@
             isDraggingCube = false;
         }, { passive: false });
 
+        // Click handlers for inner story navigation
         storyNavLeft.addEventListener('click', () => {
             if (!isDraggingCube) prevInnerStory();
         });
         storyNavRight.addEventListener('click', () => {
             if (!isDraggingCube) nextInnerStory();
         });
+        
+        // --- Removed old toggleLike function
+        /*
+        function toggleLike(button) {
+            button.classList.toggle('liked');
+        }
+        */
 
         // Function to render stories
         function renderStories() {
@@ -1468,7 +1449,7 @@
                     <div class="story-avatar-container">
                         <div class="story-avatar-ring ${avatarRingClass}"></div>
                         <div class="story-avatar-bg">
-                            <img src="${story.profilePicture}" alt="${story.username}" class="story-avatar">
+                            <img src="${story.avatar}" alt="${story.username}" class="story-avatar">
                         </div>
                         ${story.isYourStory ? '<div class="story-plus">+</div>' : ''}
                     </div>
@@ -1509,16 +1490,14 @@
                 chatElement.innerHTML = `
                     <div class="chat-content">
                         <div class="chat-avatar-container">
-                            <img src="${chat.profilePicture}" alt="${chat.name}" class="chat-avatar">
+                            <div class="chat-avatar">${chat.avatar}</div>
                             ${onlineIndicator}
                         </div>
                         <div class="chat-details">
                             <div class="chat-header">
-                                <div class="chat-name-and-time">
-                                    <h3 class="chat-name">${chat.name}</h3>
-                                    <span class="chat-timestamp-under-name">${chat.timestampUnderName}</span>
-                                </div>
+                                <h3 class="chat-name">${chat.name}</h3>
                                 <div class="chat-meta">
+                                    <span class="chat-timestamp">${chat.timestamp}</span>
                                     ${unreadBadge}
                                     ${sentIndicator}
                                 </div>
@@ -1640,4 +1619,5 @@
     </script>
 </body>
 </html>
+
 
