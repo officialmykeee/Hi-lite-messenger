@@ -350,12 +350,41 @@
             pointer-events: none;
         }
 
+        .story-user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            pointer-events: auto;
+            cursor: pointer;
+        }
+
+        .story-user-info:active {
+            opacity: 0.8;
+        }
+
+        .story-avatar-modal {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .story-details {
+            display: flex;
+            flex-direction: column;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
         .story-username-modal {
             color: white;
             font-size: 16px;
             font-weight: 600;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
-            pointer-events: none;
+        }
+
+        .story-timestamp-modal {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
         }
 
         .story-progress-container {
@@ -824,7 +853,13 @@
             <div class="story-progress-container" id="storyProgressContainer">
                 </div>
             <div class="story-header">
-                <span class="story-username-modal" id="storyUsername"></span>
+                <div class="story-user-info">
+                    <img id="storyAvatar" class="story-avatar-modal" src="" alt="User Avatar">
+                    <div class="story-details">
+                        <span class="story-username-modal" id="storyUsername"></span>
+                        <span class="story-timestamp-modal" id="storyTimestamp"></span>
+                    </div>
+                </div>
             </div>
             
             <div class="cube-container">
@@ -872,8 +907,8 @@
                 hasNewStory: false,
                 isYourStory: true,
                 innerStories: [
-                    "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
-                    "https://images.unsplash.com/photo-1510414902264-77033a8ae37d?w=800&h=600&fit=crop",
+                    { src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop", timestamp: 'Just now' },
+                    { src: "https://images.unsplash.com/photo-1510414902264-77033a8ae37d?w=800&h=600&fit=crop", timestamp: 'Jun 30 at 3:20 PM' },
                 ],
                 replies: {} // Store replies for each inner story
             },
@@ -883,8 +918,8 @@
                 avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
                 hasNewStory: true,
                 innerStories: [
-                    "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop",
-                    "https://images.unsplash.com/photo-1517457373958-b7bdd4587200?w=800&h=600&fit=crop",
+                    { src: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop", timestamp: '1 hour ago' },
+                    { src: "https://images.unsplash.com/photo-1517457373958-b7bdd4587200?w=800&h=600&fit=crop", timestamp: '4 hours ago' },
                 ],
                 replies: {}
             },
@@ -894,9 +929,9 @@
                 avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
                 hasNewStory: true,
                 innerStories: [
-                    "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
-                    "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
-                    "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
+                    { src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop", timestamp: '10 minutes ago' },
+                    { src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop", timestamp: '2 hours ago' },
+                    { src: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop", timestamp: '6 hours ago' },
                 ],
                 replies: {}
             },
@@ -906,7 +941,7 @@
                 avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
                 hasNewStory: true,
                 innerStories: [
-                    "https://images.unsplash.com/photo-1517457373958-b7bdd4587200?w=800&h=600&fit=crop",
+                    { src: "https://images.unsplash.com/photo-1517457373958-b7bdd4587200?w=800&h=600&fit=crop", timestamp: '3 hours ago' },
                 ],
                 replies: {}
             },
@@ -916,7 +951,7 @@
                 avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
                 hasNewStory: true,
                 innerStories: [
-                    "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
+                    { src: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop", timestamp: '5 hours ago' },
                 ],
                 replies: {}
             },
@@ -926,7 +961,7 @@
                 avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
                 hasNewStory: true,
                 innerStories: [
-                    "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
+                    { src: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop", timestamp: '22 hours ago' },
                 ],
                 replies: {}
             },
@@ -1094,6 +1129,8 @@
         // Story Modal Elements
         const storyModal = document.getElementById('storyModal');
         const storyUsername = document.getElementById('storyUsername');
+        const storyAvatar = document.getElementById('storyAvatar');
+        const storyTimestamp = document.getElementById('storyTimestamp');
         const storyProgressContainer = document.getElementById('storyProgressContainer');
         const storyNavLeft = document.querySelector('.story-nav-left');
         const storyNavRight = document.querySelector('.story-nav-right');
@@ -1149,14 +1186,15 @@
         function showCurrentStory() {
             if (currentIndex >= 0 && currentIndex < stories.length) {
                 const story = stories[currentIndex];
+                const innerStory = story.innerStories[currentInnerStoryIndex];
                 
                 // Update cube faces
                 const prevStory = stories[currentIndex - 1];
                 const nextStory = stories[currentIndex + 1];
 
-                faceCurrent.style.backgroundImage = `url(${story.innerStories[currentInnerStoryIndex]})`;
-                facePrev.style.backgroundImage = `url(${prevStory ? prevStory.innerStories[0] : ''})`;
-                faceNext.style.backgroundImage = `url(${nextStory ? nextStory.innerStories[0] : ''})`;
+                faceCurrent.style.backgroundImage = `url(${innerStory.src})`;
+                facePrev.style.backgroundImage = `url(${prevStory ? prevStory.innerStories[0].src : ''})`;
+                faceNext.style.backgroundImage = `url(${nextStory ? nextStory.innerStories[0].src : ''})`;
                 
                 // Reset cube to its starting position without a transition
                 storyCube.style.transition = 'none';
@@ -1167,6 +1205,8 @@
                 storyCube.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
                 
                 storyUsername.textContent = story.username;
+                storyAvatar.src = story.avatar;
+                storyTimestamp.textContent = innerStory.timestamp;
                 
                 // Update progress bar
                 updateProgressBar();
@@ -1429,13 +1469,6 @@
         storyNavRight.addEventListener('click', () => {
             if (!isDraggingCube) nextInnerStory();
         });
-        
-        // --- Removed old toggleLike function
-        /*
-        function toggleLike(button) {
-            button.classList.toggle('liked');
-        }
-        */
 
         // Function to render stories
         function renderStories() {
@@ -1619,5 +1652,4 @@
     </script>
 </body>
 </html>
-
 
