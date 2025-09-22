@@ -16,28 +16,27 @@
             --fab-shadow: 0 3px 8px rgba(116, 156, 191, 0.35);
             --icon-size: 28px;
         }
-        
+
         .story-modal-content {
             position: relative;
             width: 100%;
             height: 100%;
             display: flex;
             flex-direction: column;
-            justify-content: space-between; /* New: To push cube and bottom bar to opposite ends */
+            justify-content: space-between;
             align-items: center;
-            padding: 0; /* New: Removed padding */
+            padding: 0;
         }
-
+        
+        /* Corrected Cube Container and Face Positioning */
         .cube-container {
             perspective: 1000px;
-            width: 100%;
-            height: 150vh; /* Changed: Takes up 50% of the viewport height */
-            position: relative; /* Changed: From absolute to relative */
-            top: 0px;
-            left: 0;
+            width: 384px; /* Set a fixed width to match app container */
+            height: 100vh; /* Set to full viewport height */
+            position: relative;
             overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-            margin: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            margin: 0 auto; /* Center the container */
         }
 
         /* Cube */
@@ -59,20 +58,18 @@
             background-position: center;
             border-radius: 8px;
         }
-        
-        /* Face positioning */
+
+        /* Corrected Face positioning (192px is half of 384px) */
         #facePrev {
-            transform: rotateY(90deg) translateZ(calc(50vw - 20px));
+            transform: rotateY(90deg) translateZ(192px);
         }
-
         #faceCurrent {
-            transform: translateZ(calc(50vw - 20px));
+            transform: translateZ(192px);
+        }
+        #faceNext {
+            transform: rotateY(-90deg) translateZ(192px);
         }
 
-        #faceNext {
-            transform: rotateY(-90deg) translateZ(calc(50vw - 20px));
-        }
-        
         /* General styles */
         * {
             margin: 0;
@@ -164,7 +161,9 @@
         }
 
         @keyframes rotate {
-            100% { transform: rotate(360deg); }
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         @keyframes dash {
@@ -172,10 +171,12 @@
                 stroke-dasharray: 1, 200;
                 stroke-dashoffset: 0;
             }
+
             50% {
                 stroke-dasharray: 90, 150;
                 stroke-dashoffset: -35;
             }
+
             100% {
                 stroke-dasharray: 90, 150;
                 stroke-dashoffset: -124;
@@ -253,8 +254,13 @@
         }
 
         @keyframes story-ring-rotation {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .story-avatar-bg {
@@ -415,9 +421,10 @@
             transition: width 0.3s ease;
             will-change: width;
         }
-        
+
         /* Invisible navigation controls */
-        .story-nav-left, .story-nav-right {
+        .story-nav-left,
+        .story-nav-right {
             position: absolute;
             top: 0;
             height: 100%;
@@ -575,9 +582,11 @@
         }
 
         @keyframes pulse {
-            0%, 100% {
+            0%,
+            100% {
                 opacity: 1;
             }
+
             50% {
                 opacity: 0.5;
             }
@@ -765,7 +774,7 @@
             border: none;
             color: var(--text-color);
             cursor: pointer;
-            padding: 8px; /* Updated padding */
+            padding: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -774,8 +783,8 @@
         }
 
         .action-icon-btn svg {
-            width: 28px; /* Updated width */
-            height: 28px; /* Updated height */
+            width: 28px;
+            height: 28px;
             fill: none;
             stroke: var(--text-color);
             stroke-width: 2;
@@ -796,20 +805,22 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 41px; /* Updated width */
-            height: 41px; /* Updated height */
+            width: 41px;
+            height: 41px;
             border-radius: 50%;
             border: 1px solid var(--input-bg);
             padding: 5px;
         }
     </style>
 </head>
+
 <body>
     <div class="app-container">
         <div class="header">
             <div class="header-content">
-                <svg class="icon messages-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #749cbf; fill: #749cbf;">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                <svg class="icon messages-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" style="color: #749cbf; fill: #749cbf;">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                 </svg>
                 <svg class="telegram-ring hidden" viewBox="25 25 50 50">
                     <circle cx="50" cy="50" r="20"></circle>
@@ -817,41 +828,39 @@
                 <h1 class="header-title">Messages</h1>
                 <div class="header-icons">
                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                        <path
+                            d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
                     </svg>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
                         <path d="M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Zm-1.5 0a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z"></path>
-                        <path d="M12 1c.266 0 .532.009.797.028.763.055 1.345.617 1.512 1.304l.352 1.45c.019.078.09.171.225.221.247.089.49.19.728.302.13.061.246.044.315.002l1.275-.776c.603-.368 1.411-.353 1.99.147.402.349.78.726 1.128 1.129.501.578.515 1.386.147 1.99l-.776 1.274c-.042.069-.058.185.002.315.112.238.213.481.303.728.048.135.142.205.22.225l1.45.352c.687.167 1.249.749 1.303 1.512.038.531.038 1.063 0 1.594-.054.763-.616 1.345-1.303 1.512l-1.45.352c-.078.019-.171.09-.221.225-.089.248-.19.491-.302.728-.061.13-.044.246-.002.315l.776 1.275c.368.603.353 1.411-.147 1.99-.349.402-.726.78-1.129 1.128-.578.501-1.386.515-1.99.147l-1.274-.776c-.069-.042-.185-.058-.314.002a8.606 8.606 0 0 1-.729.303c-.135.048-.205.142-.225.22l-.352 1.45c-.167.687-.749 1.249-1.512 1.303-.531.038-1.063.038-1.594 0-.763-.054-1.345-.616-1.512-1.303l-.352-1.45c-.019-.078-.09-.171-.225-.221a8.138 8.138 0 0 1-.728-.302c-.13-.061-.246-.044-.315-.002l-1.275.776c-.603.368-1.411.353-1.99-.147-.402-.349-.78-.726-1.128-1.129-.501-.578-.515-1.386-.147-1.99l.776-1.274c.042-.069.058-.185-.002-.314a8.606 8.606 0 0 1-.303-.729c-.048-.135-.142-.205-.22-.225l-1.45-.352c-.687-.167-1.249-.749-1.304-1.512a11.158 11.158 0 0 1 0-1.594c.055-.763.617-1.345 1.304-1.512l1.45-.352c.078-.019.171-.09.221-.225.089-.248.19-.491.302-.728.061-.13-.044.246-.002.315l-.776.776c-.368-.603-.353-1.411.147-1.99.349-.402.726-.78 1.129-1.128.578-.501 1.386-.515 1.99-.147l1.274-.776c.069.042.185.058.315-.002.238-.112.481-.213.728-.303.135-.048.205-.142.225-.20l.352-1.45c.167-.687.749-1.249 1.512-1.304C11.466 1.01 11.732 1 12 1Zm-.69 1.525c-.055.004-.135.05-.161.161l-.353 1.45a1.832 1.832 0 0 1-1.172 1.277 7.147 7.147 0 0 0-.6.249 1.833 1.833 0 0 1-1.734-.074l-1.274-.776c-.098-.60-.186-.036-.228 0a9.774 9.774 0 0 0-.976.976c-.036.042-.06.131 0 .228l.776 1.274c.314.529.342 1.18.074 1.734a7.147 7.147 0 0 0-.249.6 1.831 1.831 0 0 1-1.278 1.173l-1.45.351c-.11.027-.156.107-.16.162a9.63 9.63 0 0 0 0 1.38c.004.055.05.135.161.161l1.45.353a1.832 1.832 0 0 1 1.277 1.172c.074.204.157.404.249.6.268.553.24 1.204-.074 1.733l-.776 1.275c-.06.098-.036.186 0 .228.301.348.628.675.976.976.042.036.131.06.228 0l1.274-.776a1.83 1.83 0 0 1 1.734-.075c.196.093.396.176.6.25a1.831 1.831 0 0 1 1.173 1.278l.351 1.45c.027.11.107.156.162.16a9.63 9.63 0 0 0 1.38 0c.055-.004.135-.05.161-.161l.353-1.45a1.834 1.834 0 0 1 1.172-1.278 6.82 6.82 0 0 0 .6-.248 1.831 1.831 0 0 1 1.733.074l1.275.776c.098.06.186.036.228 0 .348-.301.675-.628.976-.976.036-.042.06-.131 0-.228l-.776-1.275a1.834 1.834 0 0 1-.075-1.733c.093-.196.176-.396.25-.6a1.831 1.831 0 0 1 1.278-1.173l1.45-.351c.11-.027.156-.107.162-.162a9.63 9.63 0 0 0 0-1.38c-.004-.055-.05-.135-.161-.161l-1.45-.353c-.626-.152-1.08-.625-1.278-1.172a6.576 6.576 0 0 0-.248-.6 1.833 1.833 0 0 1 .074-1.734l.776-1.274c.06-.098-.036.186 0-.228a9.774 9.774 0 0 0-.976-.976c-.042-.036-.131-.06-.228 0l-1.275.776a1.831 1.831 0 0 1-1.733.074 6.88 6.88 0 0 0-.6-.249 1.835 1.835 0 0 1-1.173-1.278l-.351-1.45c-.027-.11-.107-.156-.162-.16a9.63 9.63 0 0 0-1.38 0Z"></path>
+                        <path
+                            d="M12 1c.266 0 .532.009.797.028.763.055 1.345.617 1.512 1.304l.352 1.45c.019.078.09.171.225.221.247.089.49.19.728.302.13.061.246.044.315.002l1.275-.776c.603-.368 1.411-.353 1.99.147.402.349.78.726 1.128 1.129.501.578.515 1.386.147 1.99l-.776 1.274c-.042.069-.058.185.002.315.112.238.213.481.303.728.048.135.142.205.22.225l1.45.352c.687.167 1.249.749 1.303 1.512.038.531.038 1.063 0 1.594-.054.763-.616 1.345-1.303 1.512l-1.45.352c-.078.019-.171.09-.221.225-.089.248-.19.491-.302.728-.061.13-.044.246-.002.315l.776 1.275c.368.603.353 1.411-.147 1.99-.349.402-.726.78-1.129 1.128-.578.501-1.386.515-1.99.147l-1.274-.776c-.069-.042-.185-.058-.314.002a8.606 8.606 0 0 1-.729.303c-.135.048-.205.142-.225.22l-.352 1.45c-.167.687-.749 1.249-1.512 1.303-.531.038-1.063.038-1.594 0-.763-.054-1.345-.616-1.512-1.303l-.352-1.45c-.019-.078-.09-.171-.225-.221a8.138 8.138 0 0 1-.728-.302c-.13-.061-.246-.044-.315-.002l-1.275.776c-.603.368-1.411.353-1.99-.147-.402-.349-.78-.726-1.128-1.129-.501-.578-.515-1.386-.147-1.99l.776-1.274c.042-.069.058-.185-.002-.314a8.606 8.606 0 0 1-.303-.729c-.048-.135-.142-.205-.22-.225l-1.45-.352c-.687-.167-1.249-.749-1.304-1.512a11.158 11.158 0 0 1 0-1.594c.055-.763.617-1.345 1.304-1.512l1.45-.352c.078-.019.171-.09.221-.225.089-.248.19-.491.302-.728.061-.13-.044.246-.002.315l-.776.776c-.368-.603-.353-1.411.147-1.99.349-.402.726-.78 1.129-1.128.578-.501 1.386-.515 1.99-.147l1.274-.776c.069.042.185.058.315-.002.238-.112.481-.213.728-.303.135-.048.205-.142.225-.20l.352-1.45c.167-.687.749-1.249 1.512-1.304C11.466 1.01 11.732 1 12 1Zm-.69 1.525c-.055.004-.135.05-.161.161l-.353 1.45a1.832 1.832 0 0 1-1.172 1.277 7.147 7.147 0 0 0-.6.249 1.833 1.833 0 0 1-1.734-.074l-1.274-.776c-.098-.60-.186-.036-.228 0a9.774 9.774 0 0 0-.976.976c-.036.042-.06.131 0 .228l.776 1.274c.314.529.342 1.18.074 1.734a7.147 7.147 0 0 0-.249.6 1.831 1.831 0 0 1-1.278 1.173l-1.45.351c-.11.027-.156.107-.16.162a9.63 9.63 0 0 0 0 1.38c.004.055.05.135.161.161l1.45.353a1.832 1.832 0 0 1 1.277 1.172c.074.204.157.404.249.6.268.553.24 1.204-.074 1.733l-.776 1.275c-.06.098-.036.186 0 .228.301.348.628.675.976.976.042.036.131.06.228 0l1.274-.776a1.83 1.83 0 0 1 1.734-.075c.196.093.396.176.6.25a1.831 1.831 0 0 1 1.173 1.278l.351 1.45c.027.11.107.156.162.16a9.63 9.63 0 0 0 1.38 0c.055-.004.135-.05.161-.161l.353-1.45a1.834 1.834 0 0 1 1.172-1.278 6.82 6.82 0 0 0 .6-.248 1.831 1.831 0 0 1 1.733.074l1.275.776c.098.06.186.036.228 0 .348-.301.675-.628.976-.976.036-.042.06-.131 0-.228l-.776-1.275a1.834 1.834 0 0 1-.075-1.733c.093-.196.176-.396.25-.6a1.831 1.831 0 0 1 1.278-1.173l1.45-.351c.11-.027.156-.107.162-.162a9.63 9.63 0 0 0 0-1.38c-.004-.055-.05-.135-.161-.161l-1.45-.353c-.626-.152-1.08-.625-1.278-1.172a6.576 6.576 0 0 0-.248-.6 1.833 1.833 0 0 1 .074-1.734l.776-1.274c.06-.098-.036.186 0-.228a9.774 9.774 0 0 0-.976-.976c-.042-.036-.131-.06-.228 0l-1.275.776a1.831 1.831 0 0 1-1.733.074 6.88 6.88 0 0 0-.6-.249 1.835 1.835 0 0 1-1.173-1.278l-.351-1.45c-.027-.11-.107-.156-.162-.16a9.63 9.63 0 0 0-1.38 0Z">
+                        </path>
                     </svg>
                 </div>
             </div>
         </div>
-
         <div class="stories-container" id="storiesContainer">
             <div class="stories-scroll">
                 <div class="stories-list" id="storiesList">
-                    </div>
+                </div>
             </div>
         </div>
-
         <div class="skeleton-stories-container hidden" id="storiesLoadingSkeleton">
             <div class="stories-scroll">
                 <div class="skeleton-stories-list" id="skeletonStoriesList">
-                    </div>
+                </div>
             </div>
         </div>
-
         <div class="chat-list" id="chatList">
-            </div>
-
+        </div>
         <div class="chat-list hidden" id="loadingSkeleton">
-            </div>
+        </div>
     </div>
-
     <div class="story-modal" id="storyModal">
         <div class="story-modal-content">
             <div class="story-progress-container" id="storyProgressContainer">
-                </div>
+            </div>
             <div class="story-header">
                 <div class="story-user-info">
                     <img id="storyAvatar" class="story-avatar-modal" src="" alt="User Avatar">
@@ -861,7 +870,6 @@
                     </div>
                 </div>
             </div>
-            
             <div class="cube-container">
                 <div class="cube" id="storyCube">
                     <div class="cube-face" id="facePrev"></div>
@@ -869,10 +877,8 @@
                     <div class="cube-face" id="faceNext"></div>
                 </div>
             </div>
-
             <div class="story-nav-left"></div>
             <div class="story-nav-right"></div>
-            
             <div class="bottom-bar" id="storyBottomBar">
                 <div class="reply-input-container">
                     <input type="text" class="reply-input" id="replyInput" placeholder="Reply privately...">
@@ -880,253 +886,233 @@
                 <button class="action-icon-btn like-btn" id="likeBtn">
                     <div class="heart-container">
                         <svg class="svg-icon heart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                            <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 
-                                     4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 
-                                     14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 
-                                     18.6 15.36 13.45 20.03L12 21.35Z"></path>
+                            <path
+                                d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.03L12 21.35Z">
+                            </path>
                         </svg>
                     </div>
                 </button>
             </div>
         </div>
     </div>
-
     <button class="fab" aria-label="Create new chat" title="Create new chat">
         <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-            <line class="plus-shape" x1="50" y1="25" x2="50" y2="75"/>
-            <line class="plus-shape" x1="25" y1="50" x2="75" y2="50"/>
+            <line class="plus-shape" x1="50" y1="25" x2="50" y2="75" />
+            <line class="plus-shape" x1="25" y1="50" x2="75" y2="50" />
         </svg>
     </button>
     <script>
         // Stories data
-        const stories = [
-            {
-                id: "your-story",
-                username: "Your story",
-                avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
-                hasNewStory: false,
-                isYourStory: true,
-                innerStories: [
-                    { src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop", timestamp: 'Just now' },
-                    { src: "https://images.unsplash.com/photo-1510414902264-77033a8ae37d?w=800&h=600&fit=crop", timestamp: 'Jun 30 at 3:20 PM' },
-                ],
-                replies: {} // Store replies for each inner story
-            },
-            {
-                id: "1",
-                username: "Emily",
-                avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
-                hasNewStory: true,
-                innerStories: [
-                    { src: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop", timestamp: '1 hour ago' },
-                    { src: "https://images.unsplash.com/photo-1517457373958-b7bdd4587200?w=800&h=600&fit=crop", timestamp: '4 hours ago' },
-                ],
-                replies: {}
-            },
-            {
-                id: "2",
-                username: "Michael",
-                avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
-                hasNewStory: true,
-                innerStories: [
-                    { src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop", timestamp: '10 minutes ago' },
-                    { src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop", timestamp: '2 hours ago' },
-                    { src: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop", timestamp: '6 hours ago' },
-                ],
-                replies: {}
-            },
-            {
-                id: "3",
-                username: "Sarah",
-                avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
-                hasNewStory: true,
-                innerStories: [
-                    { src: "https://images.unsplash.com/photo-1517457373958-b7bdd4587200?w=800&h=600&fit=crop", timestamp: '3 hours ago' },
-                ],
-                replies: {}
-            },
-            {
-                id: "4",
-                username: "David",
-                avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
-                hasNewStory: true,
-                innerStories: [
-                    { src: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop", timestamp: '5 hours ago' },
-                ],
-                replies: {}
-            },
-            {
-                id: "5",
-                username: "Jessica",
-                avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
-                hasNewStory: true,
-                innerStories: [
-                    { src: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop", timestamp: '22 hours ago' },
-                ],
-                replies: {}
-            },
-        ];
-
-        // Chat data
-        const chats = [
-            {
-                id: "1",
-                name: "Emma Wilson",
-                lastMessage: "Hey! Are we still on for dinner tonight?",
-                timestamp: "2:34 PM",
-                avatar: "EW",
-                unreadCount: 2,
-                isOnline: true,
-            },
-            {
-                id: "2",
-                name: "Family",
-                lastMessage: "Mom: Don't forget about Sunday brunch!",
-                timestamp: "1:15 PM",
-                avatar: "F",
-                unreadCount: 5,
-            },
-            {
-                id: "3",
-                name: "Alex Chen",
-                lastMessage: "Thanks for the help with the project 👍",
-                timestamp: "11:45 AM",
-                avatar: "AC",
-                isOnline: true,
-                isSent: true,
-            },
-            {
-                id: "4",
-                name: "Sarah Johnson",
-                lastMessage: "The photos from the trip are amazing!",
-                timestamp: "Yesterday",
-                avatar: "SJ",
-            },
-            {
-                id: "5",
-                name: "Work Team",
-                lastMessage: "You: Sounds good, see you tomorrow",
-                timestamp: "Yesterday",
-                avatar: "WT",
-                isSent: true,
-            },
-            {
-                id: "6",
-                name: "David Park",
-                lastMessage: "Let's catch up this weekend",
-                timestamp: "Monday",
-                avatar: "DP",
-            },
-            {
-                id: "7",
-                name: "Coffee Chat",
-                lastMessage: "Lisa: That new café downtown is great!",
-                timestamp: "Sunday",
-                avatar: "CC",
-                unreadCount: 1,
-            },
-            {
-                id: "8",
-                name: "Mom",
-                lastMessage: "Love you sweetie ❤️",
-                timestamp: "Saturday",
-                avatar: "M",
-                isOnline: true,
-            },
-            {
-                id: "9",
-                name: "John Miller",
-                lastMessage: "Can you send me the presentation slides?",
-                timestamp: "Friday",
-                avatar: "JM",
-                unreadCount: 3,
-            },
-            {
-                id: "10",
-                name: "Study Group",
-                lastMessage: "Meeting tomorrow at 3 PM in library",
-                timestamp: "Thursday",
-                avatar: "SG",
-            },
-            {
-                id: "11",
-                name: "Lisa Wang",
-                lastMessage: "Happy birthday! Hope you have a great day 🎉",
-                timestamp: "Wednesday",
-                avatar: "LW",
-                isOnline: true,
-            },
-            {
-                id: "12",
-                name: "Gym Buddy",
-                lastMessage: "Ready for leg day tomorrow?",
-                timestamp: "Tuesday",
-                avatar: "GB",
-                isSent: true,
-            },
-            {
-                id: "13",
-                name: "Rachel Green",
-                lastMessage: "The weather is perfect for hiking today!",
-                timestamp: "Monday",
-                avatar: "RG",
-                unreadCount: 1,
-            },
-            {
-                id: "14",
-                name: "Tech Support",
-                lastMessage: "Your issue has been resolved",
-                timestamp: "Last week",
-                avatar: "TS",
-            },
-            {
-                id: "15",
-                name: "Book Club",
-                lastMessage: "Next meeting: discussing chapter 5-8",
-                timestamp: "Last week",
-                avatar: "BC",
-                unreadCount: 2,
-            },
-            {
-                id: "16",
-                name: "Pizza Place",
-                lastMessage: "Your order is ready for pickup!",
-                timestamp: "Last week",
-                avatar: "PP",
-            },
-            {
-                id: "17",
-                name: "Jane Cooper",
-                lastMessage: "Thanks for the movie recommendation!",
-                timestamp: "2 weeks ago",
-                avatar: "JC",
-                isOnline: true,
-            },
-            {
-                id: "18",
-                name: "Basketball Team",
-                lastMessage: "Practice moved to 7 PM tonight",
-                timestamp: "2 weeks ago",
-                avatar: "BT",
-            },
-            {
-                id: "19",
-                name: "Dr. Smith",
-                lastMessage: "Your appointment is confirmed for next week",
-                timestamp: "2 weeks ago",
-                avatar: "DS",
-            },
-            {
-                id: "20",
-                name: "Mike Johnson",
-                lastMessage: "Let's grab lunch next time you're in town",
-                timestamp: "3 weeks ago",
-                avatar: "MJ",
-                isSent: true,
-            }
-        ];
-
-        // Story Modal Elements
+        const stories = [{
+            id: "your-story",
+            username: "Your story",
+            avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
+            hasNewStory: false,
+            isYourStory: true,
+            innerStories: [{
+                src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                timestamp: 'Just now'
+            }, {
+                src: "https://images.unsplash.com/photo-1510414902264-77033a8ae37d?w=800&h=600&fit=crop",
+                timestamp: 'Jun 30 at 3:20 PM'
+            }, ],
+            replies: {} // Store replies for each inner story
+        }, {
+            id: "1",
+            username: "Emily",
+            avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
+            hasNewStory: true,
+            innerStories: [{
+                src: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop",
+                timestamp: '1 hour ago'
+            }, {
+                src: "https://images.unsplash.com/photo-1517457373958-b7bdd4587200?w=800&h=600&fit=crop",
+                timestamp: '4 hours ago'
+            }, ],
+            replies: {}
+        }, {
+            id: "2",
+            username: "Michael",
+            avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
+            hasNewStory: true,
+            innerStories: [{
+                src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                timestamp: '10 minutes ago'
+            }, {
+                src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                timestamp: '2 hours ago'
+            }, {
+                src: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
+                timestamp: '6 hours ago'
+            }, ],
+            replies: {}
+        }, {
+            id: "3",
+            username: "Sarah",
+            avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
+            hasNewStory: true,
+            innerStories: [{
+                src: "https://images.unsplash.com/photo-1517457373958-b7bdd4587200?w=800&h=600&fit=crop",
+                timestamp: '3 hours ago'
+            }, ],
+            replies: {}
+        }, {
+            id: "4",
+            username: "David",
+            avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
+            hasNewStory: true,
+            innerStories: [{
+                src: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
+                timestamp: '5 hours ago'
+            }, ],
+            replies: {}
+        }, {
+            id: "5",
+            username: "Jessica",
+            avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face",
+            hasNewStory: true,
+            innerStories: [{
+                src: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
+                timestamp: '22 hours ago'
+            }, ],
+            replies: {}
+        }, ]; // Chat data
+        const chats = [{
+            id: "1",
+            name: "Emma Wilson",
+            lastMessage: "Hey! Are we still on for dinner tonight?",
+            timestamp: "2:34 PM",
+            avatar: "EW",
+            unreadCount: 2,
+            isOnline: true,
+        }, {
+            id: "2",
+            name: "Family",
+            lastMessage: "Mom: Don't forget about Sunday brunch!",
+            timestamp: "1:15 PM",
+            avatar: "F",
+            unreadCount: 5,
+        }, {
+            id: "3",
+            name: "Alex Chen",
+            lastMessage: "Thanks for the help with the project 👍",
+            timestamp: "11:45 AM",
+            avatar: "AC",
+            isOnline: true,
+            isSent: true,
+        }, {
+            id: "4",
+            name: "Sarah Johnson",
+            lastMessage: "The photos from the trip are amazing!",
+            timestamp: "Yesterday",
+            avatar: "SJ",
+        }, {
+            id: "5",
+            name: "Work Team",
+            lastMessage: "You: Sounds good, see you tomorrow",
+            timestamp: "Yesterday",
+            avatar: "WT",
+            isSent: true,
+        }, {
+            id: "6",
+            name: "David Park",
+            lastMessage: "Let's catch up this weekend",
+            timestamp: "Monday",
+            avatar: "DP",
+        }, {
+            id: "7",
+            name: "Coffee Chat",
+            lastMessage: "Lisa: That new café downtown is great!",
+            timestamp: "Sunday",
+            avatar: "CC",
+            unreadCount: 1,
+        }, {
+            id: "8",
+            name: "Mom",
+            lastMessage: "Love you sweetie ❤️",
+            timestamp: "Saturday",
+            avatar: "M",
+            isOnline: true,
+        }, {
+            id: "9",
+            name: "John Miller",
+            lastMessage: "Can you send me the presentation slides?",
+            timestamp: "Friday",
+            avatar: "JM",
+            unreadCount: 3,
+        }, {
+            id: "10",
+            name: "Study Group",
+            lastMessage: "Meeting tomorrow at 3 PM in library",
+            timestamp: "Thursday",
+            avatar: "SG",
+        }, {
+            id: "11",
+            name: "Lisa Wang",
+            lastMessage: "Happy birthday! Hope you have a great day 🎉",
+            timestamp: "Wednesday",
+            avatar: "LW",
+            isOnline: true,
+        }, {
+            id: "12",
+            name: "Gym Buddy",
+            lastMessage: "Ready for leg day tomorrow?",
+            timestamp: "Tuesday",
+            avatar: "GB",
+            isSent: true,
+        }, {
+            id: "13",
+            name: "Rachel Green",
+            lastMessage: "The weather is perfect for hiking today!",
+            timestamp: "Monday",
+            avatar: "RG",
+            unreadCount: 1,
+        }, {
+            id: "14",
+            name: "Tech Support",
+            lastMessage: "Your issue has been resolved",
+            timestamp: "Last week",
+            avatar: "TS",
+        }, {
+            id: "15",
+            name: "Book Club",
+            lastMessage: "Next meeting: discussing chapter 5-8",
+            timestamp: "Last week",
+            avatar: "BC",
+            unreadCount: 2,
+        }, {
+            id: "16",
+            name: "Pizza Place",
+            lastMessage: "Your order is ready for pickup!",
+            timestamp: "Last week",
+            avatar: "PP",
+        }, {
+            id: "17",
+            name: "Jane Cooper",
+            lastMessage: "Thanks for the movie recommendation!",
+            timestamp: "2 weeks ago",
+            avatar: "JC",
+            isOnline: true,
+        }, {
+            id: "18",
+            name: "Basketball Team",
+            lastMessage: "Practice moved to 7 PM tonight",
+            timestamp: "2 weeks ago",
+            avatar: "BT",
+        }, {
+            id: "19",
+            name: "Dr. Smith",
+            lastMessage: "Your appointment is confirmed for next week",
+            timestamp: "2 weeks ago",
+            avatar: "DS",
+        }, {
+            id: "20",
+            name: "Mike Johnson",
+            lastMessage: "Let's grab lunch next time you're in town",
+            timestamp: "3 weeks ago",
+            avatar: "MJ",
+            isSent: true,
+        }]; // Story Modal Elements
         const storyModal = document.getElementById('storyModal');
         const storyUsername = document.getElementById('storyUsername');
         const storyAvatar = document.getElementById('storyAvatar');
@@ -1136,14 +1122,11 @@
         const storyNavRight = document.querySelector('.story-nav-right');
         const storyBottomBar = document.getElementById('storyBottomBar');
         const replyInput = document.getElementById('replyInput');
-        const likeBtn = document.getElementById('likeBtn');
-
-        // New cube-related elements
+        const likeBtn = document.getElementById('likeBtn'); // New cube-related elements
         const storyCube = document.getElementById('storyCube');
         const facePrev = document.getElementById('facePrev');
         const faceCurrent = document.getElementById('faceCurrent');
         const faceNext = document.getElementById('faceNext');
-
         let currentIndex = 0;
         let currentInnerStoryIndex = 0;
         let storyTimeout;
@@ -1151,27 +1134,20 @@
         let isClosing = false;
         let touchStartX = 0;
         let touchStartY = 0;
-        let touchCurrentY = 0;
-
-        // New cube state variables
+        let touchCurrentY = 0; // New cube state variables
         let isDraggingCube = false;
         let cubeStartX = 0;
         const CUBE_FLIP_THRESHOLD = 50; // px
-        
         // --- Added: Event listener for reply input
         replyInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 sendReply();
             }
-        });
-        
-        // --- Added: Event listener for like button
+        }); // --- Added: Event listener for like button
         likeBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             toggleLike();
-        });
-
-        // Open story modal
+        }); // Open story modal
         function openStoryModal(storyIndex) {
             resetModalState();
             currentIndex = storyIndex;
@@ -1180,110 +1156,73 @@
             storyModal.classList.add('active');
             document.body.style.overflow = 'hidden';
             replyInput.focus();
-        }
-
-        // Show current story and inner story
+        } // Show current story and inner story
         function showCurrentStory() {
             if (currentIndex >= 0 && currentIndex < stories.length) {
                 const story = stories[currentIndex];
-                const innerStory = story.innerStories[currentInnerStoryIndex];
-                
-                // Update cube faces
+                const innerStory = story.innerStories[currentInnerStoryIndex]; // Update cube faces
                 const prevStory = stories[currentIndex - 1];
                 const nextStory = stories[currentIndex + 1];
-
                 faceCurrent.style.backgroundImage = `url(${innerStory.src})`;
                 facePrev.style.backgroundImage = `url(${prevStory ? prevStory.innerStories[0].src : ''})`;
-                faceNext.style.backgroundImage = `url(${nextStory ? nextStory.innerStories[0].src : ''})`;
-                
-                // Reset cube to its starting position without a transition
+                faceNext.style.backgroundImage = `url(${nextStory ? nextStory.innerStories[0].src : ''})`; // Reset cube to its starting position without a transition
                 storyCube.style.transition = 'none';
-                storyCube.style.transform = `rotateY(0deg)`;
-                // Force a reflow to apply the change immediately
-                storyCube.offsetHeight;
-                // Re-enable the transition for future animations
+                storyCube.style.transform = `rotateY(0deg)`; // Force a reflow to apply the change immediately
+                storyCube.offsetHeight; // Re-enable the transition for future animations
                 storyCube.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-                
                 storyUsername.textContent = story.username;
                 storyAvatar.src = story.avatar;
-                storyTimestamp.textContent = innerStory.timestamp;
-                
-                // Update progress bar
-                updateProgressBar();
-                
-                // Start progress
-                startStoryProgress();
-                
-                // --- Updated: Update reply and like button state
+                storyTimestamp.textContent = innerStory.timestamp; // Update progress bar
+                updateProgressBar(); // Start progress
+                startStoryProgress(); // --- Updated: Update reply and like button state
                 updateReplyUI();
-
             } else {
                 closeStoryModal();
             }
-        }
-        
-        // --- New Function: Update reply input and like button
+        } // --- New Function: Update reply input and like button
         function updateReplyUI() {
             const story = stories[currentIndex];
             const innerStoryId = currentInnerStoryIndex;
             const hasLiked = story.replies[innerStoryId]?.liked || false;
-            const replyText = story.replies[innerStoryId]?.text || '';
-            
-            // Set input value
-            replyInput.value = replyText;
-            
-            // Set like button state
+            const replyText = story.replies[innerStoryId]?.text || ''; // Set input value
+            replyInput.value = replyText; // Set like button state
             if (hasLiked) {
                 likeBtn.classList.add('liked');
             } else {
                 likeBtn.classList.remove('liked');
             }
-        }
-        
-        // --- New Function: Send a reply
+        } // --- New Function: Send a reply
         function sendReply() {
             const story = stories[currentIndex];
             const innerStoryId = currentInnerStoryIndex;
             const replyText = replyInput.value.trim();
-            
-            if (replyText !== '') {
-                // Store the reply in the stories object
-                story.replies[innerStoryId] = {
-                    ...story.replies[innerStoryId],
+            if (replyText !== '') { // Store the reply in the stories object
+                story.replies[innerStoryId] = { ...story.replies[innerStoryId],
                     text: replyText,
                     timestamp: new Date().toISOString()
                 };
                 console.log(`Reply sent for ${story.username}'s story ${innerStoryId}: "${replyText}"`);
                 replyInput.value = ''; // Clear input field
             }
-        }
-        
-        // --- New Function: Toggle like status
+        } // --- New Function: Toggle like status
         function toggleLike() {
             const story = stories[currentIndex];
             const innerStoryId = currentInnerStoryIndex;
-            const isLiked = likeBtn.classList.toggle('liked');
-            
-            // Store the like status
-            story.replies[innerStoryId] = {
-                ...story.replies[innerStoryId],
+            const isLiked = likeBtn.classList.toggle('liked'); // Store the like status
+            story.replies[innerStoryId] = { ...story.replies[innerStoryId],
                 liked: isLiked,
                 timestamp: new Date().toISOString()
             };
             console.log(`Story ${innerStoryId} for ${story.username} was ${isLiked ? 'liked' : 'unliked'}.`);
-        }
-
-        // Update progress bar segments
+        } // Update progress bar segments
         function updateProgressBar() {
             storyProgressContainer.innerHTML = '';
             const totalStories = stories[currentIndex].innerStories.length;
-            
             for (let i = 0; i < totalStories; i++) {
                 const bar = document.createElement('div');
                 bar.className = 'story-progress-bar';
                 const fill = document.createElement('div');
                 fill.className = 'story-progress-fill';
-                
                 if (i < currentInnerStoryIndex) {
                     fill.style.width = '100%';
                 } else if (i === currentInnerStoryIndex) {
@@ -1291,39 +1230,26 @@
                 } else {
                     fill.style.width = '0%';
                 }
-                
                 bar.appendChild(fill);
                 storyProgressContainer.appendChild(bar);
             }
-        }
-        
-        // Progress animation
+        } // Progress animation
         function startStoryProgress() {
             if (storyTimeout) {
                 clearTimeout(storyTimeout);
             }
-            
             const totalInnerStories = stories[currentIndex].innerStories.length;
             const progressDuration = totalInnerStories >= 3 ? 7000 : 5000;
-            const currentFill = storyProgressContainer.children[currentInnerStoryIndex].querySelector('.story-progress-fill');
-            
-            // Immediately reset to 0% before starting the animation
+            const currentFill = storyProgressContainer.children[currentInnerStoryIndex].querySelector('.story-progress-fill'); // Immediately reset to 0% before starting the animation
             currentFill.style.transition = 'none';
-            currentFill.style.width = '0%';
-
-            // Force a reflow/repaint
-            currentFill.offsetHeight;
-
-            // Set transition and start animation
+            currentFill.style.width = '0%'; // Force a reflow/repaint
+            currentFill.offsetHeight; // Set transition and start animation
             currentFill.style.transition = `width ${progressDuration / 1000}s linear`;
             currentFill.style.width = '100%';
-
             storyTimeout = setTimeout(() => {
                 nextInnerStory();
             }, progressDuration);
-        }
-
-        // Move to the next inner story
+        } // Move to the next inner story
         function nextInnerStory() {
             const story = stories[currentIndex];
             if (currentInnerStoryIndex < story.innerStories.length - 1) {
@@ -1332,9 +1258,7 @@
             } else {
                 nextUserStory();
             }
-        }
-
-        // Move to the previous inner story
+        } // Move to the previous inner story
         function prevInnerStory() {
             if (currentInnerStoryIndex > 0) {
                 currentInnerStoryIndex--;
@@ -1344,36 +1268,38 @@
             }
         }
 
-        // Move to the next user's story
+        // CORRECTED: The cube should rotate 90 degrees, not 180 degrees.
+        // Move to the next user's story function
         function nextUserStory() {
             if (currentIndex < stories.length - 1) {
-                storyCube.style.transform = 'rotateY(-180deg)';
+                // Correct: Rotate the cube 90 degrees to show the next face
+                storyCube.style.transform = 'rotateY(-90deg)';
                 setTimeout(() => {
                     currentIndex++;
                     currentInnerStoryIndex = 0;
                     showCurrentStory();
-                }, 500);
+                }, 500); // This delay should match the CSS transition duration
             } else {
                 closeStoryModal();
             }
         }
 
-        // Move to the previous user's story
+        // CORRECTED: The cube should rotate -90 degrees, not 180 degrees.
+        // Move to the previous user's story function
         function prevUserStory() {
             if (currentIndex > 0) {
-                storyCube.style.transform = 'rotateY(180deg)';
+                // Correct: Rotate the cube -90 degrees to show the previous face
+                storyCube.style.transform = 'rotateY(90deg)';
                 setTimeout(() => {
                     currentIndex--;
                     currentInnerStoryIndex = stories[currentIndex].innerStories.length - 1;
                     showCurrentStory();
-                }, 500);
+                }, 500); // This delay should match the CSS transition duration
             } else {
                 currentInnerStoryIndex = 0;
                 showCurrentStory();
             }
-        }
-
-        // Close story modal
+        } // Close story modal
         function closeStoryModal() {
             if (isClosing) return;
             isClosing = true;
@@ -1382,13 +1308,11 @@
             storyModal.classList.add('closing');
             setTimeout(() => {
                 storyModal.classList.remove('closing');
-                storyModal.style.cssText = ''; 
+                storyModal.style.cssText = '';
                 document.body.style.overflow = '';
                 isClosing = false;
             }, 250);
-        }
-
-        // Reset modal state
+        } // Reset modal state
         function resetModalState() {
             if (storyTimeout) clearTimeout(storyTimeout);
             storyModal.classList.remove('active', 'closing');
@@ -1399,9 +1323,7 @@
             storyNavLeft.style.display = '';
             storyNavRight.style.display = '';
             storyProgressContainer.style.display = '';
-        }
-        
-        // Touch handlers for slide down gesture (closing modal)
+        } // Touch handlers for slide down gesture (closing modal)
         storyModal.addEventListener('touchstart', (e) => {
             if (isClosing) return;
             touchStartY = e.touches[0].clientY;
@@ -1410,15 +1332,13 @@
             isDragging = false; // Reset vertical drag flag
             isDraggingCube = false; // Reset horizontal drag flag
             storyModal.style.transition = 'none';
-        }, { passive: true });
-
+        }, {
+            passive: true
+        });
         storyModal.addEventListener('touchmove', (e) => {
             if (isClosing) return;
-            
             const deltaX = e.touches[0].clientX - touchStartX;
-            const deltaY = e.touches[0].clientY - touchStartY;
-            
-            // Determine if it's a vertical or horizontal drag
+            const deltaY = e.touches[0].clientY - touchStartY; // Determine if it's a vertical or horizontal drag
             if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 20) {
                 isDragging = true;
                 e.preventDefault();
@@ -1430,11 +1350,11 @@
                 isDraggingCube = true;
                 e.preventDefault();
             }
-        }, { passive: false });
-
+        }, {
+            passive: false
+        });
         storyModal.addEventListener('touchend', (e) => {
             if (isClosing) return;
-
             if (isDragging) {
                 const deltaY = touchCurrentY - touchStartY;
                 if (deltaY > 100) {
@@ -1450,27 +1370,23 @@
             } else if (isDraggingCube) {
                 const touchEndX = e.changedTouches[0].clientX;
                 const deltaX = touchEndX - touchStartX;
-
                 if (deltaX > CUBE_FLIP_THRESHOLD && currentIndex > 0) {
                     prevUserStory();
                 } else if (deltaX < -CUBE_FLIP_THRESHOLD && currentIndex < stories.length - 1) {
                     nextUserStory();
                 }
             }
-            
             isDragging = false;
             isDraggingCube = false;
-        }, { passive: false });
-
-        // Click handlers for inner story navigation
+        }, {
+            passive: false
+        }); // Click handlers for inner story navigation
         storyNavLeft.addEventListener('click', () => {
             if (!isDraggingCube) prevInnerStory();
         });
         storyNavRight.addEventListener('click', () => {
             if (!isDraggingCube) nextInnerStory();
-        });
-
-        // Function to render stories
+        }); // Function to render stories
         function renderStories() {
             const storiesList = document.getElementById('storiesList');
             storiesList.innerHTML = '';
@@ -1479,15 +1395,15 @@
                 storyElement.className = 'story-item';
                 const avatarRingClass = story.isYourStory ? 'your-story' : (story.hasNewStory ? 'has-story' : 'your-story');
                 storyElement.innerHTML = `
-                    <div class="story-avatar-container">
-                        <div class="story-avatar-ring ${avatarRingClass}"></div>
-                        <div class="story-avatar-bg">
-                            <img src="${story.avatar}" alt="${story.username}" class="story-avatar">
-                        </div>
-                        ${story.isYourStory ? '<div class="story-plus">+</div>' : ''}
-                    </div>
-                    <span class="story-username">${story.username}</span>
-                `;
+ <div class="story-avatar-container">
+ <div class="story-avatar-ring ${avatarRingClass}"></div>
+ <div class="story-avatar-bg">
+ <img src="${story.avatar}" alt="${story.username}" class="story-avatar">
+ </div>
+ ${story.isYourStory ? '<div class="story-plus">+</div>' : ''}
+ </div>
+ <span class="story-username">${story.username}</span>
+ `;
                 storyElement.addEventListener('click', (e) => {
                     e.stopPropagation();
                     const ring = storyElement.querySelector('.story-avatar-ring');
@@ -1501,9 +1417,7 @@
                 });
                 storiesList.appendChild(storyElement);
             });
-        }
-
-        // Function to render chat items
+        } // Function to render chat items
         function renderChats() {
             const chatList = document.getElementById('chatList');
             chatList.innerHTML = '';
@@ -1513,32 +1427,32 @@
                 const onlineIndicator = chat.isOnline ? '<div class="online-indicator"></div>' : '';
                 const unreadBadge = chat.unreadCount ? `<div class="unread-badge">${chat.unreadCount}</div>` : '';
                 const sentIndicator = chat.isSent && !chat.unreadCount ? `
-                    <div class="sent-indicator">
-                        <svg viewBox="0 0 16 16" style="width: 16px; height: 16px; color: #3b82f6; fill: currentColor;">
-                            <path d="M15.854 5.354L6.5 14.707a.5.5 0 0 1-.708 0L2.146 11.06a.5.5 0 1 1 .708-.708L6.5 13.998l8.646-8.646a.5.5 0 0 1 .708.708z"/>
-                        </svg>
-                    </div>
-                ` : '';
+ <div class="sent-indicator">
+ <svg viewBox="0 0 16 16" style="width: 16px; height: 16px; color: #3b82f6; fill: currentColor;">
+ <path d="M15.854 5.354L6.5 14.707a.5.5 0 0 1-.708 0L2.146 11.06a.5.5 0 1 1 .708-.708L6.5 13.998l8.646-8.646a.5.5 0 0 1 .708.708z" />
+ </svg>
+ </div>
+ ` : '';
                 const messageClass = chat.unreadCount ? 'unread' : '';
                 chatElement.innerHTML = `
-                    <div class="chat-content">
-                        <div class="chat-avatar-container">
-                            <div class="chat-avatar">${chat.avatar}</div>
-                            ${onlineIndicator}
-                        </div>
-                        <div class="chat-details">
-                            <div class="chat-header">
-                                <h3 class="chat-name">${chat.name}</h3>
-                                <div class="chat-meta">
-                                    <span class="chat-timestamp">${chat.timestamp}</span>
-                                    ${unreadBadge}
-                                    ${sentIndicator}
-                                </div>
-                            </div>
-                            <p class="chat-message ${messageClass}">${chat.lastMessage}</p>
-                        </div>
-                    </div>
-                `;
+ <div class="chat-content">
+ <div class="chat-avatar-container">
+ <div class="chat-avatar">${chat.avatar}</div>
+ ${onlineIndicator}
+ </div>
+ <div class="chat-details">
+ <div class="chat-header">
+ <h3 class="chat-name">${chat.name}</h3>
+ <div class="chat-meta">
+ <span class="chat-timestamp">${chat.timestamp}</span>
+ ${unreadBadge}
+ ${sentIndicator}
+ </div>
+ </div>
+ <p class="chat-message ${messageClass}">${chat.lastMessage}</p>
+ </div>
+ </div>
+ `;
                 chatElement.addEventListener('mousedown', () => {
                     chatElement.classList.add('pressed');
                 });
@@ -1550,9 +1464,7 @@
                 });
                 chatList.appendChild(chatElement);
             });
-        }
-
-        // Function to render stories skeleton loading
+        } // Function to render stories skeleton loading
         function renderStoriesSkeleton() {
             const skeletonStoriesList = document.getElementById('skeletonStoriesList');
             skeletonStoriesList.innerHTML = '';
@@ -1560,14 +1472,12 @@
                 const skeletonStoryElement = document.createElement('div');
                 skeletonStoryElement.className = 'skeleton-story-item';
                 skeletonStoryElement.innerHTML = `
-                    <div class="skeleton skeleton-story-avatar"></div>
-                    <div class="skeleton skeleton-story-name"></div>
-                `;
+ <div class="skeleton skeleton-story-avatar"></div>
+ <div class="skeleton skeleton-story-name"></div>
+ `;
                 skeletonStoriesList.appendChild(skeletonStoryElement);
             }
-        }
-
-        // Function to render skeleton loading
+        } // Function to render skeleton loading
         function renderSkeleton() {
             const loadingSkeleton = document.getElementById('loadingSkeleton');
             loadingSkeleton.innerHTML = '';
@@ -1577,22 +1487,20 @@
                 skeletonElement.className = 'skeleton-chat-item';
                 const messageClass = messageWidths[i] ? `skeleton-message ${messageWidths[i]}` : 'skeleton-message';
                 skeletonElement.innerHTML = `
-                    <div class="skeleton-chat-content">
-                        <div class="skeleton skeleton-avatar"></div>
-                        <div class="skeleton-details">
-                            <div class="skeleton-header">
-                                <div class="skeleton skeleton-name"></div>
-                                <div class="skeleton skeleton-time"></div>
-                            </div>
-                            <div class="skeleton ${messageClass}"></div>
-                        </div>
-                    </div>
-                `;
+ <div class="skeleton-chat-content">
+ <div class="skeleton skeleton-avatar"></div>
+ <div class="skeleton-details">
+ <div class="skeleton-header">
+ <div class="skeleton skeleton-name"></div>
+ <div class="skeleton skeleton-time"></div>
+ </div>
+ <div class="skeleton ${messageClass}"></div>
+ </div>
+ </div>
+ `;
                 loadingSkeleton.appendChild(skeletonElement);
             }
-        }
-
-        // Function to update UI based on network status
+        } // Function to update UI based on network status
         function updateNetworkStatus() {
             const isOnline = navigator.onLine;
             const messagesIcon = document.querySelector('.messages-icon');
@@ -1630,9 +1538,7 @@
                 storiesLoadingSkeleton.classList.remove('hidden');
                 loadingSkeleton.classList.remove('hidden');
             }
-        }
-
-        // Initialize the app
+        } // Initialize the app
         function init() {
             renderStoriesSkeleton();
             renderSkeleton();
@@ -1651,5 +1557,6 @@
         document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
+
 </html>
 
