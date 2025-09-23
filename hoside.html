@@ -1180,167 +1180,126 @@
         document.addEventListener('DOMContentLoaded', init);
     </script>
 
+              
     <script>
-  function showCurrentStory() {
-    const storyContainer = document.getElementById('storyContainer');
+window.addEventListener("load", () => {
+  const storyContainer = document.getElementById("storyContainer");
 
-    storyContainer.innerHTML = `
-      <div class="cube" id="cube">
+  // 1️⃣ Populate cube faces
+  storyContainer.innerHTML = `
+    <div class="cube" id="cube">
 
-        <!-- Story 1 -->
-        <div class="face front" style="background-image:url('https://picsum.photos/id/1015/300/500')">
-          <div class="top-bar">
-            <div class="progress"><div class="progress-inner"></div></div>
-            <div class="story-header">
-              <div class="story-info">
-                <img src="https://i.pravatar.cc/100?img=1">
-                <div>
-                  <div class="name">Mykee</div>
-                  <div class="meta">@mykee • 5m</div>
-                </div>
+      <!-- Story 1 -->
+      <div class="face front" style="background-image:url('https://picsum.photos/id/1015/300/500')">
+        <div class="top-bar">
+          <div class="progress"><div class="progress-inner"></div></div>
+          <div class="story-header">
+            <div class="story-info">
+              <img src="https://i.pravatar.cc/100?img=1">
+              <div>
+                <div class="name">Mykee</div>
+                <div class="meta">@mykee • 5m</div>
               </div>
-              <div class="menu">⋮</div>
             </div>
+            <div class="menu">⋮</div>
           </div>
         </div>
-
-        <!-- Story 2 -->
-        <div class="face right" style="background-image:url('https://picsum.photos/id/1016/300/500')">
-          <div class="top-bar">
-            <div class="progress"><div class="progress-inner"></div></div>
-            <div class="story-header">
-              <div class="story-info">
-                <img src="https://i.pravatar.cc/100?img=2">
-                <div>
-                  <div class="name">Sarah</div>
-                  <div class="meta">@sarah • 10m</div>
-                </div>
-              </div>
-              <div class="menu">⋮</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Story 3 -->
-        <div class="face back" style="background-image:url('https://picsum.photos/id/1018/300/500')">
-          <div class="top-bar">
-            <div class="progress"><div class="progress-inner"></div></div>
-            <div class="story-header">
-              <div class="story-info">
-                <img src="https://i.pravatar.cc/100?img=3">
-                <div>
-                  <div class="name">Alex</div>
-                  <div class="meta">@alex • 15m</div>
-                </div>
-              </div>
-              <div class="menu">⋮</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Story 4 -->
-        <div class="face left" style="background-image:url('https://picsum.photos/id/1019/300/500')">
-          <div class="top-bar">
-            <div class="progress"><div class="progress-inner"></div></div>
-            <div class="story-header">
-              <div class="story-info">
-                <img src="https://i.pravatar.cc/100?img=4">
-                <div>
-                  <div class="name">Nina</div>
-                  <div class="meta">@nina • 20m</div>
-                </div>
-              </div>
-              <div class="menu">⋮</div>
-            </div>
-          </div>
-        </div>
-
       </div>
-    `;
 
-    // Show the first face
-    const faces = storyContainer.querySelectorAll('.face');
-    if(faces.length) faces[0].style.visibility = 'visible';
+      <!-- Story 2 -->
+      <div class="face right" style="background-image:url('https://picsum.photos/id/1016/300/500')">
+        <div class="top-bar">
+          <div class="progress"><div class="progress-inner"></div></div>
+          <div class="story-header">
+            <div class="story-info">
+              <img src="https://i.pravatar.cc/100?img=2">
+              <div>
+                <div class="name">Sarah</div>
+                <div class="meta">@sarah • 10m</div>
+              </div>
+            </div>
+            <div class="menu">⋮</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Story 3 -->
+      <div class="face back" style="background-image:url('https://picsum.photos/id/1018/300/500')">
+        <div class="top-bar">
+          <div class="progress"><div class="progress-inner"></div></div>
+          <div class="story-header">
+            <div class="story-info">
+              <img src="https://i.pravatar.cc/100?img=3">
+              <div>
+                <div class="name">Alex</div>
+                <div class="meta">@alex • 15m</div>
+              </div>
+            </div>
+            <div class="menu">⋮</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Story 4 -->
+      <div class="face left" style="background-image:url('https://picsum.photos/id/1019/300/500')">
+        <div class="top-bar">
+          <div class="progress"><div class="progress-inner"></div></div>
+          <div class="story-header">
+            <div class="story-info">
+              <img src="https://i.pravatar.cc/100?img=4">
+              <div>
+                <div class="name">Nina</div>
+                <div class="meta">@nina • 20m</div>
+              </div>
+            </div>
+            <div class="menu">⋮</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  `;
+
+  // 2️⃣ Initialize cube logic
+  const cube = document.getElementById("cube");
+  let current = 0;
+  let startX = 0;
+  let currentRotation = 0;
+  let dragging = false;
+
+  function updateCube() {
+    requestAnimationFrame(() => {
+      cube.style.transition = "transform 0.6s ease-in-out";
+      cube.style.transform = `rotateY(${current * -90}deg)`;
+      currentRotation = current * -90;
+
+      const progressBars = storyContainer.querySelectorAll(".progress-inner");
+      progressBars.forEach(p => { p.style.transition = "none"; p.style.width = "0%"; });
+
+      const active = progressBars[current % progressBars.length];
+      requestAnimationFrame(() => { active.style.transition = "width 5s linear"; active.style.width = "100%"; });
+    });
   }
 
-  document.addEventListener('DOMContentLoaded', showCurrentStory);
+  // Drag/Swipe handlers
+  function startDrag(x) { dragging = true; startX = x; cube.style.transition = "none"; }
+  function moveDrag(x) { if (!dragging) return; let deltaX = x - startX; cube.style.transform = `rotateY(${currentRotation + (deltaX / storyContainer.offsetWidth) * 90}deg)`; }
+  function endDrag(x) { if (!dragging) return; dragging = false; let deltaX = x - startX; if (Math.abs(deltaX) > 50) { if (deltaX < 0) current = (current + 1) % 4; else current = (current - 1 + 4) % 4; } updateCube(); }
+
+  storyContainer.addEventListener("mousedown", e => startDrag(e.clientX));
+  storyContainer.addEventListener("mousemove", e => moveDrag(e.clientX));
+  storyContainer.addEventListener("mouseup", e => endDrag(e.clientX));
+  storyContainer.addEventListener("mouseleave", e => { if (dragging) endDrag(e.clientX); });
+
+  storyContainer.addEventListener("touchstart", e => startDrag(e.touches[0].clientX));
+  storyContainer.addEventListener("touchmove", e => moveDrag(e.touches[0].clientX));
+  storyContainer.addEventListener("touchend", e => endDrag(e.changedTouches[0].clientX));
+
+  document.querySelectorAll(".face").forEach(f => f.style.visibility = "visible");
+  updateCube();
+});
 </script>
-
-
-    <script>
-    const cube = document.getElementById("cube");
-    const container = document.getElementById("storyContainer");
-
-    let current = 0;
-    let startX = 0;
-    let currentRotation = 0;
-    let dragging = false;
-
-    function updateCube() {
-      requestAnimationFrame(() => {
-        cube.style.transition = "transform 0.6s ease-in-out";
-        cube.style.transform = `rotateY(${current * -90}deg)`;
-        currentRotation = current * -90;
-
-        // reset progress bars
-        const progressBars = container.querySelectorAll(".progress-inner");
-        progressBars.forEach(p => {
-          p.style.transition = "none";
-          p.style.width = "0%";
-        });
-
-        // run animation on active bar
-        const active = progressBars[current % progressBars.length];
-        requestAnimationFrame(() => {
-          active.style.transition = "width 5s linear";
-          active.style.width = "100%";
-        });
-      });
-    }
-
-    // Drag control
-    function startDrag(x) {
-      dragging = true;
-      startX = x;
-      cube.style.transition = "none";
-    }
-
-    function moveDrag(x) {
-      if (!dragging) return;
-      let deltaX = x - startX;
-      let rotation = currentRotation + (deltaX / container.offsetWidth) * 90;
-      cube.style.transform = `rotateY(${rotation}deg)`;
-    }
-
-    function endDrag(x) {
-      if (!dragging) return;
-      dragging = false;
-      let deltaX = x - startX;
-
-      if (Math.abs(deltaX) > 50) {
-        if (deltaX < 0) current = (current + 1) % 4;
-        else current = (current - 1 + 4) % 4;
-      }
-      updateCube();
-    }
-
-    // Mouse events
-    container.addEventListener("mousedown", e => startDrag(e.clientX));
-    container.addEventListener("mousemove", e => moveDrag(e.clientX));
-    container.addEventListener("mouseup", e => endDrag(e.clientX));
-    container.addEventListener("mouseleave", e => { if (dragging) endDrag(e.clientX); });
-
-    // Touch events
-    container.addEventListener("touchstart", e => startDrag(e.touches[0].clientX));
-    container.addEventListener("touchmove", e => moveDrag(e.touches[0].clientX));
-    container.addEventListener("touchend", e => endDrag(e.changedTouches[0].clientX));
-
-    // Show faces only when page is ready
-    window.addEventListener("load", () => {
-      document.querySelectorAll(".face").forEach(f => f.style.visibility = "visible");
-      updateCube();
-    });
-  </script>
+    
 
     
     
