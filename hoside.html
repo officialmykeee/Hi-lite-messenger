@@ -69,14 +69,7 @@
             padding: 0;
         }
 
-        /* Hello World text styling */
-        .hello-world-text {
-            color: var(--text-color);
-            font-size: 32px;
-            font-weight: bold;
-            text-align: center;
-            animation: fadeInUp 1s ease-out;
-        }
+        
 
         @keyframes fadeInUp {
             from {
@@ -704,6 +697,12 @@
             <line class="plus-shape" x1="25" y1="50" x2="75" y2="50" />
         </svg>
     </button>
+
+    <div class="story-modal" id="storyModal">
+  <div class="story-container" id="storyContainer"></div>
+    </div>
+
+    
     <script>
         // Stories data
         const stories = [{
@@ -1181,8 +1180,8 @@
     </script>
 
               
-    <script>
-window.addEventListener("load", () => {
+          <script>
+function showCurrentStory() {
   const storyContainer = document.getElementById("storyContainer");
 
   // 1️⃣ Populate cube faces
@@ -1295,9 +1294,13 @@ window.addEventListener("load", () => {
   storyContainer.addEventListener("touchmove", e => moveDrag(e.touches[0].clientX));
   storyContainer.addEventListener("touchend", e => endDrag(e.changedTouches[0].clientX));
 
+  // Make faces visible and start cube
   document.querySelectorAll(".face").forEach(f => f.style.visibility = "visible");
   updateCube();
-});
+
+  // 3️⃣ Show modal with CSS transition
+  document.getElementById('storyModal').classList.add('active');
+}
 </script>
     
 
