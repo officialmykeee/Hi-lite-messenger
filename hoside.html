@@ -1109,5 +1109,24 @@
 
         document.addEventListener('DOMContentLoaded', init);
     </script>
+    
+       <script>
+  // Grab the modal content container
+  const storyModalContent = document.querySelector(".story-modal-content");
+
+  // Create a new text element
+  const helloText = document.createElement("p");
+  helloText.textContent = "Hello World";
+  helloText.style.color = "white";      // make it visible on black background
+  helloText.style.fontSize = "24px";   // bigger text
+  helloText.style.marginTop = "20px";
+
+  // Insert the text inside the story modal
+  storyModalContent.appendChild(helloText);
+
+  // (Optional) Show the story modal so you can see it
+  const storyModal = document.getElementById("storyModal");
+  storyModal.classList.add("active");
+</script>         
 </body>
 </html>
