@@ -1117,15 +1117,15 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: black;   /* black background */
-    display: none;       /* hidden by default */
+    background: black;
+    display: none;          /* hidden by default */
     justify-content: center;
     align-items: center;
     z-index: 9999;
   }
 
   .story-modal.active {
-    display: flex;       /* show it when active */
+    display: flex;          /* show only when active */
   }
 
   .story-modal-content {
@@ -1135,28 +1135,45 @@
   }
 </style>
 
+<!-- Example avatar that triggers the story -->
+<div id="storyAvatar" style="width:80px; height:80px; background:gray; border-radius:50%; cursor:pointer; display:flex; justify-content:center; align-items:center; color:white;">
+  Avatar
+</div>
+
+<!-- Story Modal -->
 <div id="storyModal" class="story-modal">
   <div class="story-modal-content"></div>
 </div>
 
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    // Get the story modal content container
-    const storyContent = document.querySelector(".story-modal-content");
+  // Grab elements
+  const storyAvatar = document.getElementById("storyAvatar");
+  const storyModal = document.getElementById("storyModal");
+  const storyContent = document.querySelector(".story-modal-content");
 
-    // Create a new element
+  // When avatar is clicked
+  storyAvatar.addEventListener("click", () => {
+    // Clear previous content
+    storyContent.innerHTML = "";
+
+    // Create new story text
     const helloText = document.createElement("p");
     helloText.textContent = "Hello World";
-    helloText.style.color = "#ffffff";   // white text
-    helloText.style.fontSize = "28px";  // clear size
+    helloText.style.color = "#ffffff";
+    helloText.style.fontSize = "28px";
     helloText.style.textAlign = "center";
 
-    // Add the text inside the modal
+    // Add it into modal
     storyContent.appendChild(helloText);
 
-    // Show the story modal
-    document.getElementById("storyModal").classList.add("active");
+    // Show the modal
+    storyModal.classList.add("active");
   });
-</script>     
+
+  // Close modal when clicking background
+  storyModal.addEventListener("click", () => {
+    storyModal.classList.remove("active");
+  });
+</script>
 </body>
 </html>
